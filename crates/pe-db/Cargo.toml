@@ -1,0 +1,7 @@
+[package]
+name = "pe-db"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+quick-xml = { workspace = true }
