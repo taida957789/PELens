@@ -1,106 +1,119 @@
-# PELens
+<p align="center">
+  <img src="assets/pelens.png" width="128" alt="PELens logo">
+</p>
 
-![PELens](assets/pelens.png)
+<h1 align="center">PELens</h1>
 
-**PELens** (PE + lens: a lens for Portable Executables) is a Rust remake of **pestudio 9.61** (Malware Initial Assessment): static analysis of
-Windows executables without running them. It includes a GUI (`pelens`), a command line
-tool (`pelens-cli`, pestudiox-compatible arguments) and the analysis libraries behind both.
+<p align="center">
+  <b>A lens for Portable Executables</b> — static malware initial assessment for Windows binaries, rebuilt in Rust.
+</p>
 
-- Feature inventory of the original: [`docs/FEATURE_INVENTORY.md`](docs/FEATURE_INVENTORY.md)
-- Development plan: [`docs/DEVELOPMENT_PLAN.md`](docs/DEVELOPMENT_PLAN.md)
-- Task tracking: [`docs/TASKLIST.md`](docs/TASKLIST.md)
+<p align="center">
+  <b>English</b> ·
+  <a href="docs/readme/README.zh-TW.md">繁體中文</a> ·
+  <a href="docs/readme/README.zh-CN.md">简体中文</a> ·
+  <a href="docs/readme/README.ja.md">日本語</a> ·
+  <a href="docs/readme/README.ko.md">한국어</a> ·
+  <a href="docs/readme/README.es.md">Español</a> ·
+  <a href="docs/readme/README.de.md">Deutsch</a> ·
+  <a href="docs/readme/README.fr.md">Français</a>
+</p>
 
-## Build
+---
 
-```
+PELens inspects `.exe`, `.dll` and `.sys` files **without running them**. It shows their
+headers, imports, resources, certificates, .NET metadata and strings, and it raises
+indicators mapped to MITRE ATT&CK. It is a from-scratch Rust remake of **pestudio 9.61**,
+compatible with pestudio's XML knowledge base and its `pestudiox` command line.
+
+![Indicators (dark mode)](docs/screenshots/indicators-dark.png)
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Imports](docs/screenshots/imports-dark.png) | ![Strings](docs/screenshots/strings-dark.png) |
+| Imports with groups, MITRE techniques and flags | Strings with labels, location map and groups |
+| ![Sections (light)](docs/screenshots/sections-light.png) | ![Certificate (light)](docs/screenshots/certificate-light.png) |
+| Sections, light mode, with the expanded tree-view | Authenticode certificate chain and WinVerifyTrust result |
+| ![.NET](docs/screenshots/dotnet-dark.png) | |
+| .NET header, metadata streams, tables and namespaces | |
+
+## Features
+
+- **27 views** like pestudio's: image, footprints, groups, indicators, MITRE, VirusTotal score,
+  DOS stub and header, Rich header, file and optional headers, directories, sections,
+  libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources,
+  version, debug, strings, manifest and overlay.
+- **150 indicators**, mapped to MITRE ATT&CK tactics and techniques, with severities you can edit.
+- **Signature engine**: entry-point signatures (PEiD style, with nibble wildcards), text
+  signatures, and embedded-file detection in resources, sections, the overlay and base64 data.
+- **Parser that never panics**: imports (INT/IAT, delay-load, bound), exports (forwarded,
+  anonymous, gaps), resources (version, manifest, string and message tables, dialogs, menus,
+  icons), debug (RSDS, POGO, REPRO, CET), Authenticode PKCS#7 with RFC 3161 timestamps,
+  and .NET metadata (all 45 tables).
+- **Hunting helpers**: MD5/SHA-1/SHA-256 footprints, imphash (identical to pefile's), and links
+  to VirusTotal, Google, Microsoft Learn and MITRE.
+- **File modifications**: switch between DLL and EXE, set the entry point, toggle characteristics,
+  delete the overlay, dump any item, and open an embedded file in a new analysis.
+- **Reports** in XML, JSON or text, built from the same tables the GUI shows.
+- **GUI**: tree-view, dark and light themes, sortable and filterable tables, context menus,
+  drag and drop, and shortcuts (Ctrl+O, S, E, R, X; Tab moves through the tree).
+
+## Install / build
+
+```bash
 cargo build --release
+# target/release/pelens.exe      (GUI)
+# target/release/pelens-cli.exe  (command line)
 ```
 
-This produces `target/release/pelens.exe` (GUI) and `target/release/pelens-cli.exe` (CLI); both embed the PELens icon (`assets/`, regenerated with `python tools/make_icon.py`).
-You need Rust 1.85 or newer (edition 2024). The project was built and tested with 1.97 on Windows 11 x64.
+You need Rust 1.85 or newer (edition 2024). It is developed and tested on Windows 11 x64.
 
-## Knowledge base (XML)
+## Usage
 
-pestudio's behaviour comes from its XML files (`settings.xml`, `indicators.xml`,
-`functions.xml`, `signatures.xml`, `strings.xml`, `mitre.xml`, …). Those files belong to
-the original author and may not be used outside pestudio without his authorisation, so
-**they are not part of this repository**. PELens reads them from your own pestudio
-installation:
-
-1. `-xml:<dir>` on the command line, or
-2. an `xml` folder next to the executable, `./xml`, or `../xml`.
-
-Without them, PELens still runs on built-in defaults: all parsing and views work,
-and indicators use a smaller built-in set. Edits made from the GUI, such as changing a
-severity, toggling a flag or changing a setting, are written back to these files the
-same way pestudio does it.
-
-## GUI
-
-```
-pelens [file] [-xml:dir] [-renderer:wgpu]
+```bash
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
-- Dark mode is the default (view menu or the toolbar sun/moon toggles it; stored as `<theme dark="…">`). The UI uses Segoe UI, Consolas for hashes, offsets and hex, and Microsoft JhengHei as a CJK fallback when those fonts are installed.
-- The left pane is a tree-view: the file is the root, and indicators, sections, libraries and resources expand to their items. Clicking an item filters the list.
+By default the CLI writes `<input>.xml` next to the sample, like pestudio does.
 
-- Use the file menu or drag and drop to open a file. The shortcuts are Ctrl+O (open),
-  Ctrl+S (save), Ctrl+E (close), Ctrl+R (report) and Ctrl+X (exit). Tab and Shift+Tab move
-  through the tree.
-- The tree shows the 27 views of pestudio: image, footprints, groups, indicators, mitre,
-  score, dos-stub, dos-header, rich-header, file-header, optional-header, directories,
-  sections, libraries, imports, exports, exceptions, certificate, relocations,
-  thread-local-storage, dotnet, resources, version, debug, strings, manifest and overlay.
-  The number after a view counts its flagged items.
-- Tables can be sorted by clicking a header and filtered with the search box. You can
-  also hide columns, show or hide duplicates, and save the view to a text file.
-- The right-click menu offers copy (line, value, detail, …) and lookups on VirusTotal,
-  Google, Microsoft Learn and MITRE. It also lets you dump an item to a file, open an
-  embedded file in a new analysis, set a severity, toggle a flag (library, function,
-  namespace or language), toggle a characteristic, set the entry point, delete the
-  overlay and query a VirusTotal score.
-- The settings dialog has the same tabs as pestudio: General, Footprints, First-bytes and
-  Virustotal.
-- `-renderer:wgpu` (or `PELENS_RENDERER=wgpu`) switches from OpenGL to the
-  wgpu/DirectX renderer.
+### Knowledge base
 
-## CLI
+PELens reads pestudio's XML files (`settings.xml`, `indicators.xml`, `functions.xml`,
+`signatures.xml`, …) from your own pestudio installation. Pass them with `-xml:<dir>` or put
+an `xml` folder next to the executable. **These files are not distributed with PELens**:
+they belong to pestudio's author. Without them PELens still works on built-in defaults.
 
-```
-pelens-cli -file:input [-report:output] [-banner] [-xml:dir] [-format:xml|json|text] [-vt] [-stdout]
-```
+### VirusTotal
 
-By default the report is written next to the input file as `<input>.xml`, like pestudio
-does. The XML report serialises the same tables the GUI shows, so the two stay in sync.
+Only the **hash** is sent; samples are never uploaded. Set your own API key in the settings
+dialog or in `VT_API_KEY`. API v3 is the default; v2 is available as an option.
 
-## VirusTotal
-
-Only the **hash** of a file is sent; the file itself is never uploaded. You supply the
-API key: set it in the settings dialog (`<score key="…">`) or in the `VT_API_KEY`
-environment variable. API v3 is the default and `<score api="2">` switches to v2.
-PELens does not ship the vendor's built-in key.
-
-## Architecture
+## Project layout
 
 | crate | role |
 |---|---|
-| `pe-parser` | Parses PE files without panicking on malformed input. It covers the headers, Rich header, sections, imports (INT/IAT, delay-load, bound), exports, resources and their contents, debug, TLS, relocations, exceptions, load-config, Authenticode PKCS#7 and .NET metadata. It also patches files. |
-| `pe-db` | Loads the pestudio XML knowledge base and writes changes back without reformatting the files. |
-| `pe-analysis` | Builds hashes, imphash, entropy, signatures, embedded-file detection, strings and labels, groups, MITRE mapping, footprints and the indicators. It also produces the views, the reports (XML, JSON, text) and the dump and modify actions. |
-| `pe-online` | VirusTotal v2/v3 queries, search links, the update check and the proxy. |
-| `pelens-cli` | The CLI. |
-| `pelens-gui` | The eframe/egui GUI, split into a testable model and the egui rendering layer. |
+| `pe-parser` | PE parsing (bounds-checked, never panics) and patching |
+| `pe-db` | pestudio XML knowledge base, read and write without reformatting |
+| `pe-analysis` | indicators, signatures, strings, views, reports, actions |
+| `pe-online` | VirusTotal, search links, update check |
+| `pelens-cli` | command line (pestudiox-compatible) |
+| `pelens-gui` | eframe/egui GUI |
 
-## Tests
+Design notes: [feature inventory](docs/FEATURE_INVENTORY.md) (212 items, each with a
+traceability link) · [development plan](docs/DEVELOPMENT_PLAN.md) · [task list](docs/TASKLIST.md).
 
+## Quality
+
+```bash
+cargo test --workspace                       # 70 tests
+cargo llvm-cov --workspace --summary-only    # ≈ 97 % line coverage
+python tools/crossval.py 250                 # cross-check against pefile
 ```
-cargo test --workspace
-cargo llvm-cov --workspace --summary-only     # coverage (cargo install cargo-llvm-cov)
-python tools/crossval.py 250                  # cross-validation against pefile
-```
 
-The tests build their PE samples synthetically with `pe_parser::testutil`, including
-certificates, .NET metadata and malformed files. They use a fixture knowledge base
-written for this project and replace the network with mocks. The GUI is exercised
-headless with `egui_kittest`. Some extra tests run on `C:\Windows\System32` when that
-folder exists.
+## Disclaimer
+
+PELens is an independent project. It is not affiliated with or endorsed by Winitor or
+the author of pestudio. Use it only on files you are authorised to analyse.

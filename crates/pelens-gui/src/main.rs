@@ -9,6 +9,7 @@ fn main() -> eframe::Result {
     if let Some(f) = file {
         state.apply(pelens_gui::Action::Open(f));
     }
+    let startup = pelens_gui::parse_startup(&args);
     let title = state.title();
     let wgpu = args.iter().any(|a| a.trim_start_matches(['-', '/']).eq_ignore_ascii_case("renderer:wgpu"))
         || std::env::var("PELENS_RENDERER").is_ok_and(|v| v.eq_ignore_ascii_case("wgpu"));
@@ -26,6 +27,10 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "pelens",
         opts,
-        Box::new(|_cc| Ok(Box::new(pelens_gui::PeLensApp::new(state, Box::new(pelens_gui::RfdHost))))),
+        Box::new(move |_cc| {
+            let mut app = pelens_gui::PeLensApp::new(state, Box::new(pelens_gui::RfdHost));
+            startup.apply(&mut app);
+            Ok(Box::new(app))
+        }),
     )
 }

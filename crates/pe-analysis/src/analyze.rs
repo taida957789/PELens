@@ -140,6 +140,7 @@ pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis 
             ascii: true,
             unicode: k.settings.get_bool("strings", "utf16", true),
             utf8: k.settings.get_bool("strings", "utf8", true),
+            unicode_cjk: k.settings.get_bool("strings", "cjk", false),
         };
         a.strings = strings::build_rows(k, &a.pe, data, so);
     } else {

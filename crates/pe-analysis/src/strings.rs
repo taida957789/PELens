@@ -14,11 +14,14 @@ pub struct StringOptions {
     pub ascii: bool,
     pub unicode: bool,
     pub utf8: bool,
+    /// Also extract non-latin (CJK, Hangul, …) UTF-16 runs. Off by default: random binary data
+    /// decodes to CJK code points very often, so these runs are mostly noise.
+    pub unicode_cjk: bool,
 }
 
 impl Default for StringOptions {
     fn default() -> Self {
-        Self { min_len: 4, ascii: true, unicode: true, utf8: true }
+        Self { min_len: 4, ascii: true, unicode: true, utf8: true, unicode_cjk: false }
     }
 }
 
@@ -81,7 +84,7 @@ pub fn extract(data: &[u8], o: StringOptions) -> Vec<(StringKind, u64, String)> 
                 let start = i;
                 let first = u16::from_le_bytes([data[i], data[i + 1]]);
                 let class_latin = latin(first);
-                if !class_latin && !other(first) {
+                if !class_latin && (!o.unicode_cjk || !other(first)) {
                     i += 2;
                     continue;
                 }

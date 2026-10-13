@@ -652,14 +652,16 @@ fn string_engine() {
     assert!(all.iter().any(|(k, _, s)| *k == StringKind::Unicode && s == "hello"));
     assert!(all.iter().any(|(k, _, s)| *k == StringKind::Utf8 && s == "日本語文"));
     let only_ascii = extract(data, StringOptions { unicode: false, utf8: false, ..Default::default() });
+    let cjk_default: Vec<u8> = "日本語文字列です".encode_utf16().flat_map(|u| u.to_le_bytes()).collect();
+    assert!(extract(&cjk_default, StringOptions::default()).iter().all(|(k, _, _)| *k != StringKind::Unicode), "CJK UTF-16 is opt-in");
     assert!(only_ascii.iter().all(|(k, _, _)| *k == StringKind::Ascii));
     let cjk: Vec<u8> = "日本語文字列です".encode_utf16().flat_map(|u| u.to_le_bytes()).collect();
     assert!(
-        extract(&cjk, StringOptions { min_len: 4, ascii: false, utf8: false, unicode: true })
+        extract(&cjk, StringOptions { min_len: 4, ascii: false, utf8: false, unicode: true, unicode_cjk: true })
             .iter()
             .any(|(_, _, s)| s == "日本語文字列です")
     );
-    assert!(extract(&cjk[..6], StringOptions { min_len: 4, ascii: false, utf8: false, unicode: true }).is_empty());
+    assert!(extract(&cjk[..6], StringOptions { min_len: 4, ascii: false, utf8: false, unicode: true, unicode_cjk: true }).is_empty());
     for (s, h) in [
         ("https://x", Some("url-pattern")),
         ("www.example.org", Some("url-pattern")),

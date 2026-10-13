@@ -320,6 +320,9 @@ impl Functions {
             let base = n.trim_start_matches('_');
             let base = base.split('@').next().unwrap_or(base);
             let base = base.strip_suffix('a').or_else(|| base.strip_suffix('w')).unwrap_or(base);
+            if base.len() < 2 {
+                return None;
+            }
             self.global.get(base).map(|&(li, fi)| &self.libs[li].functions[fi])
         })
     }

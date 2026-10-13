@@ -867,6 +867,7 @@ pub const SETTING_FIELDS: &[SettingField] = &[
     SettingField { tab: "General", label: "sample is read-only", elem: "read-only", attr: "enable", choices: &[] },
     SettingField { tab: "General", label: "show sample in caption", elem: "caption", attr: "enable", choices: &[] },
     SettingField { tab: "General", label: "show strings", elem: "strings", attr: "enable", choices: &[] },
+    SettingField { tab: "General", label: "extract CJK unicode strings", elem: "strings", attr: "cjk", choices: &[] },
     SettingField { tab: "General", label: "show tooltips", elem: "tooltips", attr: "enable", choices: &[] },
     SettingField { tab: "General", label: "upper-case hash values", elem: "hashes", attr: "case", choices: &[] },
     SettingField {
@@ -935,7 +936,7 @@ pub fn setting_default(f: &SettingField) -> &'static str {
         ("report", "type") | ("strings", "limit") => "0",
         ("score", "api") => "3",
         ("score", "key") | ("score", "favorite") | ("proxy", _) => "",
-        ("overlay", "score") => "0",
+        ("overlay", "score") | ("strings", "cjk") => "0",
         ("stamps", "epoch") | ("score", "enable") => "0",
         _ => "1",
     }

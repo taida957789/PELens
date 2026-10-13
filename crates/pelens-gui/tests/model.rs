@@ -453,6 +453,16 @@ fn settings_model() {
     assert_eq!((f, x), (Some(PathBuf::from("a.exe")), Some(PathBuf::from("k"))));
     let (f, x) = pelens_gui::parse_cli(&["/file:b.exe".into(), "--xml=k2".into(), "-other".into()]);
     assert_eq!((f, x), (Some(PathBuf::from("b.exe")), Some(PathBuf::from("k2"))));
+    let st = pelens_gui::parse_startup(&["-view:strings".into(), "/theme:light".into(), "-expand".into(), "-theme:x".into()]);
+    assert_eq!(st.view, Some(ItemType::Strings));
+    assert_eq!(st.dark, None, "invalid theme resets");
+    assert!(st.expand);
+    assert_eq!(pelens_gui::parse_startup(&["-view:tls".into(), "-theme:dark".into()]).view, Some(ItemType::Tls));
+    let mut app = pelens_gui::PeLensApp::new(State::new(pe_db::Knowledge::builtin()), Box::new(TestHost { open: None, save: None }));
+    pelens_gui::Startup { view: Some(ItemType::Imports), dark: Some(false), expand: true }.apply(&mut app);
+    assert_eq!(app.state.selected, ItemType::Imports);
+    assert!(!app.state.dark_mode());
+    assert!(app.expanded.contains("sections"));
     // caption disabled
     let mut s = State::new(pe_db::Knowledge::builtin());
     s.knowledge.settings.set("caption", "enable", "0");

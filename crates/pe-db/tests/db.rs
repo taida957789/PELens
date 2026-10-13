@@ -187,6 +187,7 @@ fn load_everything() {
     assert_eq!(k.functions.function("other.dll", "DecryptW").unwrap().name, "Decrypt");
     assert_eq!(k.functions.function("other.dll", "_Decrypt@8").unwrap().name, "Decrypt");
     assert!(k.functions.function("other.dll", "Nope").is_none());
+    assert!(k.functions.function("other.dll", "@.rsrc").is_none(), "empty base name never matches");
     assert_eq!(k.functions.function_by_ordinal("WS2_32.DLL", 23).unwrap().name, "socket");
     assert!(k.functions.function_by_ordinal("ws2_32.dll", 99).is_none());
     assert!(k.functions.function_by_ordinal("none.dll", 1).is_none());
