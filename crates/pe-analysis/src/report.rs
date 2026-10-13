@@ -164,7 +164,7 @@ pub fn to_json(a: &Analysis, ts: &[Table]) -> String {
                 o.push_str(&format!("{}:{}", json_str(c), json_str(v)));
             }
             if r.flag {
-                o.push_str(",\"flag\":true");
+                o.push_str(",\"flagged\":true");
             }
             if let Some(s) = r.severity {
                 o.push_str(&format!(",\"severity\":{s}"));

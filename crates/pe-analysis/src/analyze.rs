@@ -129,7 +129,7 @@ pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis 
         build_sections(&mut a, k, data);
         build_libraries_imports(&mut a, k);
         build_exports(&mut a, k);
-        build_resources(&mut a, k, data);
+        build_resources(&mut a, k, data, o.first_bytes);
         build_stamps(&mut a);
         a.tooling = tooling(k, &a.pe);
     }
@@ -149,7 +149,7 @@ pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis 
     build_footprints(&mut a, k, data);
     build_groups(&mut a, k);
     if o.verify_signature && a.pe.security.as_ref().is_some_and(|s| s.authenticode().is_some()) {
-        a.certificate_check = Some(crate::verify::verify_path(path));
+        a.certificate_check = Some(crate::verify::verify_data(path, data));
     }
     a.indicators = indicators::evaluate(&a, k, data, o);
     build_mitre(&mut a, k);
@@ -417,16 +417,32 @@ fn build_exports(a: &mut Analysis, k: &Knowledge) {
     }
 }
 
-fn build_resources(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
+fn build_resources(a: &mut Analysis, k: &Knowledge, data: &[u8], first_bytes: usize) {
     let Some(res) = a.pe.resources.as_ref() else { return };
+    // Entries may share one data blob (crafted files repeat it thousands of times): hash once.
+    struct BlobInfo {
+        embedded: Option<String>,
+        signature: Option<Option<String>>,
+        entropy: f64,
+        md5: String,
+    }
+    let mut cache: HashMap<(Option<u32>, u32), BlobInfo> = HashMap::new();
     for e in &res.entries {
         let blob = e.data(&pe_parser::reader::Reader::new(data));
+        let info = cache.entry((e.file_offset, e.size)).or_insert_with(|| BlobInfo {
+            embedded: sigscan::embedded_signature(k, blob),
+            signature: None,
+            entropy: entropy(blob),
+            md5: md5_hex(blob),
+        });
         let lang = (e.language & 0xffff) as u16;
         let (lname, lflag) = k.languages.language(lang).map(|(n, f)| (n.to_string(), f)).unwrap_or_else(|| ("unknown".into(), false));
         let tname = e.type_name();
-        let signature = sigscan::embedded_signature(k, blob)
-            .or_else(|| if e.is_builtin_type() { None } else { sigscan::blob_signature(k, blob) })
-            .unwrap_or_default();
+        let signature = match (&info.embedded, e.is_builtin_type()) {
+            (Some(s), _) => s.clone(),
+            (None, true) => String::new(),
+            (None, false) => info.signature.get_or_insert_with(|| sigscan::blob_signature(k, blob)).clone().unwrap_or_default(),
+        };
         let def = k
             .translations
             .resources
@@ -444,13 +460,13 @@ fn build_resources(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
             size: e.size,
             offset: e.file_offset,
             file_ratio: ratio(e.size as u64, a.size),
-            entropy: entropy(blob),
-            md5: md5_hex(blob),
+            entropy: info.entropy,
+            md5: info.md5.clone(),
             signature,
             severity,
             builtin: e.is_builtin_type(),
-            first_bytes_hex: util::bytes_hex(blob, 32),
-            first_bytes_text: util::bytes_text(blob, 32),
+            first_bytes_hex: util::bytes_hex(blob, first_bytes),
+            first_bytes_text: util::bytes_text(blob, first_bytes),
             stamp: res.time_date_stamp,
         });
     }
@@ -538,7 +554,8 @@ fn build_footprints(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
     if let Some(i) = a.imphash.clone() {
         a.footprints.push(Footprint { item: "imphash".into(), location: "imports".into(), hash_type: "md5".into(), hash: i, size: 0 });
     }
-    let pe = a.pe.clone();
+    // borrow the parsed file without copying it (add_footprint needs `a` mutably)
+    let pe = std::mem::take(&mut a.pe);
     if on("dos-header") && data.len() >= 64 && pe.dos_header.is_some() {
         add_footprint(a, t, "dos-header", "dos-header", &data[..64]);
     }
@@ -602,6 +619,7 @@ fn build_footprints(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
             }
         }
     }
+    a.pe = pe;
 }
 
 fn build_groups(a: &mut Analysis, k: &Knowledge) {

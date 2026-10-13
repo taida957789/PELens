@@ -178,3 +178,18 @@ fn binary_entry_point() {
     let out = std::process::Command::new(exe).arg("-bad").output().unwrap();
     assert_eq!(out.status.code(), Some(2));
 }
+
+/// Code review #8: with -stdout the report is the only thing on stdout.
+#[test]
+fn stdout_is_pipe_clean() {
+    let dir = tmp("pipe");
+    let sample = dir.join("s.exe");
+    std::fs::write(&sample, pe_parser::testutil::PeBuilder::new().build()).unwrap();
+    let env = TestEnv { exe: None };
+    let (c, o, e) = run_cli(&s(&[&format!("-file:{}", sample.display()), "-format:json", "-stdout"]), &env);
+    assert_eq!(c, 0);
+    assert!(o.starts_with('{'), "stdout starts with the report: {}", &o[..40.min(o.len())]);
+    assert!(e.contains("Malware Initial Assessment"), "banner went to stderr");
+    let (_, o, _) = run_cli(&s(&[&format!("-file:{}", sample.display()), "-stdout"]), &env);
+    assert!(o.starts_with("<?xml"));
+}

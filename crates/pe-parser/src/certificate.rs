@@ -158,7 +158,7 @@ pub fn parse_pkcs7(body: &[u8]) -> Option<Authenticode> {
     }
     let explicit = ci_children.get(1)?;
     let sd = explicit.children().into_iter().next()?;
-    let mut a = parse_signed_data(&sd);
+    let mut a = parse_signed_data(&sd, 0);
     a.der_size = ci.total_len();
     Some(a)
 }
@@ -181,7 +181,13 @@ fn hex(b: &[u8]) -> String {
     b.iter().map(|x| format!("{x:02X}")).collect()
 }
 
-fn parse_signed_data(sd: &Tlv) -> Authenticode {
+/// Nesting limit for counter-signatures / timestamp tokens (real files use 2–3 levels).
+const MAX_NESTING: usize = 8;
+
+fn parse_signed_data(sd: &Tlv, depth: usize) -> Authenticode {
+    if depth > MAX_NESTING {
+        return Authenticode::default();
+    }
     let mut a = Authenticode::default();
     let items = sd.children();
     // version, digestAlgorithms, contentInfo, [0] certs?, [1] crls?, signerInfos
@@ -212,7 +218,7 @@ fn parse_signed_data(sd: &Tlv) -> Authenticode {
             }
             der::SET => {
                 if let Some(si) = it.children().into_iter().next() {
-                    let (signer, counter, nested, ts_certs) = parse_signer_info(&si);
+                    let (signer, counter, nested, ts_certs) = parse_signer_info(&si, depth + 1);
                     a.signer = Some(signer);
                     a.counter_signer = counter;
                     a.nested_signatures = nested;
@@ -317,7 +323,14 @@ fn spc_string(t: &Tlv) -> Option<String> {
     }
 }
 
-fn parse_attrs(attrs: &Tlv, si: &mut SignerInfo, counter: &mut Option<SignerInfo>, nested: &mut usize, ts_certs: &mut Vec<X509Info>) {
+fn parse_attrs(
+    attrs: &Tlv,
+    si: &mut SignerInfo,
+    counter: &mut Option<SignerInfo>,
+    nested: &mut usize,
+    ts_certs: &mut Vec<X509Info>,
+    depth: usize,
+) {
     for attr in attrs.children() {
         let c = attr.children();
         let Some(oid) = c.first().filter(|t| t.tag == der::OID) else { continue };
@@ -348,7 +361,7 @@ fn parse_attrs(attrs: &Tlv, si: &mut SignerInfo, counter: &mut Option<SignerInfo
             }
             "1.2.840.113549.1.9.6" => {
                 if let Some(cs) = first {
-                    let (c, _, _, _) = parse_signer_info(&cs);
+                    let (c, _, _, _) = parse_signer_info(&cs, depth + 1);
                     *counter = Some(c);
                 }
             }
@@ -357,7 +370,7 @@ fn parse_attrs(attrs: &Tlv, si: &mut SignerInfo, counter: &mut Option<SignerInfo
                 if let Some(tok) = first {
                     let ch = tok.children();
                     if let Some(sd) = ch.get(1).and_then(|e| e.children().into_iter().next()) {
-                        let inner = parse_signed_data(&sd);
+                        let inner = parse_signed_data(&sd, depth + 1);
                         let mut cs = inner.signer.clone().unwrap_or_default();
                         if cs.signing_time.is_none() {
                             cs.signing_time = tst_gen_time(&sd);
@@ -381,7 +394,10 @@ fn tst_gen_time(sd: &Tlv) -> Option<i64> {
     tst.children().iter().find(|t| t.tag == der::GENERALIZED_TIME).and_then(der::parse_time)
 }
 
-fn parse_signer_info(si: &Tlv) -> (SignerInfo, Option<SignerInfo>, usize, Vec<X509Info>) {
+fn parse_signer_info(si: &Tlv, depth: usize) -> (SignerInfo, Option<SignerInfo>, usize, Vec<X509Info>) {
+    if depth > MAX_NESTING {
+        return (SignerInfo::default(), None, 0, Vec::new());
+    }
     let mut s = SignerInfo::default();
     let mut counter = None;
     let mut nested = 0;
@@ -401,14 +417,14 @@ fn parse_signer_info(si: &Tlv) -> (SignerInfo, Option<SignerInfo>, usize, Vec<X5
     }
     let mut idx = 3;
     if let Some(auth) = f.get(3).filter(|t| t.tag == 0xa0) {
-        parse_attrs(auth, &mut s, &mut counter, &mut nested, &mut ts_certs);
+        parse_attrs(auth, &mut s, &mut counter, &mut nested, &mut ts_certs, depth);
         idx = 4;
     }
     if let Some(alg) = f.get(idx) {
         s.encryption_algorithm = alg_name(alg);
     }
     if let Some(unauth) = f.iter().skip(idx).find(|t| t.tag == 0xa1) {
-        parse_attrs(unauth, &mut s, &mut counter, &mut nested, &mut ts_certs);
+        parse_attrs(unauth, &mut s, &mut counter, &mut nested, &mut ts_certs, depth);
     }
     (s, counter, nested, ts_certs)
 }

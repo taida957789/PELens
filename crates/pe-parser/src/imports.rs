@@ -6,6 +6,8 @@ use crate::reader::Reader;
 
 const MAX_LIBRARIES: usize = 4096;
 const MAX_FUNCTIONS: usize = 65536;
+/// Upper bound over all libraries: descriptors may share one huge thunk table.
+pub const MAX_TOTAL_FUNCTIONS: usize = 200_000;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ImportKind {
@@ -84,6 +86,8 @@ pub struct BoundImport {
 pub struct Imports {
     pub libraries: Vec<ImportedLibrary>,
     pub bound: Vec<BoundImport>,
+    /// The import tables exceeded `MAX_TOTAL_FUNCTIONS` and were cut short.
+    pub truncated: bool,
 }
 
 impl Imports {
@@ -97,12 +101,14 @@ impl Imports {
 
     pub fn parse(r: &Reader, l: &Layout) -> Self {
         let mut out = Imports::default();
+        let mut budget = MAX_TOTAL_FUNCTIONS;
         if let Some(d) = l.optional_header.directory(dir::IMPORT) {
-            parse_implicit(r, l, d.rva, &mut out.libraries);
+            parse_implicit(r, l, d.rva, &mut out.libraries, &mut budget);
         }
         if let Some(d) = l.optional_header.directory(dir::DELAY_IMPORT) {
-            parse_delay(r, l, d.rva, &mut out.libraries);
+            parse_delay(r, l, d.rva, &mut out.libraries, &mut budget);
         }
+        out.truncated = budget == 0;
         if let Some(d) = l.optional_header.directory(dir::BOUND_IMPORT) {
             out.bound = parse_bound(r, l, d.rva, d.size);
         }
@@ -139,7 +145,7 @@ fn decode_thunk(r: &Reader, l: &Layout, v: u64, f: &mut ImportedFunction, va_bas
     }
 }
 
-fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, iat_rva: u32, va_based: bool) {
+fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, iat_rva: u32, va_based: bool, budget: &mut usize) {
     let ts = thunk_size(l) as u32;
     let lookup = if int_rva != 0 && l.rva_to_offset(int_rva).is_some() {
         int_rva
@@ -148,7 +154,7 @@ fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, 
         iat_rva
     };
     let image_end = l.image_base() + l.optional_header.size_of_image as u64;
-    for i in 0..MAX_FUNCTIONS as u32 {
+    for i in 0..MAX_FUNCTIONS.min(*budget) as u32 {
         let Some(v) = read_thunk(r, l, lookup.wrapping_add(i * ts)) else { break };
         if v == 0 {
             break;
@@ -165,11 +171,15 @@ fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, 
             }
         }
         lib.functions.push(f);
+        *budget -= 1;
     }
 }
 
-fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>) {
+fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut usize) {
     for i in 0..MAX_LIBRARIES as u32 {
+        if *budget == 0 {
+            break;
+        }
         let drva = rva.wrapping_add(i * 20);
         let Some(off) = l.rva_to_offset(drva) else { break };
         let (Some(int_rva), Some(ts), Some(fwd), Some(name_rva), Some(iat_rva)) =
@@ -191,13 +201,16 @@ fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrar
             forwarder_chain: fwd,
             ..Default::default()
         };
-        walk_thunks(r, l, &mut lib, int_rva, iat_rva, false);
+        walk_thunks(r, l, &mut lib, int_rva, iat_rva, false, budget);
         out.push(lib);
     }
 }
 
-fn parse_delay(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>) {
+fn parse_delay(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut usize) {
     for i in 0..MAX_LIBRARIES as u32 {
+        if *budget == 0 {
+            break;
+        }
         let drva = rva.wrapping_add(i * 32);
         let Some(off) = l.rva_to_offset(drva) else { break };
         let Some(d) = r.bytes(off, 32) else { break };
@@ -221,7 +234,7 @@ fn parse_delay(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>)
             ..Default::default()
         };
         let (int_rva, iat_rva) = (lib.int_rva, lib.iat_rva);
-        walk_thunks(r, l, &mut lib, int_rva, iat_rva, va_based);
+        walk_thunks(r, l, &mut lib, int_rva, iat_rva, va_based, budget);
         // Delay IATs legitimately differ from INTs (they point to thunks), so the mismatch is meaningless.
         lib.int_iat_mismatch = 0;
         lib.invalid_iat_entries = 0;

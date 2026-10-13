@@ -46,7 +46,10 @@ pub fn find(src: &str, t: &Target) -> Option<(usize, usize)> {
                         .with_checks(false)
                         .flatten()
                         .find(|a| a.key.as_ref() == k.as_bytes())
-                        .map(|a| String::from_utf8_lossy(&a.value).into_owned())
+                        // compare unescaped values: the DOM (and thus callers) see `&` for `&amp;`
+                        .map(|a| {
+                            a.unescape_value().map(|c| c.into_owned()).unwrap_or_else(|_| String::from_utf8_lossy(&a.value).into_owned())
+                        })
                 };
                 pending = None;
                 if let Some((stag, skey)) = t.scope

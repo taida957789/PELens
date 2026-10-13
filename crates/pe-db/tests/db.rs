@@ -425,3 +425,22 @@ fn real_knowledge_base_if_present() {
     assert_eq!(k.strings.items("exts").len(), 647);
     assert_eq!(k.settings.standard_sections.len(), 44);
 }
+
+/// Code review #9: attributes with XML entities are matched after unescaping.
+#[test]
+fn write_back_with_escaped_attribute() {
+    let d = tmpdir("escaped");
+    write_all(&d);
+    let sig = "<xml><sigs><sig name=\"A &amp; B\" flag=\"1\" file=\"0\" tool=\"1\" severity=\"2\"><pattern ep=\"1\">90</pattern></sig></sigs></xml>";
+    std::fs::write(d.join("signatures.xml"), sig).unwrap();
+    let mut k = Knowledge::load(&d);
+    assert_eq!(k.signatures[0].name, "A & B");
+    k.set_signature_severity("A & B", 1).unwrap();
+    assert_eq!(Knowledge::load(&d).signatures[0].severity, 1);
+    assert!(std::fs::read_to_string(d.join("signatures.xml")).unwrap().contains("name=\"A &amp; B\""));
+    // function lookup: decorated names resolve, empty / '@'-only names never do
+    assert_eq!(k.functions.function("x.dll", "_DecryptW@8").map(|f| f.name.as_str()), Some("Decrypt"));
+    assert!(k.functions.function("x.dll", "@8").is_none());
+    assert!(k.functions.function("x.dll", "").is_none());
+    let _ = std::fs::remove_dir_all(&d);
+}

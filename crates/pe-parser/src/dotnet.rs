@@ -162,6 +162,8 @@ pub struct DotNet {
     /// Row counts per table id (0..64).
     pub rows: Vec<u32>,
     pub extra_data: Option<u32>,
+    /// Ids of tables without a schema (45..63) that declare rows: a malformation/obfuscation hint.
+    pub unknown_tables: Vec<usize>,
     pub module_name: String,
     pub module_mvid: Option<[u8; 16]>,
     pub type_refs: Vec<TypeRef>,
@@ -478,13 +480,15 @@ fn parse_tables(t: &[u8], strings: &[u8], blob: &[u8], guid: &[u8], net: &mut Do
     }
     net.rows = rows.clone();
     let ctx = Ctx { rows: &rows, str4: net.heap_sizes & 1 != 0, guid4: net.heap_sizes & 2 != 0, blob4: net.heap_sizes & 4 != 0 };
-    // Unknown tables (45..63) have no schema; stop decoding content past them.
+    // Tables are stored in id order, so every known table (0..44) precedes the unknown ones
+    // (45..63, no schema): those are only recorded, the known tables are still decoded.
     let mut table_off = [0usize; 64];
     for (i, off) in table_off.iter_mut().enumerate() {
         *off = p;
         if rows[i] > 0 {
             if i >= 45 {
-                return;
+                net.unknown_tables.push(i);
+                continue;
             }
             p = p.saturating_add(ctx.row_size(i).saturating_mul(rows[i] as usize));
         }

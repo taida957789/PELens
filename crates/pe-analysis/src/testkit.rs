@@ -447,6 +447,7 @@ pub fn dotnet_sample() -> Vec<u8> {
         user_strings: vec!["http://c2.example.net/a".into(), "plain user string".into()],
         guid_attribute: Some("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee".into()),
         extra_stream: Some("#Evil".into()),
+        unknown_table: false,
     });
     b.dll = false;
     b.build()

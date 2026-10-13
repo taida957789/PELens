@@ -517,6 +517,7 @@ fn dotnet_metadata() {
         user_strings: vec!["http://bad.example/x".into(), "".into()],
         guid_attribute: Some("11111111-2222-3333-4444-555555555555".into()),
         extra_stream: Some("#Weird".into()),
+        unknown_table: false,
     });
     let data = b.build();
     let pe = PeFile::parse(&data);
@@ -655,6 +656,7 @@ fn malformed_never_panics() {
         user_strings: vec!["s".into()],
         guid_attribute: Some("g".into()),
         extra_stream: None,
+        unknown_table: false,
     });
     for base in [b.build(), full_builder(true).build()] {
         // truncations
@@ -933,4 +935,96 @@ fn system_binaries_if_present() {
         assert_eq!(pe.computed_checksum(&data), Some(pe.layout.as_ref().unwrap().optional_header.checksum), "{f}");
         assert!(pe.rich.as_ref().is_none_or(|r| r.checksum_valid()), "{f}");
     }
+}
+
+/// Code review #1: deeply nested counter-signatures must not overflow the stack.
+#[test]
+fn deeply_nested_counter_signatures() {
+    let leaf = d::seq(&[
+        d::int(&[1]),
+        d::seq(&[d::name(&[("2.5.4.3", "x")]), d::int(&[1])]),
+        d::alg("1.3.14.3.2.26"),
+        d::alg("1.2.840.113549.1.1.1"),
+        d::octet(&[0]),
+    ]);
+    // Build 3000 levels iteratively (a recursive builder would itself be the problem).
+    let mut inner = leaf;
+    for _ in 0..3000 {
+        inner = d::seq(&[
+            d::int(&[1]),
+            d::seq(&[d::name(&[("2.5.4.3", "x")]), d::int(&[1])]),
+            d::alg("1.3.14.3.2.26"),
+            d::alg("1.2.840.113549.1.1.1"),
+            d::octet(&[0]),
+            d::ctx(1, &[d::seq(&[d::oid("1.2.840.113549.1.9.6"), d::set(&[inner])])]),
+        ]);
+    }
+    let sd = d::seq(&[d::int(&[1]), d::set(&[]), d::seq(&[d::oid("1.3.6.1.4.1.311.2.1.4")]), d::set(&[inner])]);
+    let blob = d::seq(&[d::oid("1.2.840.113549.1.7.2"), d::ctx(0, &[sd])]);
+    // Run on a small stack: without the nesting limit this aborts the process.
+    let h = std::thread::Builder::new()
+        .stack_size(256 * 1024)
+        .spawn(move || {
+            let a = certificate::parse_pkcs7(&blob).unwrap();
+            assert!(a.signer.is_some() && a.counter_signer.is_some());
+        })
+        .unwrap();
+    h.join().unwrap();
+}
+
+/// Code review #2: many descriptors sharing one huge thunk table stay bounded.
+#[test]
+fn import_budget_is_global() {
+    let mut b = PeBuilder::new();
+    b.extra_sections =
+        vec![ExtraSection { name: ".imp".into(), data: vec![0u8; 0x200 + 30_001 * 4], characteristics: 0x4000_0040, virtual_size: None }];
+    let mut data = b.build();
+    let pe = PeFile::parse(&data);
+    let l = pe.layout.as_ref().unwrap().clone();
+    let s = l.sections.iter().find(|s| s.name == ".imp").unwrap().clone();
+    let (raw, va) = (s.pointer_to_raw_data as usize, s.virtual_address);
+    data[raw..raw + 6].copy_from_slice(b"a.dll\0");
+    let table = 0x200u32;
+    for i in 0..30_000usize {
+        let o = raw + table as usize + i * 4;
+        data[o..o + 4].copy_from_slice(&0x8000_0001u32.to_le_bytes());
+    }
+    for k in 0..10usize {
+        let o = raw + 16 + k * 20;
+        data[o..o + 4].copy_from_slice(&(va + table).to_le_bytes()); // INT
+        data[o + 12..o + 16].copy_from_slice(&va.to_le_bytes()); // name
+        data[o + 16..o + 20].copy_from_slice(&(va + table).to_le_bytes()); // IAT
+    }
+    let dd = l.optional_header.data_directories_offset as usize + 8;
+    data[dd..dd + 4].copy_from_slice(&(va + 16).to_le_bytes());
+    data[dd + 4..dd + 8].copy_from_slice(&(11u32 * 20).to_le_bytes());
+    let pe = PeFile::parse(&data);
+    assert_eq!(pe.imports.function_count(), imports::MAX_TOTAL_FUNCTIONS);
+    assert!(pe.imports.truncated);
+    assert!(pe.imports.libraries.len() < 10, "parsing stops once the budget is spent");
+    assert!(!PeFile::parse(&PeBuilder::new().build()).imports.truncated);
+}
+
+/// Code review #5: rows declared for an unknown table do not hide the known tables.
+#[test]
+fn dotnet_unknown_table_keeps_known_tables() {
+    let mut b = PeBuilder::new();
+    b.dotnet = Some(DotNetSpec {
+        module: "m.exe".into(),
+        type_refs: vec![("System.Net".into(), "WebClient".into())],
+        member_refs: vec![(1, "DownloadString".into())],
+        module_refs: vec!["kernel32.dll".into()],
+        impl_maps: vec![("VirtualAlloc".into(), 1)],
+        assembly: Some("A".into()),
+        unknown_table: true,
+        ..Default::default()
+    });
+    let pe = PeFile::parse(&b.build());
+    let n = pe.dotnet.unwrap();
+    assert_eq!(n.unknown_tables, vec![50]);
+    assert_eq!(n.module_name, "m.exe");
+    assert_eq!(n.type_refs.len(), 1);
+    assert_eq!(n.member_refs[0].name, "DownloadString");
+    assert_eq!(n.impl_maps[0].module, "kernel32.dll");
+    assert_eq!(n.assembly.unwrap().name, "A");
 }

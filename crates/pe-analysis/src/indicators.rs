@@ -415,7 +415,8 @@ pub fn evaluate(a: &Analysis, k: &Knowledge, data: &[u8], o: &Options) -> Vec<In
     let dups: Vec<String> = a.libraries.iter().filter(|l| l.duplicate).map(|l| l.name.clone()).collect();
     if !dups.is_empty() {
         let mut d = dups;
-        d.dedup();
+        d.sort_by_key(|x| x.to_ascii_lowercase());
+        d.dedup_by(|x, y| x.eq_ignore_ascii_case(y));
         c.emit(1023, &[s(d.join(", "))]);
     }
     let unknown: Vec<String> = a.libraries.iter().filter(|l| !l.known && l.kind != "p/Invoke").map(|l| l.name.clone()).collect();
@@ -683,6 +684,11 @@ pub fn evaluate(a: &Analysis, k: &Knowledge, data: &[u8], o: &Options) -> Vec<In
         }
         c.emit(1294, &[s(n.methods.len())]);
         let known: Vec<String> = k.settings.streams.iter().filter(|x| x.name != "Unknown").map(|x| x.name.clone()).collect();
+        // tables stream declaring rows for tables without a schema → suspicious #~ stream
+        if !n.unknown_tables.is_empty() {
+            let idx = n.streams.iter().position(|x| x.name == "#~" || x.name == "#-").unwrap_or(0);
+            c.emit(1290, &[s(idx)]);
+        }
         for (i, st) in n.streams.iter().enumerate() {
             c.emit(1300, &[s(format!("{} ({} bytes)", st.name, st.size))]);
             let is_known = if known.is_empty() {
@@ -756,8 +762,12 @@ fn string_indicators(c: &mut Ctx, a: &Analysis) {
     for st in a.strings.iter().filter(|x| x.size >= long_limit).take(16) {
         c.emit(1267, &[s(st.size)]);
     }
-    let mut urls: Vec<String> =
-        a.strings.iter().filter(|x| x.hint.as_deref() == Some("url-pattern")).map(|x| crate::strings::url_part(x.value.trim()).to_string()).collect();
+    let mut urls: Vec<String> = a
+        .strings
+        .iter()
+        .filter(|x| x.hint.as_deref() == Some("url-pattern"))
+        .map(|x| crate::strings::url_part(x.value.trim()).to_string())
+        .collect();
     urls.sort();
     urls.dedup();
     for u in urls.iter().take(32) {

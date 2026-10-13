@@ -237,10 +237,14 @@ impl State {
         let Some(d) = &self.doc else { return Vec::new() };
         let a = &d.analysis;
         match item {
-            ItemType::Sections => a.sections.iter().map(|s| {
-                let n = if s.nameless { "(nameless)".to_string() } else { s.name.clone() };
-                (n.clone(), n, !s.standard_name || s.self_modifying)
-            }).collect(),
+            ItemType::Sections => a
+                .sections
+                .iter()
+                .map(|s| {
+                    let n = if s.nameless { "(nameless)".to_string() } else { s.name.clone() };
+                    (n.clone(), n, !s.standard_name || s.self_modifying)
+                })
+                .collect(),
             ItemType::Libraries => a.libraries.iter().map(|l| (l.name.clone(), l.name.clone(), l.flag || l.spoofed)).collect(),
             ItemType::Resources => {
                 let mut v: Vec<(String, String, bool)> = Vec::new();
@@ -333,7 +337,20 @@ impl State {
 
     fn reanalyze(&mut self, path: PathBuf, data: Vec<u8>, dirty: bool) {
         let opts = pe_analysis::Options::from_settings(&self.knowledge);
-        let a = pe_analysis::analyze(&data, &path.to_string_lossy(), &self.knowledge, &opts);
+        let mut a = pe_analysis::analyze(&data, &path.to_string_lossy(), &self.knowledge, &opts);
+        // Keep what analyze_file() added from the disk / network for the same file.
+        if let Some(old) = self.doc.as_ref().filter(|d| d.path == path).map(|d| &d.analysis) {
+            a.network_drive = old.network_drive;
+            a.removable_drive = old.removable_drive;
+            a.footprints.extend(old.footprints.iter().filter(|f| f.item.starts_with("acl")).cloned());
+            // indicators depend on the drive type: evaluate them again with the restored info
+            a.indicators = pe_analysis::indicators::evaluate(&a, &self.knowledge, &data, &opts);
+            pe_analysis::indicators::mitre_indicators(&mut a, &self.knowledge);
+            if old.hashes.sha256 == a.hashes.sha256 && old.score.is_some() {
+                a.score = old.score.clone();
+                pe_analysis::indicators::score_indicators(&mut a, &self.knowledge);
+            }
+        }
         let mut d = Document::new(path, data, a);
         d.dirty = dirty;
         self.doc = Some(d);

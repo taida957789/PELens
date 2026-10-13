@@ -91,19 +91,27 @@ impl Table {
     pub fn sort_by(&mut self, col: usize, ascending: bool) {
         fn num(s: &str) -> Option<f64> {
             let t = s.trim().trim_end_matches('%').trim_end_matches(" bytes");
-            if let Some(h) = t.strip_prefix("0x") {
-                return u64::from_str_radix(h, 16).ok().map(|v| v as f64);
-            }
-            t.parse::<f64>().ok()
-        }
-        self.rows.sort_by(|a, b| {
-            let (x, y) = (a.cells.get(col).map(String::as_str).unwrap_or(""), b.cells.get(col).map(String::as_str).unwrap_or(""));
-            let o = match (num(x), num(y)) {
-                (Some(p), Some(q)) => p.partial_cmp(&q).unwrap_or(std::cmp::Ordering::Equal),
-                _ => x.to_ascii_lowercase().cmp(&y.to_ascii_lowercase()),
+            let v = match t.strip_prefix("0x") {
+                Some(h) => u64::from_str_radix(h, 16).ok().map(|v| v as f64),
+                None => t.parse::<f64>().ok(),
             };
+            v.filter(|f| f.is_finite())
+        }
+        // Total order: every numeric cell sorts before every text cell; numbers by value, text
+        // case-insensitively. Mixing the two comparisons per pair would not be transitive.
+        let key = |r: &Row| -> (u8, f64, String) {
+            let c = r.cells.get(col).map(String::as_str).unwrap_or("");
+            match num(c) {
+                Some(v) => (0, v, String::new()),
+                None => (1, 0.0, c.to_ascii_lowercase()),
+            }
+        };
+        let mut keyed: Vec<((u8, f64, String), Row)> = std::mem::take(&mut self.rows).into_iter().map(|r| (key(&r), r)).collect();
+        keyed.sort_by(|(a, _), (b, _)| {
+            let o = a.0.cmp(&b.0).then(a.1.total_cmp(&b.1)).then_with(|| a.2.cmp(&b.2));
             if ascending { o } else { o.reverse() }
         });
+        self.rows = keyed.into_iter().map(|(_, r)| r).collect();
     }
 
     /// Keep rows where any cell contains `needle` (case insensitive).

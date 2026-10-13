@@ -282,7 +282,7 @@ pub fn vt_settings(k: &pe_db::Knowledge) -> (VtApi, String, bool) {
 pub fn net_config(k: &pe_db::Knowledge) -> NetConfig {
     let s = &k.settings;
     let proxy = match (s.get("proxy", "address"), s.get("proxy", "port")) {
-        (Some(a), Some(p)) if !a.is_empty() => Some(format!("{a}:{p}")),
+        (Some(a), Some(p)) if !a.is_empty() && !p.trim().is_empty() => Some(format!("{a}:{}", p.trim())),
         (Some(a), _) if !a.is_empty() => Some(a.to_string()),
         _ => None,
     };

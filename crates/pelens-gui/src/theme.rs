@@ -156,9 +156,27 @@ pub fn install_fonts(ctx: &egui::Context) -> Vec<String> {
 /// Columns rendered with the monospace font (hashes, offsets, hex dumps).
 pub fn is_mono_column(name: &str) -> bool {
     let n = name.to_ascii_lowercase();
-    ["md5", "sha", "hash", "footprint", "address", "offset", "first-bytes", "raw-", "virtual-", "characteristics", "thunk", "ordinal", "rva", "size", "entropy", "file-ratio", "id"]
-        .iter()
-        .any(|k| n.contains(k))
+    [
+        "md5",
+        "sha",
+        "hash",
+        "footprint",
+        "address",
+        "offset",
+        "first-bytes",
+        "raw-",
+        "virtual-",
+        "characteristics",
+        "thunk",
+        "ordinal",
+        "rva",
+        "size",
+        "entropy",
+        "file-ratio",
+        "id",
+    ]
+    .iter()
+    .any(|k| n.contains(k))
 }
 
 /// Icon glyph (from egui's bundled emoji font) for a tree node.

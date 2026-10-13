@@ -13,20 +13,39 @@ impl eframe::App for ui::PeLensApp {
     }
 }
 
+const VALUE_OPTIONS: [&str; 5] = ["xml", "file", "renderer", "view", "theme"];
+const FLAG_OPTIONS: [&str; 1] = ["expand"];
+
+/// The option text of an argument (`-name:value`, `--name=value`, `/name:value`), or None when the
+/// argument is a file name. A leading `/` only counts for a known option, so absolute Unix paths
+/// and file names such as `expand.exe` are never mistaken for options.
+pub fn option_body(a: &str) -> Option<&str> {
+    let known = |b: &str| {
+        let name = b.split([':', '=']).next().unwrap_or("").to_ascii_lowercase();
+        let has_value = b.len() > name.len();
+        (has_value && VALUE_OPTIONS.contains(&name.as_str())) || (!has_value && FLAG_OPTIONS.contains(&name.as_str()))
+    };
+    if a.starts_with('-') {
+        return Some(a.trim_start_matches('-'));
+    }
+    a.strip_prefix('/').filter(|b| known(b))
+}
+
 /// Parse `pelens [file] [-xml:dir]` command line arguments.
 pub fn parse_cli(args: &[String]) -> (Option<std::path::PathBuf>, Option<std::path::PathBuf>) {
     let mut file = None;
     let mut xml = None;
     for a in args {
-        let t = a.trim_start_matches(['-', '/']);
-        if let Some(v) = t.strip_prefix("xml:").or_else(|| t.strip_prefix("xml=")) {
-            xml = Some(std::path::PathBuf::from(v));
-        } else if let Some(v) = t.strip_prefix("file:").or_else(|| t.strip_prefix("file=")) {
-            file = Some(std::path::PathBuf::from(v));
-        } else if ["renderer:", "view:", "theme:", "expand"].iter().any(|p| t.to_ascii_lowercase().starts_with(p)) {
-            // handled by main / parse_startup
-        } else if !a.starts_with('-') {
-            file = Some(std::path::PathBuf::from(a));
+        match option_body(a) {
+            Some(t) => {
+                if let Some(v) = t.strip_prefix("xml:").or_else(|| t.strip_prefix("xml=")) {
+                    xml = Some(std::path::PathBuf::from(v));
+                } else if let Some(v) = t.strip_prefix("file:").or_else(|| t.strip_prefix("file=")) {
+                    file = Some(std::path::PathBuf::from(v));
+                }
+                // other options are handled by main / parse_startup
+            }
+            None => file = Some(std::path::PathBuf::from(a)),
         }
     }
     (file, xml)
@@ -48,9 +67,13 @@ pub struct Startup {
 pub fn parse_startup(args: &[String]) -> Startup {
     let mut s = Startup::default();
     for a in args {
-        let t = a.trim_start_matches(['-', '/']).to_ascii_lowercase();
+        let Some(t) = option_body(a) else { continue };
+        let t = t.to_ascii_lowercase();
         if let Some(v) = t.strip_prefix("view:") {
-            s.view = pe_analysis::model::ItemType::ALL.iter().copied().find(|i| i.name() == v || (v == "tls" && *i == pe_analysis::model::ItemType::Tls));
+            s.view = pe_analysis::model::ItemType::ALL
+                .iter()
+                .copied()
+                .find(|i| i.name() == v || (v == "tls" && *i == pe_analysis::model::ItemType::Tls));
         } else if let Some(v) = t.strip_prefix("theme:") {
             s.dark = match v {
                 "dark" => Some(true),

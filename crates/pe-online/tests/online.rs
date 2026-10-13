@@ -192,3 +192,12 @@ fn local_http_server() {
     assert_eq!(r.status, 404);
     t.join().unwrap();
 }
+
+/// Code review minor: a proxy address without a port is still used.
+#[test]
+fn proxy_without_port() {
+    let mut k = pe_db::Knowledge::builtin();
+    k.settings.set("proxy", "address", "10.1.1.1");
+    k.settings.set("proxy", "port", " ");
+    assert_eq!(net_config(&k).proxy.as_deref(), Some("10.1.1.1"));
+}

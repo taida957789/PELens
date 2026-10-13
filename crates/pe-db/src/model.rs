@@ -295,8 +295,10 @@ impl Functions {
             let m = self.fct_index.entry(ln.clone()).or_default();
             for (fi, fc) in l.functions.iter().enumerate() {
                 let n = fc.name.to_ascii_lowercase();
-                m.entry(n.clone()).or_insert(fi);
-                self.global.entry(n).or_insert((li, fi));
+                if !n.is_empty() {
+                    m.entry(n.clone()).or_insert(fi);
+                    self.global.entry(n).or_insert((li, fi));
+                }
                 if let Some(o) = fc.ordinal {
                     self.ordinals.entry(ln.clone()).or_default().entry(o).or_insert(fi);
                 }
@@ -317,10 +319,14 @@ impl Functions {
         }
         // Strip A/W suffixes and decorations for a second chance.
         self.global.get(&n).map(|&(li, fi)| &self.libs[li].functions[fi]).or_else(|| {
+            // `_Name@12` (stdcall decoration) → `name`; a leading '@' is not a decoration.
             let base = n.trim_start_matches('_');
-            let base = base.split('@').next().unwrap_or(base);
+            let base = match base.find('@') {
+                Some(p) if p > 0 => &base[..p],
+                _ => base,
+            };
             let base = base.strip_suffix('a').or_else(|| base.strip_suffix('w')).unwrap_or(base);
-            if base.len() < 2 {
+            if base.is_empty() || base.starts_with('@') {
                 return None;
             }
             self.global.get(base).map(|&(li, fi)| &self.libs[li].functions[fi])

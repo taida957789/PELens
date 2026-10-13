@@ -49,3 +49,20 @@ pub fn verify_path(path: &str) -> CertificateCheck {
 pub fn verify_path(_path: &str) -> CertificateCheck {
     CertificateCheck { verified: None, message: "verification not available on this platform".into() }
 }
+
+/// Verify the signature of `data`, the bytes actually analysed. When they differ from the file
+/// on disk (an in-memory modification), they are verified through a temporary copy.
+pub fn verify_data(path: &str, data: &[u8]) -> CertificateCheck {
+    if std::fs::read(path).is_ok_and(|disk| disk == data) {
+        return verify_path(path);
+    }
+    static SEQ: std::sync::atomic::AtomicU64 = std::sync::atomic::AtomicU64::new(0);
+    let n = SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let tmp = std::env::temp_dir().join(format!("pelens-verify-{}-{n}.bin", std::process::id()));
+    if std::fs::write(&tmp, data).is_err() {
+        return CertificateCheck { verified: None, message: "verification failed (temporary file)".into() };
+    }
+    let r = verify_path(&tmp.to_string_lossy());
+    let _ = std::fs::remove_file(&tmp);
+    r
+}

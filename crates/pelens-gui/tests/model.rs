@@ -472,3 +472,41 @@ fn settings_model() {
     assert_eq!(d.file_name(), "y.exe");
     d.invalidate();
 }
+
+/// Code review #7: option detection never swallows file names.
+#[test]
+fn option_detection() {
+    use pelens_gui::{option_body, parse_cli, parse_startup};
+    assert_eq!(parse_cli(&["expand.exe".into()]).0, Some(PathBuf::from("expand.exe")));
+    assert_eq!(parse_cli(&["/expanded/x.exe".into()]).0, Some(PathBuf::from("/expanded/x.exe")));
+    assert_eq!(parse_cli(&["view:x.exe".into()]).0, Some(PathBuf::from("view:x.exe")));
+    assert_eq!(parse_cli(&["/file:b.exe".into()]).0, Some(PathBuf::from("b.exe")));
+    assert_eq!(option_body("/expand"), Some("expand"));
+    assert_eq!(option_body("/view:strings"), Some("view:strings"));
+    assert_eq!(option_body("/view"), None);
+    assert_eq!(option_body("/expand:1"), None);
+    assert_eq!(option_body("--theme=dark"), Some("theme=dark"));
+    assert!(!parse_startup(&["expand.exe".into(), "/expanded".into()]).expand);
+    assert!(parse_startup(&["/expand".into()]).expand);
+}
+
+/// Code review #6: re-analysis keeps disk information and the score while the bytes are unchanged.
+#[test]
+fn reanalysis_keeps_score_and_drive_info() {
+    let (mut s, sample) = state("reanalysis");
+    s.apply(Action::Open(sample));
+    {
+        let a = &mut s.doc.as_mut().unwrap().analysis;
+        a.network_drive = true;
+        a.footprints.push(pe_analysis::model::Footprint { item: "acl (security-descriptor)".into(), ..Default::default() });
+    }
+    assert!(s.doc.as_ref().unwrap().analysis.score.is_some());
+    s.apply(Action::SetIndicatorSeverity(1000, 2));
+    let a = &s.doc.as_ref().unwrap().analysis;
+    assert!(a.network_drive && a.score.is_some() && a.footprints.iter().any(|f| f.item.starts_with("acl")));
+    assert!(a.has_indicator(1051), "drive indicator re-evaluated");
+    s.apply(Action::Modify(Modification::SetDll(true)));
+    let a = &s.doc.as_ref().unwrap().analysis;
+    assert!(a.network_drive, "same file → drive info kept");
+    assert!(a.score.is_none(), "bytes changed → old score dropped");
+}

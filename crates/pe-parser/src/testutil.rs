@@ -73,6 +73,7 @@ pub struct PeBuilder {
     pub fix_checksum: bool,
 }
 
+#[derive(Default)]
 pub struct DotNetSpec {
     pub module: String,
     pub type_refs: Vec<(String, String)>,
@@ -83,6 +84,8 @@ pub struct DotNetSpec {
     pub user_strings: Vec<String>,
     pub guid_attribute: Option<String>,
     pub extra_stream: Option<String>,
+    /// Declare rows for table 0x32 (no schema), as obfuscators/crafted files do.
+    pub unknown_table: bool,
 }
 
 impl Default for PeBuilder {
@@ -845,6 +848,9 @@ fn build_metadata(n: &DotNetSpec) -> (Vec<u8>, u32) {
         asm.extend(s(a, &mut strings).to_le_bytes());
         asm.extend(0u16.to_le_bytes());
         rows[32] = 1;
+    }
+    if n.unknown_table {
+        rows[50] = 3;
     }
     let mut valid: u64 = 0;
     for (i, r) in rows.iter().enumerate() {

@@ -127,7 +127,9 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
         }
     };
     if !a.hide_banner {
-        let _ = writeln!(out, "{}", banner());
+        // With -stdout the report is the only thing on stdout (pipe-friendly): banner → stderr.
+        let sink: &mut dyn Write = if a.stdout { &mut *err } else { &mut *out };
+        let _ = writeln!(sink, "{}", banner());
     }
     if a.help {
         let _ = writeln!(out, "{USAGE}");

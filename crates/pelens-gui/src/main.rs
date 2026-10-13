@@ -11,7 +11,7 @@ fn main() -> eframe::Result {
     }
     let startup = pelens_gui::parse_startup(&args);
     let title = state.title();
-    let wgpu = args.iter().any(|a| a.trim_start_matches(['-', '/']).eq_ignore_ascii_case("renderer:wgpu"))
+    let wgpu = args.iter().any(|a| pelens_gui::option_body(a).is_some_and(|b| b.eq_ignore_ascii_case("renderer:wgpu")))
         || std::env::var("PELENS_RENDERER").is_ok_and(|v| v.eq_ignore_ascii_case("wgpu"));
     let opts = eframe::NativeOptions {
         renderer: if wgpu { eframe::Renderer::Wgpu } else { eframe::Renderer::Glow },

@@ -113,43 +113,77 @@ pub fn extract(data: &[u8], o: StringOptions) -> Vec<(StringKind, u64, String)> 
 
 /// Location name of a file offset: section / resource / overlay / header names.
 pub fn location_of(pe: &PeFile, off: u64) -> String {
-    if let Some(ov) = &pe.overlay
-        && off >= ov.offset
-        && off < ov.offset + ov.size
-    {
-        return "overlay".into();
-    }
-    if let Some(sd) = &pe.security
-        && off >= sd.offset as u64
-        && off < sd.offset as u64 + sd.size as u64
-    {
-        return "certificate".into();
-    }
-    let Some(l) = pe.layout.as_ref() else { return "file".into() };
-    if let Some(res) = &pe.resources {
-        for e in &res.entries {
-            if let Some(fo) = e.file_offset
-                && off >= fo as u64
-                && off < fo as u64 + e.size as u64
-            {
-                return format!("resource:{}", e.type_name());
+    LocationIndex::new(pe).locate(off)
+}
+
+/// Precomputed lookup of file offsets → location names (O(log n) per string).
+pub struct LocationIndex<'a> {
+    pe: &'a PeFile,
+    /// Resource ranges sorted by start.
+    starts: Vec<u64>,
+    /// For each prefix of `starts`, the range reaching furthest: (end, type name).
+    reach: Vec<(u64, String)>,
+}
+
+impl<'a> LocationIndex<'a> {
+    pub fn new(pe: &'a PeFile) -> Self {
+        let mut ranges: Vec<(u64, u64, String)> = pe
+            .resources
+            .iter()
+            .flat_map(|r| r.entries.iter())
+            .filter_map(|e| e.file_offset.map(|fo| (fo as u64, fo as u64 + e.size as u64, e.type_name())))
+            .filter(|(s, e, _)| e > s)
+            .collect();
+        ranges.sort_by_key(|r| r.0);
+        let mut reach: Vec<(u64, String)> = Vec::with_capacity(ranges.len());
+        for (_, end, name) in &ranges {
+            match reach.last() {
+                Some((e, n)) if *e >= *end => reach.push((*e, n.clone())),
+                _ => reach.push((*end, name.clone())),
             }
         }
+        LocationIndex { pe, starts: ranges.iter().map(|r| r.0).collect(), reach }
     }
-    if off < 0x40 {
-        return "dos-header".into();
+
+    fn resource(&self, off: u64) -> Option<&str> {
+        let i = self.starts.partition_point(|&s| s <= off);
+        let (end, name) = self.reach.get(i.checked_sub(1)?)?;
+        (*end > off).then_some(name.as_str())
     }
-    if let Some(d) = &pe.dos_header
-        && off < d.e_lfanew as u64
-    {
-        return "dos-stub".into();
-    }
-    if off < l.optional_header.size_of_headers as u64 {
-        return "header".into();
-    }
-    match l.section_of_offset(off) {
-        Some(s) => format!("section:{}", s.name),
-        None => "n/a".into(),
+
+    pub fn locate(&self, off: u64) -> String {
+        let pe = self.pe;
+        if let Some(ov) = &pe.overlay
+            && off >= ov.offset
+            && off < ov.offset + ov.size
+        {
+            return "overlay".into();
+        }
+        if let Some(sd) = &pe.security
+            && off >= sd.offset as u64
+            && off < sd.offset as u64 + sd.size as u64
+        {
+            return "certificate".into();
+        }
+        let Some(l) = pe.layout.as_ref() else { return "file".into() };
+        if let Some(t) = self.resource(off) {
+            return format!("resource:{t}");
+        }
+        if off < 0x40 {
+            return "dos-header".into();
+        }
+        if let Some(d) = &pe.dos_header
+            && off < d.e_lfanew as u64
+        {
+            return "dos-stub".into();
+        }
+        if off < l.optional_header.size_of_headers as u64 {
+            return "header".into();
+        }
+        match l.section_of_offset(off) {
+            Some(s) => format!("section:{}", s.name),
+            None => "n/a".into(),
+        }
     }
 }
 
@@ -430,10 +464,11 @@ pub fn heuristic_hint(s: &str) -> Option<&'static str> {
 
 pub fn build_rows(k: &Knowledge, pe: &PeFile, data: &[u8], o: StringOptions) -> Vec<StringRow> {
     let cls = Classifier::new(k, pe);
+    let locations = LocationIndex::new(pe);
     let mut rows: Vec<StringRow> = extract(data, o)
         .into_iter()
         .map(|(kind, offset, value)| {
-            let location = location_of(pe, offset);
+            let location = locations.locate(offset);
             let mut c = cls.classify(&value);
             if c.hint.as_deref() == Some("ip-address") && location == "resource:version" {
                 c.hint = None;

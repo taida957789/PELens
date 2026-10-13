@@ -309,6 +309,7 @@ fn dotnet_sample_analysis() {
         user_strings: vec![],
         guid_attribute: None,
         extra_stream: None,
+        unknown_table: false,
     });
     let a2 = analyze(&bld.build(), "m.dll", &k, &Options::default());
     assert_eq!(a2.file_type, ".NET dynamic-link-library");
@@ -931,7 +932,9 @@ fn system32_sweep_never_panics() {
     let Ok(rd) = std::fs::read_dir("C:/Windows/System32") else { return };
     let mut files: Vec<PathBuf> = rd
         .filter_map(|e| e.ok().map(|e| e.path()))
-        .filter(|p| p.extension().is_some_and(|e| e.eq_ignore_ascii_case("dll") || e.eq_ignore_ascii_case("exe") || e.eq_ignore_ascii_case("sys")))
+        .filter(|p| {
+            p.extension().is_some_and(|e| e.eq_ignore_ascii_case("dll") || e.eq_ignore_ascii_case("exe") || e.eq_ignore_ascii_case("sys"))
+        })
         .collect();
     files.sort();
     let step = (files.len() / 60).max(1);
@@ -948,4 +951,99 @@ fn system32_sweep_never_panics() {
         n += 1;
     }
     assert!(n > 10);
+}
+
+/// Code review #3: sorting mixed numeric / text cells is a total order (no panic, stable groups).
+#[test]
+fn sort_mixed_cells_total_order() {
+    let mut t = Table { columns: vec!["v".into()], ..Default::default() };
+    let vals = ["10", "9", "1z", "nan", "inf", "0x1F", "abc", "", "-3", "1e3", "Z", "9 bytes", "50%"];
+    for _ in 0..40 {
+        for v in vals {
+            t.rows.push(view::Row::new(vec![v.into()]));
+        }
+    }
+    t.sort_by(0, true);
+    let firsts: Vec<&str> = t.rows.iter().map(|r| r.cells[0].as_str()).collect();
+    let pos = |v: &str| firsts.iter().position(|x| *x == v).unwrap();
+    assert!(pos("-3") < pos("9") && pos("9") < pos("10") && pos("10") < pos("0x1F") && pos("0x1F") < pos("1e3"));
+    assert!(pos("1e3") < pos("1z"), "numbers before text");
+    assert!(pos("abc") < pos("inf") && pos("inf") < pos("nan"), "non-finite values sort as text");
+    t.sort_by(0, false);
+    assert_eq!(t.rows[0].cells[0], "z".to_uppercase());
+}
+
+/// Code review #4: offset → location lookups use an index (overlapping resources, many entries).
+#[test]
+fn location_index_overlaps_and_scale() {
+    use pe_analysis::strings::LocationIndex;
+    use pe_parser::resources::{ResId, ResourceEntry, Resources};
+    let mut pe = pe_parser::PeFile::parse(&PeBuilder::new().build());
+    let base = 0x10_0000u32;
+    let mut entries = vec![
+        ResourceEntry { type_id: ResId::Id(10), file_offset: Some(base), size: 900, ..Default::default() },
+        ResourceEntry { type_id: ResId::Id(16), file_offset: Some(base + 100), size: 100, ..Default::default() },
+        ResourceEntry { type_id: ResId::Id(24), file_offset: Some(base + 2000), size: 100, ..Default::default() },
+        ResourceEntry { type_id: ResId::Id(3), file_offset: None, size: 10, ..Default::default() },
+        ResourceEntry { type_id: ResId::Id(3), file_offset: Some(base + 5000), size: 0, ..Default::default() },
+    ];
+    for i in 0..100_000u32 {
+        entries.push(ResourceEntry { type_id: ResId::Id(2), file_offset: Some(base + 10_000 + i * 8), size: 8, ..Default::default() });
+    }
+    pe.resources = Some(Resources { entries, ..Default::default() });
+    let idx = LocationIndex::new(&pe);
+    assert!(idx.locate((base + 150) as u64).starts_with("resource:"));
+    assert_eq!(idx.locate((base + 850) as u64), "resource:rcdata", "inside the outer range only");
+    assert_eq!(idx.locate((base + 2050) as u64), "resource:manifest");
+    assert!(!idx.locate((base + 1500) as u64).starts_with("resource:"));
+    let t = std::time::Instant::now();
+    for i in 0..200_000u64 {
+        let _ = idx.locate(base as u64 + 10_000 + (i * 7) % 800_000);
+    }
+    assert!(t.elapsed().as_secs() < 10, "lookups are logarithmic");
+}
+
+/// Code review #6 / #10: signature verified on the analysed bytes; first-bytes honour the setting.
+#[test]
+fn verify_analysed_bytes_and_first_bytes() {
+    let k = kb();
+    if let Ok(orig) = std::fs::read("C:/Windows/System32/kernel32.dll") {
+        let p = write_tmp("k32copy.dll", &orig);
+        let ok = pe_analysis::verify::verify_data(&p.to_string_lossy(), &orig);
+        let mut modified = orig.clone();
+        let pe = pe_parser::PeFile::parse(&modified);
+        pe_parser::patch::toggle_dll_characteristic(&mut modified, &pe, 0x0040).unwrap();
+        let bad = pe_analysis::verify::verify_data(&p.to_string_lossy(), &modified);
+        if cfg!(windows) {
+            // a copy outside System32 may or may not be trusted (catalog vs. embedded), but a
+            // modified image must never be reported as valid
+            assert_eq!(bad.verified, Some(false), "{} / {}", ok.message, bad.message);
+        }
+    }
+    let d = testkit::suspicious_sample();
+    let o = Options { first_bytes: 64, verify_signature: false, ..Default::default() };
+    let a = analyze(&d, "s.exe", &k, &o);
+    let big = a.resources.iter().find(|r| r.size >= 64).unwrap();
+    assert_eq!(big.first_bytes_hex.split(' ').count(), 64);
+    assert_eq!(big.first_bytes_text.chars().count(), 64);
+    // the temporary-file path also works for unsigned data
+    let r = pe_analysis::verify::verify_data("Z:/nowhere/x.exe", &d);
+    if cfg!(windows) {
+        assert_eq!(r.verified, Some(false));
+    }
+}
+
+/// Code review minor items: 1023 lists each duplicate once; JSON rows have no duplicate keys.
+#[test]
+fn duplicate_library_names_and_json_keys() {
+    let k = kb();
+    let d = testkit::suspicious_sample();
+    let a = analyze(&d, "s.exe", &k, &Options { verify_signature: false, ..Default::default() });
+    let i = a.indicator(1023).unwrap();
+    assert_eq!(i.detail.to_ascii_lowercase().matches("kernel32.dll").count(), 1, "{}", i.detail);
+    let json = report::render(&a, &k, &d, Format::Json);
+    for row in json.split('{') {
+        assert!(row.matches("\"flag\":").count() <= 1, "duplicate key in {row}");
+    }
+    assert!(json.contains("\"flagged\":true"));
 }

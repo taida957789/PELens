@@ -156,3 +156,17 @@
 - [x] T10.5 排版：工具列、麵包屑標題、表頭底色與 ▲▼ 排序標記、欄寬依內容估算、狀態列分段、設定對話框 Grid 版面
 - [x] T10.6 命名為 PELens（crate/執行檔 `pelens`、`pelens-cli`）
 - [x] T10.7 App icon（`tools/make_icon.py` 產生 PNG/ICO 7 種尺寸；嵌入 exe 資源並作為視窗圖示）
+
+## M11 Code review 修正（2026-10-13）
+- [x] T11.1 Authenticode 巢狀副署簽章遞迴深度上限（防堆疊溢位，含小堆疊回歸測試）
+- [x] T11.2 匯入函式全域上限 `MAX_TOTAL_FUNCTIONS` 與 `Imports.truncated`
+- [x] T11.3 表格排序改為嚴格全序（數字 < 文字，NaN/inf 視為文字）
+- [x] T11.4 字串定位改用排序索引＋二分搜尋；資源 blob 雜湊依 (offset,size) 快取
+- [x] T11.5 .NET 未知表不再中止解析，記錄於 `unknown_tables` 並觸發 1290
+- [x] T11.6 簽章驗證針對實際分析的位元組；重新分析保留磁碟/ACL/分數並重算指標
+- [x] T11.7 GUI 參數偵測不再吞掉 `expand.exe`、`/expanded/...` 等檔名
+- [x] T11.8 CLI `-stdout` 時 banner 改寫 stderr
+- [x] T11.9 XML 回寫比對屬性時先 unescape（`&amp;` 等）
+- [x] T11.10 Resources first-bytes 依設定（16/32/64）
+- [x] T11.11 次要：函式查詢不索引空名稱、1023 不重複、JSON 不重複 key、proxy 無 port、footprints 不複製 PeFile
+- 結果：82 個測試全過，行覆蓋率 96.97%

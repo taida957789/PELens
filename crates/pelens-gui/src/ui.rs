@@ -141,13 +141,17 @@ impl PeLensApp {
             self.menu(ui);
             self.toolbar(ui);
         });
-        egui::Panel::bottom("status").frame(egui::Frame::new().fill(p.panel).inner_margin(egui::Margin::symmetric(8, 3))).show(ui, |ui| self.status_bar(ui));
+        egui::Panel::bottom("status")
+            .frame(egui::Frame::new().fill(p.panel).inner_margin(egui::Margin::symmetric(8, 3)))
+            .show(ui, |ui| self.status_bar(ui));
         egui::Panel::left("tree")
             .resizable(true)
             .default_size(250.0)
             .frame(egui::Frame::new().fill(p.panel).inner_margin(egui::Margin::symmetric(4, 6)))
             .show(ui, |ui| self.tree(ui));
-        egui::CentralPanel::default().frame(egui::Frame::new().fill(p.central).inner_margin(egui::Margin::symmetric(10, 8))).show(ui, |ui| self.central(ui));
+        egui::CentralPanel::default()
+            .frame(egui::Frame::new().fill(p.central).inner_margin(egui::Margin::symmetric(10, 8)))
+            .show(ui, |ui| self.central(ui));
         self.dialogs(&ctx);
 
         let tree_nav = self.pending.iter().any(|a| matches!(a, Action::SelectNext | Action::SelectPrevious));
@@ -313,7 +317,11 @@ impl PeLensApp {
                 if let Some(d) = &self.state.doc {
                     ui.label(RichText::new(format!("sha256: {}", d.analysis.hashes.sha256)).small().monospace().color(muted));
                     ui.separator();
-                    ui.label(RichText::new(format!("{} | {} | {}", d.analysis.cpu, d.analysis.file_type, d.analysis.subsystem)).small().color(muted));
+                    ui.label(
+                        RichText::new(format!("{} | {} | {}", d.analysis.cpu, d.analysis.file_type, d.analysis.subsystem))
+                            .small()
+                            .color(muted),
+                    );
                     if d.dirty {
                         ui.separator();
                         ui.label(RichText::new("modified").small().color(self.flag_color()));
@@ -374,7 +382,10 @@ impl PeLensApp {
                 painter.rect_stroke(er, 2.0, stroke, egui::StrokeKind::Inside);
                 painter.line_segment([egui::pos2(er.left() + 2.5, cy), egui::pos2(er.right() - 2.5, cy)], Stroke::new(1.2, p.text));
                 if !open {
-                    painter.line_segment([egui::pos2(er.center().x, er.top() + 2.5), egui::pos2(er.center().x, er.bottom() - 2.5)], Stroke::new(1.2, p.text));
+                    painter.line_segment(
+                        [egui::pos2(er.center().x, er.top() + 2.5), egui::pos2(er.center().x, er.bottom() - 2.5)],
+                        Stroke::new(1.2, p.text),
+                    );
                 }
                 if resp.clicked() && resp.interact_pointer_pos().is_some_and(|pp| er.expand(3.0).contains(pp)) {
                     expander_clicked = true;
@@ -426,7 +437,8 @@ impl PeLensApp {
                 let label = if flagged > 0 { format!("{} ({flagged})", t.name()) } else { t.name().to_string() };
                 let color = if flagged > 0 { flag_color } else { text };
                 let selected = self.state.selected == t && self.state.filter.is_empty();
-                let (r, exp) = self.tree_row(ui, 1, last, &[false], !children.is_empty(), open, theme::icon(t), &label, color, selected, false);
+                let (r, exp) =
+                    self.tree_row(ui, 1, last, &[false], !children.is_empty(), open, theme::icon(t), &label, color, selected, false);
                 if exp {
                     self.toggle(t.name());
                 } else if r.clicked() {
@@ -439,7 +451,19 @@ impl PeLensApp {
                     let n = children.len();
                     for (ci, (lab, filter, fl)) in children.into_iter().enumerate() {
                         let sel = self.state.selected == t && self.state.filter == filter;
-                        let (cr, _) = self.tree_row(ui, 2, ci + 1 == n, &[false, !last], false, false, "•", &lab, if fl { flag_color } else { text }, sel, false);
+                        let (cr, _) = self.tree_row(
+                            ui,
+                            2,
+                            ci + 1 == n,
+                            &[false, !last],
+                            false,
+                            false,
+                            "•",
+                            &lab,
+                            if fl { flag_color } else { text },
+                            sel,
+                            false,
+                        );
                         if cr.clicked() {
                             self.push(Action::SelectFiltered(t, filter));
                         }
@@ -483,7 +507,9 @@ impl PeLensApp {
 
     fn central(&mut self, ui: &mut egui::Ui) {
         let Some(table) = self.state.visible_table() else {
-            ui.centered_and_justified(|ui| ui.label(RichText::new("drag-and-drop a file to analyse...").size(18.0).color(self.palette.muted)));
+            ui.centered_and_justified(|ui| {
+                ui.label(RichText::new("drag-and-drop a file to analyse...").size(18.0).color(self.palette.muted))
+            });
             return;
         };
         let item = self.state.selected;
@@ -496,7 +522,8 @@ impl PeLensApp {
             ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                 if ui.button(self.state.tr(590, "save to file")).clicked() {
                     let sep = self.state.knowledge.settings.get("indicators", "separator").unwrap_or("|").to_string();
-                    self.pending.push(Action::SaveText { name: item.name().to_string(), text: pe_analysis::view::table_text(&table, &sep) });
+                    self.pending
+                        .push(Action::SaveText { name: item.name().to_string(), text: pe_analysis::view::table_text(&table, &sep) });
                 }
                 ui.menu_button("column", |ui| {
                     for (i, c) in table.columns.iter().enumerate() {
@@ -539,14 +566,23 @@ impl PeLensApp {
         ui.allocate_ui(egui::vec2(ui.available_width(), table_h), |ui| self.table(ui, item, &table));
         if show_content {
             ui.add_space(6.0);
-            let idx = self.state.selected_row.and_then(|r| table.rows.get(r)).and_then(|r| r.key.strip_prefix("resource:").and_then(|s| s.parse::<usize>().ok()));
+            let idx = self
+                .state
+                .selected_row
+                .and_then(|r| table.rows.get(r))
+                .and_then(|r| r.key.strip_prefix("resource:").and_then(|s| s.parse::<usize>().ok()));
             if let Some(lines) = idx.and_then(|i| self.resource_lines(i)) {
                 egui::Frame::new().fill(p.panel).stroke(Stroke::new(1.0, p.grid)).corner_radius(4.0).inner_margin(6.0).show(ui, |ui| {
-                    egui::ScrollArea::vertical().id_salt("rescontent").auto_shrink([false, false]).show_rows(ui, 16.0, lines.len(), |ui, range| {
-                        for l in &lines[range] {
-                            ui.monospace(l);
-                        }
-                    });
+                    egui::ScrollArea::vertical().id_salt("rescontent").auto_shrink([false, false]).show_rows(
+                        ui,
+                        16.0,
+                        lines.len(),
+                        |ui, range| {
+                            for l in &lines[range] {
+                                ui.monospace(l);
+                            }
+                        },
+                    );
                 });
             }
         }
@@ -570,12 +606,17 @@ impl PeLensApp {
         let sep = k.settings.get("indicators", "separator").unwrap_or("|").to_string();
         let group_rgb = |g: u8| k.translations.group(g).filter(|d| d.level < 3).map(|d| rgb(d.rgb));
         let mono: Vec<bool> = table.columns.iter().map(|c| theme::is_mono_column(c)).collect();
-        let mut tb = TableBuilder::new(ui).striped(true).resizable(true).sense(Sense::click()).cell_layout(Layout::left_to_right(Align::Center));
+        let mut tb =
+            TableBuilder::new(ui).striped(true).resizable(true).sense(Sense::click()).cell_layout(Layout::left_to_right(Align::Center));
         for (i, &c) in cols.iter().enumerate() {
             tb = tb.column(if i + 1 == cols.len() {
                 Column::remainder().at_least(60.0).clip(true)
             } else {
-                let w = theme::estimate_width(&table.columns[c], table.rows.iter().map(|r| r.cells.get(c).map(|x| x.chars().count()).unwrap_or(0)), mono[c]);
+                let w = theme::estimate_width(
+                    &table.columns[c],
+                    table.rows.iter().map(|r| r.cells.get(c).map(|x| x.chars().count()).unwrap_or(0)),
+                    mono[c],
+                );
                 Column::initial(w).at_least(40.0).clip(true)
             });
         }
@@ -792,7 +833,11 @@ impl PeLensApp {
                     } else if f.choices[0].0 == "*" {
                         ui.label(f.label);
                         let mut v = if f.attr == "key" { self.key_buffer.clone() } else { cur.clone() };
-                        let r = if f.attr == "key" { ui.add(egui::TextEdit::singleline(&mut v).password(true)) } else { ui.text_edit_singleline(&mut v) };
+                        let r = if f.attr == "key" {
+                            ui.add(egui::TextEdit::singleline(&mut v).password(true))
+                        } else {
+                            ui.text_edit_singleline(&mut v)
+                        };
                         if f.attr == "key" {
                             self.key_buffer = v.clone();
                             r.clone().on_hover_text("Your own Virustotal key used to perform queries.");
