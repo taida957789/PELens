@@ -3537,7 +3537,7 @@ dependencies = [
 
 [[package]]
 name = "pe-analysis"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "iced-x86",
  "libc",
@@ -3558,7 +3558,7 @@ dependencies = [
 
 [[package]]
 name = "pe-db"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "miniz_oxide 0.8.9",
  "quick-xml 0.37.5",
@@ -3566,7 +3566,7 @@ dependencies = [
 
 [[package]]
 name = "pe-online"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "keyring",
  "pe-analysis",
@@ -3579,11 +3579,11 @@ dependencies = [
 
 [[package]]
 name = "pe-parser"
-version = "0.3.0"
+version = "0.4.0"
 
 [[package]]
 name = "pelens-cli"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "pe-analysis",
  "pe-db",
@@ -3594,7 +3594,7 @@ dependencies = [
 
 [[package]]
 name = "pelens-gui"
-version = "0.3.0"
+version = "0.4.0"
 dependencies = [
  "eframe",
  "egui",
