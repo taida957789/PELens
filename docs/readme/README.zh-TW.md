@@ -59,6 +59,7 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 - **GUI**：tree-view、暗色／亮色主題、可排序與篩選的表格、右鍵選單、拖放、快捷鍵（Ctrl+O、S、E、R、X；Tab 在樹狀中移動）。
 - **8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨 Windows 顯示語言。
 - **十六進位檢視**（Ctrl+H）：只繪製可見的列，大檔案也流暢；各檢視中有位置資訊的項目可右鍵「在十六進位檢視中顯示」，並可前往位移或 RVA、複製為十六進位或文字。
+- **YARA 掃描**（YARA-X）：在設定 > YARA 或 `-yara:<dir>` 指定規則資料夾；每條命中的規則產生指標（嚴重度取自規則的 `severity` metadata），比對位置可直接在十六進位檢視中查看，也會寫入報告。
 
 ## 安裝／建置
 
@@ -76,7 +77,7 @@ cargo build --release
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 CLI 預設在樣本旁輸出 `<input>.xml`，與 pestudio 相同。

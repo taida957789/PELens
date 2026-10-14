@@ -283,3 +283,16 @@ copy as hex	copier en hexadécimal
 copy as text	copier en texte
 close	fermer
 {0} - {1} ({2} bytes)	{0} - {1} ({2} octets)
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	activer l’analyse YARA
+YARA rules folder:	Dossier des règles YARA :
+YARA: {0} rule files, {1} errors	YARA : {0} fichiers de règles, {1} erreurs
+rule	règle
+tags	étiquettes
+severity	gravité
+identifier	identifiant
+length	longueur
+metadata	métadonnées

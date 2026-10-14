@@ -20,11 +20,13 @@ pub struct Options {
     pub first_bytes: usize,
     /// Run WinVerifyTrust on signed files (Windows only).
     pub verify_signature: bool,
+    /// YARA rules to match (compiled once by the caller, see `yara::compile_dir`).
+    pub yara: Option<std::sync::Arc<crate::yara::YaraRules>>,
 }
 
 impl Default for Options {
     fn default() -> Self {
-        Self { strings_limit: None, strings: true, epoch: false, first_bytes: 32, verify_signature: true }
+        Self { strings_limit: None, strings: true, epoch: false, first_bytes: 32, verify_signature: true, yara: None }
     }
 }
 
@@ -40,6 +42,8 @@ impl Options {
             epoch: s.get_bool("stamps", "epoch", false),
             first_bytes: s.get_int("indicators", "bytes", 32).clamp(1, 256) as usize,
             verify_signature: true,
+            // compiled rules are expensive: the caller compiles them once and sets them here
+            yara: None,
         }
     }
 }
@@ -173,6 +177,13 @@ pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis 
     }
     build_footprints(&mut a, k, data);
     build_groups(&mut a, k);
+    if let Some(rules) = &o.yara {
+        a.yara_files = rules.files;
+        match crate::yara::scan(rules, data) {
+            Ok(m) => a.yara = m,
+            Err(e) => a.yara_error = Some(e),
+        }
+    }
     if o.verify_signature && a.pe.security.as_ref().is_some_and(|s| s.authenticode().is_some()) {
         a.certificate_check = Some(crate::verify::verify_data(path, data));
     }

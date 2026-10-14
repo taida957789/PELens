@@ -59,6 +59,7 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 - **GUI**: 트리 뷰, 다크·라이트 테마, 정렬·필터 가능한 테이블, 컨텍스트 메뉴, 드래그 앤 드롭, 단축키(Ctrl+O, S, E, R, X, Tab으로 트리 이동).
 - **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.
 - **16진수 보기**(Ctrl+H): 보이는 행만 그려 큰 파일도 부드럽습니다. 위치 정보가 있는 항목은 오른쪽 클릭의 "16진수 보기에서 표시"로 열 수 있고, 오프셋이나 RVA로 이동하거나 16진수·텍스트로 복사할 수 있습니다.
+- **YARA 검사**(YARA-X): 설정 > YARA 또는 `-yara:<dir>`로 규칙 폴더를 지정합니다. 일치한 규칙마다 지표를 만들고(심각도는 규칙의 `severity` 메타데이터), 일치 위치는 16진수 보기에서 바로 보며 보고서에도 기록됩니다.
 
 ## 설치／빌드
 
@@ -76,7 +77,7 @@ Rust 1.88 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 CLI는 기본적으로 pestudio처럼 샘플 옆에 `<input>.xml`을 씁니다.

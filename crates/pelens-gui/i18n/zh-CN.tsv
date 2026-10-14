@@ -283,3 +283,16 @@ copy as hex	复制为十六进制
 copy as text	复制为文本
 close	关闭
 {0} - {1} ({2} bytes)	{0} - {1}（{2} 字节）
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	启用 YARA 扫描
+YARA rules folder:	YARA 规则文件夹：
+YARA: {0} rule files, {1} errors	YARA：{0} 个规则文件，{1} 个错误
+rule	规则
+tags	标签
+severity	严重性
+identifier	标识符
+length	长度
+metadata	元数据

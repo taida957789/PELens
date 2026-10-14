@@ -283,3 +283,16 @@ copy as hex	als Hex kopieren
 copy as text	als Text kopieren
 close	schließen
 {0} - {1} ({2} bytes)	{0} - {1} ({2} Bytes)
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	YARA-Scan aktivieren
+YARA rules folder:	Ordner der YARA-Regeln:
+YARA: {0} rule files, {1} errors	YARA: {0} Regeldateien, {1} Fehler
+rule	Regel
+tags	Tags
+severity	Schweregrad
+identifier	Bezeichner
+length	Länge
+metadata	Metadaten

@@ -69,7 +69,7 @@ fn open_select_close() {
     // score queried automatically (score enable=1 in the fixture)
     assert_eq!(s.doc.as_ref().unwrap().analysis.score.as_ref().unwrap().positives, 1);
     assert!(s.doc.as_ref().unwrap().analysis.has_indicator(1064));
-    assert_eq!(s.nodes().len(), 27);
+    assert_eq!(s.nodes().len(), 28);
     s.apply(Action::Select(ItemType::Imports));
     let t = s.visible_table().unwrap();
     assert!(t.rows.len() > 5);
@@ -96,7 +96,7 @@ fn open_select_close() {
     assert_eq!(s.selected, ItemType::Libraries);
     s.apply(Action::Select(ItemType::Image));
     s.apply(Action::SelectPrevious);
-    assert_eq!(s.selected, ItemType::Overlay);
+    assert_eq!(s.selected, ItemType::Yara, "wraps to the last view");
     s.apply(Action::Close);
     assert!(s.doc.is_none());
     // missing file
@@ -437,7 +437,7 @@ fn item_scores_and_text_saving() {
 #[test]
 fn settings_model() {
     let tabs = setting_tabs();
-    assert_eq!(tabs, vec!["General", "Footprints", "First-bytes (hex|text)", "Virustotal"]);
+    assert_eq!(tabs, vec!["General", "Footprints", "First-bytes (hex|text)", "Virustotal", "YARA"]);
     for f in SETTING_FIELDS {
         let _ = setting_default(f);
     }
@@ -607,4 +607,29 @@ fn hex_view() {
     assert!(s.status.contains("invalid address"), "beyond the end of the file");
     s.apply(Action::ToggleHex);
     assert!(!s.hex.open);
+}
+
+#[test]
+fn yara_rules_from_the_settings() {
+    let (mut s, sample) = state("yara");
+    s.apply(Action::Open(sample));
+    // no folder configured
+    s.load_yara();
+    assert!(s.yara.is_none() && s.options().yara.is_none());
+    let dir = tmpdir("yara-rules");
+    std::fs::write(dir.join("a.yar"), "rule has_mz { strings: $a = \"MZ\" condition: $a at 0 }").unwrap();
+    std::fs::write(dir.join("b.yar"), "rule broken { condition: nope }").unwrap();
+    // setting the folder compiles the rules and analyses the open file again
+    s.set_setting("yara", "dir", &dir.to_string_lossy());
+    assert_eq!(s.yara.as_ref().map(|r| r.files), Some(1));
+    assert_eq!(s.yara_errors.len(), 1);
+    assert_eq!(s.status, "YARA: 1 rule files, 1 errors");
+    assert!(s.options().yara.is_some());
+    let a = &s.doc.as_ref().unwrap().analysis;
+    assert!(a.yara.iter().any(|m| m.rule == "has_mz"));
+    assert!(a.indicators.iter().any(|i| i.id == 1600));
+    // disabling YARA drops the rules
+    s.set_setting("yara", "enable", "0");
+    assert!(s.yara.is_none());
+    assert!(s.doc.as_ref().unwrap().analysis.yara.is_empty());
 }

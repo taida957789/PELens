@@ -59,6 +59,7 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 - **GUI**：ツリービュー、ダーク／ライトテーマ、並べ替え・絞り込みできるテーブル、右クリックメニュー、ドラッグ＆ドロップ、ショートカット（Ctrl+O・S・E・R・X、Tab でツリーを移動）。
 - **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。
 - **16 進ビュー**（Ctrl+H）：表示中の行だけを描画するので大きなファイルでも軽快です。位置情報のある項目は右クリックの「16 進ビューで表示」から開け、オフセットや RVA への移動、16 進またはテキストでのコピーができます。
+- **YARA スキャン**（YARA-X）：設定 > YARA または `-yara:<dir>` でルールのフォルダーを指定します。一致したルールごとにインジケーターを出し（重大度はルールの `severity` メタデータ）、一致位置は 16 進ビューで確認でき、レポートにも出力されます。
 
 ## インストール／ビルド
 
@@ -76,7 +77,7 @@ Rust 1.88 以降（edition 2024）が必要です。Windows 11 x64 で開発・�
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 CLI は既定で、pestudio と同じくサンプルの隣に `<input>.xml` を書き出します。

@@ -258,6 +258,7 @@ pub fn icon(item: pe_analysis::model::ItemType) -> &'static str {
         Strings => "🔤",
         Manifest => "📜",
         Overlay => "📎",
+        Yara => "🔍",
     }
 }
 

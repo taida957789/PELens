@@ -395,7 +395,7 @@ fn views_cover_every_node() {
     a.network_drive = true;
     a.removable_drive = true;
     let ts = all_tables(&a, &k, &data);
-    assert_eq!(ts.len(), 27);
+    assert_eq!(ts.len(), 28);
     for t in &ts {
         assert!(t.item.is_some());
         assert!(!t.columns.is_empty());
@@ -560,7 +560,7 @@ fn item_type_helpers() {
     assert_eq!(ItemType::from_index(99), None);
     assert_eq!(ItemType::from_index(-1), None);
     assert_eq!(ItemType::Tls.name(), "thread-local-storage");
-    assert_eq!(ItemType::ALL.len(), 27);
+    assert_eq!(ItemType::ALL.len(), 28);
     for (i, t) in ItemType::ALL.iter().enumerate() {
         assert_eq!(*t as usize, i);
     }
@@ -1137,4 +1137,83 @@ fn large_file_hashing_paths_agree() {
             .iter()
             .any(|r| r.cells.get(1) == Some(&info.hashes.md5) || r.cells.get(1).is_some_and(|c| c.eq_ignore_ascii_case(&info.hashes.md5)))
     );
+}
+
+#[test]
+fn yara_rules() {
+    use pe_analysis::yara::{self, YaraMatch};
+    let dir = std::env::temp_dir().join(format!("pelens-yara-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("sub")).unwrap();
+    // no rules yet
+    let (none, errors) = yara::compile_dir(&dir);
+    assert!(none.is_none() && errors.is_empty());
+    std::fs::write(
+        dir.join("pe.yar"),
+        r#"rule mz_header : file pe { meta: severity = "high" author = "test" strings: $mz = "MZ" condition: $mz at 0 }
+rule hook_api { meta: severity = 3 n = 5 f = 2.5 b = true raw = "aÿb" strings: $a = "SetWindowsHookExW" condition: $a }
+rule never { strings: $x = "this text is not in the sample" condition: $x }"#,
+    )
+    .unwrap();
+    std::fs::write(dir.join("sub").join("size.yara"), "rule any_size { condition: filesize > 0 }").unwrap();
+    std::fs::write(dir.join("broken.yar"), "rule broken { condition: oops }").unwrap();
+    std::fs::write(dir.join("notes.txt"), "not a rule file").unwrap();
+    assert_eq!(yara::rule_files(&dir).len(), 3);
+    let (rules, errors) = yara::compile_dir(&dir);
+    let rules = std::sync::Arc::new(rules.expect("two valid rule files"));
+    assert_eq!(rules.files, 2);
+    assert_eq!(format!("{rules:?}"), "YaraRules(2 files)");
+    assert_eq!(errors.len(), 1, "{errors:?}");
+    assert!(errors[0].contains("broken"), "{errors:?}");
+
+    let k = kb();
+    let data = testkit::suspicious_sample();
+    let opts = Options { yara: Some(rules.clone()), ..Default::default() };
+    let a = analyze(&data, "y.exe", &k, &opts);
+    assert_eq!(a.yara_files, 2);
+    let names: Vec<&str> = a.yara.iter().map(|m| m.rule.as_str()).collect();
+    assert!(names.contains(&"mz_header") && names.contains(&"hook_api") && names.contains(&"any_size"), "{names:?}");
+    assert!(!names.contains(&"never"));
+    let mz = a.yara.iter().find(|m| m.rule == "mz_header").unwrap();
+    assert_eq!((mz.namespace.as_str(), mz.tags.clone(), mz.severity()), ("pe", vec!["file".to_string(), "pe".to_string()], 1));
+    assert_eq!(mz.strings, vec![("$mz".to_string(), 0, 2)]);
+    // indicators: one per rule, severity from the metadata
+    let yi: Vec<&Indicator> = a.indicators.iter().filter(|i| i.id == 1600).collect();
+    assert_eq!(yi.len(), 3);
+    assert!(yi.iter().any(|i| i.severity == 1 && i.detail == "mz_header (pe)"));
+    assert!(yi.iter().any(|i| i.severity == 3 && i.detail.starts_with("hook_api")));
+    assert!(yi.iter().any(|i| i.severity == 2 && i.detail == "any_size (size)"));
+    // view: a row per pattern match, with the range for the hex view
+    let v = view::table(&a, &k, &data, ItemType::Yara, &ViewOptions::from_settings(&k));
+    assert_eq!(v.columns[0], "rule");
+    let row = v.rows.iter().find(|r| r.cells[0] == "mz_header").unwrap();
+    assert!(row.flag && row.dump == Some((0, 2)) && row.cells[7].contains("author=test"));
+    assert!(v.rows.iter().any(|r| r.cells[0] == "any_size" && r.dump.is_none()));
+    let hook = a.yara.iter().find(|m| m.rule == "hook_api").unwrap();
+    let meta: std::collections::HashMap<&str, &str> = hook.meta.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    assert_eq!((meta["n"], meta["f"], meta["b"]), ("5", "2.5", "true"));
+    assert!(meta.contains_key("raw"));
+    assert!(report::render(&a, &k, &data, Format::Json).contains("\"yara\""));
+    // other states of the view
+    let empty = analyze(b"plain text", "t.txt", &k, &Options { yara: Some(rules), ..Default::default() });
+    let only_size: Vec<&str> = empty.yara.iter().map(|m| m.rule.as_str()).collect();
+    assert_eq!(only_size, ["any_size"]);
+    let none = analyze(&data, "y.exe", &k, &Options::default());
+    let note = |a: &Analysis| view::table(a, &k, &data, ItemType::Yara, &ViewOptions::default()).note.unwrap_or_default();
+    assert!(note(&none).contains("no YARA rules"));
+    let mut failed = none.clone();
+    failed.yara_files = 1;
+    failed.yara_error = Some("timeout".into());
+    assert!(note(&failed).contains("scan failed: timeout"));
+    failed.yara_error = None;
+    assert!(note(&failed).contains("no match (1 rule files)"));
+    let ind =
+        pe_analysis::indicators::evaluate(&Analysis { yara_error: Some("timeout".into()), ..none.clone() }, &k, &data, &Options::default());
+    assert!(ind.iter().any(|i| i.id == 1601 && i.detail == "timeout"));
+    // severity spellings
+    let m = |v: &str| YaraMatch { meta: vec![("Severity".into(), v.into())], ..Default::default() };
+    assert_eq!([m("critical").severity(), m("2").severity(), m("low").severity(), m("odd").severity()], [1, 2, 3, 2]);
+    assert_eq!(YaraMatch::default().severity(), 2);
+    assert_eq!(a.flagged_count(ItemType::Yara), 3);
+    let _ = std::fs::remove_dir_all(dir);
 }

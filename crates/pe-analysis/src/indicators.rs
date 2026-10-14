@@ -41,6 +41,15 @@ impl Ctx<'_> {
         self.emit_named(id, &[], args);
     }
 
+    /// Emit with a severity decided by the data (e.g. a YARA rule's metadata).
+    fn emit_severity(&mut self, id: u32, severity: u8, args: &[Arg]) {
+        let before = self.out.len();
+        self.emit(id, args);
+        if let Some(i) = self.out.get_mut(before) {
+            i.severity = severity;
+        }
+    }
+
     fn threshold_violated(&self, id: u32, v: i64) -> bool {
         self.k.threshold(id).is_some_and(|t| t.violated(v))
     }
@@ -91,6 +100,12 @@ pub fn evaluate(a: &Analysis, k: &Knowledge, data: &[u8], o: &Options) -> Vec<In
     }
     if a.removable_drive {
         c.emit(1052, &[s(a.path.clone())]);
+    }
+    for m in &a.yara {
+        c.emit_severity(1600, m.severity(), &[s(format!("{} ({})", m.rule, m.namespace))]);
+    }
+    if let Some(e) = &a.yara_error {
+        c.emit(1601, &[s(e.clone())]);
     }
 
     let Some(l) = a.pe.layout.as_ref() else {

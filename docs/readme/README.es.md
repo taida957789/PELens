@@ -59,6 +59,7 @@ La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo 
 - **GUI**: vista de árbol, temas oscuro y claro, tablas ordenables y filtrables, menús contextuales, arrastrar y soltar, y atajos (Ctrl+O, S, E, R, X; Tab recorre el árbol).
 - **Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.
 - **Vista hexadecimal** (Ctrl+H): solo dibuja las filas visibles, también fluida con archivos grandes; los elementos con posición se abren con «mostrar en hexadecimal» del menú contextual, con salto a un desplazamiento o RVA y copia como hexadecimal o texto.
+- **Análisis YARA** (YARA-X): indique la carpeta de reglas en configuración > YARA o con `-yara:<dir>`; cada regla que coincide genera un indicador (gravedad según el metadato `severity` de la regla), las coincidencias se abren en la vista hexadecimal y aparecen en los informes.
 
 ## Instalación / compilación
 
@@ -76,7 +77,7 @@ Requiere Rust 1.88 o posterior (edition 2024). Desarrollado y probado en Windows
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 Por defecto la CLI escribe `<input>.xml` junto a la muestra, igual que pestudio.

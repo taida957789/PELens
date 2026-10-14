@@ -283,3 +283,16 @@ copy as hex	16 進でコピー
 copy as text	テキストでコピー
 close	閉じる
 {0} - {1} ({2} bytes)	{0} - {1}（{2} バイト）
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	YARA スキャンを有効化
+YARA rules folder:	YARA ルールのフォルダー:
+YARA: {0} rule files, {1} errors	YARA: ルールファイル {0} 件、エラー {1} 件
+rule	ルール
+tags	タグ
+severity	重大度
+identifier	識別子
+length	長さ
+metadata	メタデータ

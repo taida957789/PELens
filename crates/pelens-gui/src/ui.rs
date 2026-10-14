@@ -950,6 +950,11 @@ impl PeLensApp {
             if !self.fonts_loaded.is_empty() {
                 ui.small(self.state.tf("fonts: {0}", &[&self.fonts_loaded.join(", ")]));
             }
+            let files = self.state.yara.as_ref().map_or(0, |r| r.files);
+            ui.small(self.state.tf("YARA: {0} rule files, {1} errors", &[&files, &self.state.yara_errors.len()]));
+            for e in self.state.yara_errors.iter().take(5) {
+                ui.small(RichText::new(e).monospace().color(self.palette.flag));
+            }
             ui.separator();
             if ui.button(self.state.t("Check online for an update")).clicked() {
                 self.push(Action::CheckUpdate);

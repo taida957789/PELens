@@ -58,6 +58,7 @@ Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la d
 - **Rapports** en XML, JSON ou texte, construits à partir des mêmes tables que celles de l'interface.
 - **Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence).
 - **Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.
+- **Analyse YARA** (YARA-X) : indiquez le dossier de règles dans paramètres > YARA ou avec `-yara:<dir>` ; chaque règle correspondante produit un indicateur (gravité tirée de la métadonnée `severity` de la règle), les correspondances s’ouvrent dans la vue hexadécimale et figurent dans les rapports.
 
 ## Installation / compilation
 
@@ -75,7 +76,7 @@ Nécessite Rust 1.88 ou plus récent (édition 2024). Développé et testé sous
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 Par défaut, la CLI écrit `<input>.xml` à côté de l'échantillon, comme pestudio.

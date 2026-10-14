@@ -12,6 +12,7 @@ pub mod testkit;
 pub mod util;
 pub mod verify;
 pub mod view;
+pub mod yara;
 
 pub use analyze::{Options, analyze, analyze_file};
 pub use model::*;

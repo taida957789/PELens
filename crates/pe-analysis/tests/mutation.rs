@@ -110,8 +110,10 @@ fn parser_survives_mutations() {
                 Ok(pe) => {
                     let res = pe.resources.as_ref().map_or(0, |r| r.entries.len());
                     let exp = pe.exports.as_ref().map_or(0, |e| e.functions.len());
-                    if res > d.len() / 8 || exp > d.len() / 2 {
-                        fail(&format!("parse-{name}"), seed, i, &d, format!("{res} resources, {exp} exports"));
+                    // one import per thunk slot (4 bytes at least)
+                    let imp = pe.imports.function_count();
+                    if res > d.len() / 8 || exp > d.len() / 2 || imp > d.len() / 4 {
+                        fail(&format!("parse-{name}"), seed, i, &d, format!("{res} resources, {exp} exports, {imp} imports"));
                     }
                 }
             }

@@ -203,3 +203,29 @@ fn stdout_is_pipe_clean() {
     let (_, o, _) = run_cli(&s(&[&format!("-file:{}", sample.display()), "-stdout"]), &env);
     assert!(o.starts_with("<?xml"));
 }
+
+#[test]
+fn yara_rules_option() {
+    let dir = std::env::temp_dir().join(format!("pelens-cli-yara-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("rules")).unwrap();
+    std::fs::create_dir_all(dir.join("empty")).unwrap();
+    std::fs::write(dir.join("rules/mz.yar"), "rule mz_at_zero { strings: $m = \"MZ\" condition: $m at 0 }").unwrap();
+    std::fs::write(dir.join("rules/bad.yar"), "rule bad {").unwrap();
+    let sample = dir.join("s.exe");
+    std::fs::write(&sample, pe_analysis::testkit::suspicious_sample()).unwrap();
+    let env = TestEnv { exe: None, store: Default::default() };
+    let (c, o, e) = run_cli(
+        &s(&[&format!("-file:{}", sample.display()), &format!("-yara:{}", dir.join("rules").display()), "-format:json", "-stdout"]),
+        &env,
+    );
+    assert_eq!(c, 0, "{e}");
+    assert!(e.contains("[!] yara:") && e.contains("bad"), "{e}");
+    assert!(o.contains("mz_at_zero"), "the report lists the matching rule");
+    let (c, _, e) =
+        run_cli(&s(&[&format!("-file:{}", sample.display()), &format!("-yara:{}", dir.join("empty").display()), "-stdout"]), &env);
+    assert_eq!(c, 0);
+    assert!(e.contains("no usable rule"), "{e}");
+    assert!(pelens_cli::USAGE.contains("-yara:"));
+    let _ = std::fs::remove_dir_all(dir);
+}

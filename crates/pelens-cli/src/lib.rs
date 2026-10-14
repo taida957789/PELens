@@ -2,7 +2,7 @@
 //!
 //! ```text
 //! pelens-cli -file:input [-report:output] [-banner]
-//!           [-xml:knowledge-dir] [-format:xml|json|text] [-vt] [-stdout]
+//!           [-xml:knowledge-dir] [-format:xml|json|text] [-vt] [-stdout] [-yara:rules-dir]
 //! ```
 
 use pe_analysis::report::{self, Format};
@@ -14,14 +14,15 @@ pub const DISCLAIMER: &str = "This software is provided 'as-is', without any exp
 In no event will the author be held liable for any damage arising from the use of this software.\n\
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.";
 
-pub const USAGE: &str = "pelens-cli -file:input [-report:output] [-banner] [-xml:dir] [-format:xml|json|text] [-vt] [-stdout]\n\n\
+pub const USAGE: &str = "pelens-cli -file:input [-report:output] [-banner] [-xml:dir] [-format:xml|json|text] [-vt] [-stdout] [-yara:dir]\n\n\
 -file:     input file to analyse\n\
 -report:   report file (default: the name of the input file appended with the report extension)\n\
 -banner:   hide the banner\n\
--xml:      directory holding the pestudio XML knowledge files\n\
+-xml:      directory holding the pestudio XML knowledge files (default: the built-in open knowledge base)\n\
 -format:   report format (xml, json or text)\n\
 -vt:       query the Virustotal score (hash only)\n\
--stdout:   write the report to the standard output";
+-stdout:   write the report to the standard output\n\
+-yara:     folder of YARA rules (.yar, .yara) to match (default: settings <yara dir>)";
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Args {
@@ -33,6 +34,7 @@ pub struct Args {
     pub vt: bool,
     pub stdout: bool,
     pub help: bool,
+    pub yara_dir: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -74,6 +76,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, ArgError> {
                 })
             }
             ("vt", _) => a.vt = true,
+            ("yara", Some(v)) if !v.is_empty() => a.yara_dir = Some(PathBuf::from(v)),
             ("stdout", _) => a.stdout = true,
             ("help" | "?" | "h", _) => a.help = true,
             _ => return Err(ArgError::Unknown(raw.clone())),
@@ -162,7 +165,19 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
             let _ = writeln!(err, "[!] the Virustotal key stays in settings.xml ({e})");
         }
     }
-    let opts = pe_analysis::Options::from_settings(&k);
+    let mut opts = pe_analysis::Options::from_settings(&k);
+    // -yara:<dir> wins over the settings; the setting is used when YARA is enabled
+    let from_settings = k.settings.get("yara", "dir").filter(|d| !d.trim().is_empty() && k.settings.get_bool("yara", "enable", true));
+    if let Some(dir) = a.yara_dir.clone().or(from_settings.map(PathBuf::from)) {
+        let (rules, errors) = pe_analysis::yara::compile_dir(&dir);
+        for e in &errors {
+            let _ = writeln!(err, "[!] yara: {e}");
+        }
+        if rules.is_none() {
+            let _ = writeln!(err, "[!] yara: no usable rule in {}", dir.display());
+        }
+        opts.yara = rules.map(std::sync::Arc::new);
+    }
     let (data, mut an) = match pe_analysis::analyze_file(&file, &k, &opts) {
         Ok(x) => x,
         Err(e) => {

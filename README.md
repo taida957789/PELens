@@ -61,7 +61,7 @@ match the reports and what the search box finds. The translations live in
 - **27 views** like pestudio's: image, footprints, groups, indicators, MITRE, VirusTotal score,
   DOS stub and header, Rich header, file and optional headers, directories, sections,
   libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources,
-  version, debug, strings, manifest and overlay.
+  version, debug, strings, manifest and overlay, plus a YARA view.
 - **150 indicators**, mapped to MITRE ATT&CK tactics and techniques, with severities you can edit.
 - **Signature engine**: entry-point signatures (PEiD style, with nibble wildcards), text
   signatures, and embedded-file detection in resources, sections, the overlay and base64 data.
@@ -79,6 +79,9 @@ match the reports and what the search box finds. The translations live in
 - **Hex view** (Ctrl+H): draws only the visible lines, so it stays smooth on large files. Items
   with a position open there from the context menu ("show in hex"); go to an offset or an RVA,
   copy as hex or text.
+- **YARA scan** (YARA-X): set a rules folder in settings > YARA or with `-yara:<dir>`. Every
+  matching rule raises an indicator (severity from the rule's `severity` metadata); the matches
+  open in the hex view and are part of the reports.
 - **Interface in 8 languages**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch and
   Français; by default the Windows display language.
 
@@ -99,7 +102,7 @@ You need Rust 1.88 or newer (edition 2024). It is developed and tested on Window
 
 ```bash
 pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
-pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
+pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
 By default the CLI writes `<input>.xml` next to the sample, like pestudio does.

@@ -247,12 +247,12 @@
 - 修正：比較時發現 pestudio 的 functions.xml 有重複的函式庫名稱，會讓函式查詢索引越界而崩潰（v0.1.0 即有的錯誤），已修正並加測試
 
 ## M18 YARA 掃描
-- [ ] T18.1 加入 `yara-x`（feature `yara`）；量測編譯時間與執行檔大小
-- [ ] T18.2 規則載入：`<yara dir>`、`-yara:<dir>`；編譯錯誤列出檔名與行號
-- [ ] T18.3 新檢視 `yara`（規則、命名空間、tags、metadata、比對字串與偏移）
-- [ ] T18.4 YARA 指標（嚴重度取自規則 metadata）
-- [ ] T18.5 報告 XML / JSON / text 加入 yara 區段
-- [ ] T18.6 tree-view、`-view:`、翻譯檔同步更新
+- [x] T18.1 加入 `yara-x` 1.21（feature `yara`，預設開啟）。量測：GUI 20 → 44 MB、CLI 3.9 → 28 MB，release 全新建置約 4.5 分鐘；LTO＋單一 codegen unit 只省 3 MB 卻多 2 分鐘，不採用。改為 GUI／CLI 的可選 feature：`cargo build --release --no-default-features` 得到約 20 MB／4 MB 的版本，CI 也會確認這個版本可編譯
+- [x] T18.2 規則載入：設定 > YARA（`<yara enable dir>`）、`-yara:<dir>`；子資料夾、每個檔案一個 namespace；無法編譯的檔案列出錯誤（含檔名與行號）並略過，其他規則照常使用；每檔掃描上限 30 秒
+- [x] T18.3 第 28 個檢視 `yara`（加在最後，既有的檢視代碼不變）：規則、命名空間、tags、嚴重度、比對字串、偏移、長度、metadata；每條規則最多列 64 個比對，可在十六進位檢視中顯示
+- [x] T18.4 指標 1600（每條命中的規則，嚴重度取自 `severity` metadata：1/2/3、high/medium/low、critical）與 1601（掃描失敗）
+- [x] T18.5 報告 XML / JSON / text 自動包含 yara 區段
+- [x] T18.6 tree-view、`-view:yara`、設定頁 YARA、關於視窗（規則檔數與錯誤）、8 種語言翻譯
 
 ## M19 Hex 檢視器
 - [x] T19.1 hex 面板（位移 / hex / ASCII，只繪製可見列；Ctrl+H、檢視選單、`-hex`）

@@ -10,6 +10,7 @@ fn main() -> eframe::Result {
     let _ = pe_online::secret::migrate_plaintext_key(&mut k, store.as_ref());
     let mut state = pelens_gui::State::new(k);
     state.key_store = store;
+    state.load_yara();
     state.set_system_lang(pelens_gui::i18n::system_lang());
     let startup = pelens_gui::parse_startup(&args);
     startup.apply_lang(&mut state);

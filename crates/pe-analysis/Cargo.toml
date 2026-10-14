@@ -11,6 +11,12 @@ md-5 = { workspace = true }
 sha1 = { workspace = true }
 sha2 = { workspace = true }
 msvc-demangler = { workspace = true }
+yara-x = { version = "1.21", optional = true }
+
+[features]
+default = ["yara"]
+# YARA rule scanning (YARA-X); without it rule folders are reported as ignored.
+yara = ["dep:yara-x"]
 
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem", "Win32_Security_WinTrust", "Win32_Security_Cryptography", "Win32_System_Com"] }

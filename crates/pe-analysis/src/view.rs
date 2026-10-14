@@ -227,6 +227,7 @@ pub fn table(a: &Analysis, k: &Knowledge, data: &[u8], item: ItemType, o: &ViewO
         ItemType::Strings => strings(a, k),
         ItemType::Manifest => manifest(a, data),
         ItemType::Overlay => overlay(a, k, data, o),
+        ItemType::Yara => yara(a),
     };
     Table { item: Some(item), ..t }
 }
@@ -1375,6 +1376,36 @@ fn overlay(a: &Analysis, k: &Knowledge, data: &[u8], o: &ViewOptions) -> Table {
     t
 }
 
+fn yara(a: &Analysis) -> Table {
+    if let Some(e) = &a.yara_error {
+        return Table::na(ItemType::Yara, &format!("scan failed: {e}"));
+    }
+    if a.yara_files == 0 {
+        return Table::na(ItemType::Yara, "n/a (no YARA rules: settings > YARA)");
+    }
+    if a.yara.is_empty() {
+        return Table::na(ItemType::Yara, &format!("no match ({} rule files)", a.yara_files));
+    }
+    let mut t = Table::new(ItemType::Yara, &["rule", "namespace", "tags", "severity", "identifier", "file-offset", "length", "metadata"]);
+    for m in &a.yara {
+        let sev = m.severity();
+        let level = ["", "high", "medium", "low"][sev as usize].to_string();
+        let meta = m.meta.iter().map(|(k, v)| format!("{k}={v}")).collect::<Vec<_>>().join("; ");
+        let base = |id: &str, off: String, len: String| {
+            Row::new(vec![m.rule.clone(), m.namespace.clone(), m.tags.join(", "), level.clone(), id.to_string(), off, len, meta.clone()])
+                .flag(sev == 1)
+                .key(format!("yara:{}:{}", m.namespace, m.rule))
+        };
+        if m.strings.is_empty() {
+            t.rows.push(base("", String::new(), String::new()));
+        }
+        for (id, off, len) in &m.strings {
+            t.rows.push(base(id, hex32(*off), len.to_string()).dump(*off, *len));
+        }
+    }
+    t
+}
+
 /// Whether a view is enabled by the settings (pestudio hides some views by default).
 pub fn view_enabled(k: &Knowledge, item: ItemType) -> bool {
     let s = &k.settings;
@@ -1386,6 +1417,7 @@ pub fn view_enabled(k: &Knowledge, item: ItemType) -> bool {
         ItemType::Groups => s.get_bool("groups", "enable", true),
         ItemType::Footprints => s.get_bool("footprints", "enable", true),
         ItemType::Strings => s.get_bool("strings", "enable", true),
+        ItemType::Yara => s.get_bool("yara", "enable", true),
         _ => true,
     }
 }

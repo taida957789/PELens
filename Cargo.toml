@@ -11,7 +11,7 @@ rust-version = "1.88"
 [workspace.dependencies]
 pe-parser = { path = "crates/pe-parser" }
 pe-db = { path = "crates/pe-db" }
-pe-analysis = { path = "crates/pe-analysis" }
+pe-analysis = { path = "crates/pe-analysis", default-features = false }
 pe-online = { path = "crates/pe-online" }
 quick-xml = "0.37"
 md-5 = "0.10"
@@ -26,3 +26,6 @@ serde_json = "1"
 [profile.release]
 opt-level = 3
 lto = "thin"
+# no symbol table in the .exe (debug information stays in the .pdb)
+strip = "symbols"
+

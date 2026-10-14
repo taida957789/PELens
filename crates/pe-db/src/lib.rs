@@ -480,6 +480,7 @@ pub fn default_settings() -> Settings {
         ("thresholds", &[("enable", "1")]),
         ("tooltips", &[("enable", "1")]),
         ("stamps", &[("epoch", "0")]),
+        ("yara", &[("enable", "1"), ("dir", "")]),
     ];
     for (e, attrs) in defaults {
         s.setting.push((e.to_string(), attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()));

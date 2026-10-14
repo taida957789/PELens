@@ -183,3 +183,7 @@
 1065	3	05	----	virustotal > not detected	%s
 1066	3	05	----	virustotal > report	%s
 1067	3	05	----	virustotal > last analysis	%s
+
+# yara (view 27)
+1600	2	27	----	yara > rule	%s
+1601	3	27	----	yara > scan failed	%s

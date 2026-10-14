@@ -34,10 +34,11 @@ pub enum ItemType {
     Strings = 24,
     Manifest = 25,
     Overlay = 26,
+    Yara = 27,
 }
 
 impl ItemType {
-    pub const ALL: [ItemType; 27] = [
+    pub const ALL: [ItemType; 28] = [
         ItemType::Image,
         ItemType::Footprints,
         ItemType::Groups,
@@ -65,6 +66,7 @@ impl ItemType {
         ItemType::Strings,
         ItemType::Manifest,
         ItemType::Overlay,
+        ItemType::Yara,
     ];
 
     pub fn name(self) -> &'static str {
@@ -96,6 +98,7 @@ impl ItemType {
             "strings",
             "manifest",
             "overlay",
+            "yara",
         ][self as usize]
     }
 
@@ -371,6 +374,12 @@ pub struct Analysis {
     pub overlay_info: Option<OverlayInfo>,
     /// PE checksum computed over the file (the optional header holds the claimed one).
     pub checksum_real: Option<u32>,
+    /// Matching YARA rules (`Options::yara`).
+    pub yara: Vec<crate::yara::YaraMatch>,
+    /// Rule files the rules were compiled from (0: no rules).
+    pub yara_files: usize,
+    /// The scan failed (timeout, …).
+    pub yara_error: Option<String>,
     pub imphash: Option<String>,
     pub cpu: String,
     pub file_type: String,
@@ -418,6 +427,7 @@ impl Analysis {
             ItemType::Resources => self.resources.iter().filter(|r| r.severity <= 2 || r.language_flag).count(),
             ItemType::Mitre => self.mitre.iter().filter(|m| m.flag).count(),
             ItemType::Score => self.score.as_ref().map(|s| s.positives as usize).unwrap_or(0),
+            ItemType::Yara => self.yara.len(),
             _ => 0,
         }
     }

@@ -210,6 +210,10 @@ pub struct State {
     /// Visible (filtered/sorted) table of the selected view, reused across frames.
     view_cache: Option<(ViewKey, Arc<Table>)>,
     pub hex: HexView,
+    /// Compiled YARA rules (settings > YARA), shared with the analysis jobs.
+    pub yara: Option<Arc<pe_analysis::yara::YaraRules>>,
+    /// Rule files that did not compile, with the compiler's message.
+    pub yara_errors: Vec<String>,
     /// Where the VirusTotal key is kept: in memory by default (tests), the Windows Credential
     /// Manager in the application (see main.rs).
     pub key_store: Arc<dyn pe_online::secret::KeyStore>,
@@ -268,6 +272,8 @@ impl State {
             synchronous: false,
             view_cache: None,
             hex: HexView::default(),
+            yara: None,
+            yara_errors: Vec::new(),
             key_store: Arc::new(pe_online::secret::MemoryStore::default()),
             lang: Lang::En,
             system_lang: Lang::En,
@@ -433,8 +439,29 @@ impl State {
         };
     }
 
+    /// Analysis options from the settings, with the compiled YARA rules.
+    pub fn options(&self) -> pe_analysis::Options {
+        pe_analysis::Options { yara: self.yara.clone(), ..pe_analysis::Options::from_settings(&self.knowledge) }
+    }
+
+    /// (Re)compile the YARA rules of the folder set in settings > YARA.
+    pub fn load_yara(&mut self) {
+        self.yara = None;
+        self.yara_errors.clear();
+        let s = &self.knowledge.settings;
+        let dir = s.get("yara", "dir").unwrap_or("").trim().to_string();
+        if dir.is_empty() || !s.get_bool("yara", "enable", true) {
+            return;
+        }
+        let (rules, errors) = pe_analysis::yara::compile_dir(std::path::Path::new(&dir));
+        let files = rules.as_ref().map_or(0, |r| r.files);
+        self.yara = rules.map(Arc::new);
+        self.status = self.tf("YARA: {0} rule files, {1} errors", &[&files, &errors.len()]);
+        self.yara_errors = errors;
+    }
+
     fn reanalyze(&mut self, path: PathBuf, data: Vec<u8>, dirty: bool) {
-        let opts = pe_analysis::Options::from_settings(&self.knowledge);
+        let opts = self.options();
         let mut a = pe_analysis::analyze(&data, &path.to_string_lossy(), &self.knowledge, &opts);
         // Keep what analyze_file() added from the disk / network for the same file.
         if let Some(old) = self.doc.as_ref().filter(|d| d.path == path).map(|d| &d.analysis) {
@@ -458,8 +485,8 @@ impl State {
     fn start_open(&mut self, path: PathBuf) {
         self.status = self.t("please wait while analyzing the file...").into();
         let k = self.knowledge.clone();
+        let opts = self.options();
         let job = move || -> OpenResult {
-            let opts = pe_analysis::Options::from_settings(&k);
             pe_analysis::analyze_file(&path, &k, &opts).map(|(d, a)| (path.clone(), d, a)).map_err(|e| format!("{}: {e}", path.display()))
         };
         let (tx, rx) = channel();
@@ -862,6 +889,13 @@ impl State {
         if elem == "language" {
             self.refresh_lang();
         }
+        if elem == "yara" {
+            self.load_yara();
+            if let Some(d) = &self.doc {
+                let (p, data, dirty) = (d.path.clone(), d.data.clone(), d.dirty);
+                self.reanalyze(p, data, dirty);
+            }
+        }
         self.view = ViewOptions::from_settings(&self.knowledge);
         if let Some(d) = self.doc.as_mut() {
             d.invalidate();
@@ -1127,6 +1161,8 @@ pub const SETTING_FIELDS: &[SettingField] = &[
     SettingField { tab: "Virustotal", label: "API version", elem: "score", attr: "api", choices: &[("3", "v3"), ("2", "v2")] },
     SettingField { tab: "Virustotal", label: "proxy address", elem: "proxy", attr: "address", choices: &[("*", "")] },
     SettingField { tab: "Virustotal", label: "proxy port", elem: "proxy", attr: "port", choices: &[("*", "")] },
+    SettingField { tab: "YARA", label: "enable YARA scan", elem: "yara", attr: "enable", choices: &[] },
+    SettingField { tab: "YARA", label: "YARA rules folder:", elem: "yara", attr: "dir", choices: &[("*", "")] },
 ];
 
 pub fn setting_tabs() -> Vec<&'static str> {
@@ -1146,7 +1182,7 @@ pub fn setting_default(f: &SettingField) -> &'static str {
         ("report", "type") | ("strings", "limit") => "0",
         ("score", "api") => "3",
         ("language", _) => "auto",
-        ("score", "key") | ("score", "favorite") | ("proxy", _) => "",
+        ("score", "key") | ("score", "favorite") | ("proxy", _) | ("yara", "dir") => "",
         ("overlay", "score") | ("strings", "cjk") => "0",
         ("stamps", "epoch") | ("score", "enable") => "0",
         _ => "1",

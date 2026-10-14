@@ -283,3 +283,16 @@ copy as hex	複製為十六進位
 copy as text	複製為文字
 close	關閉
 {0} - {1} ({2} bytes)	{0} - {1}（{2} 位元組）
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	啟用 YARA 掃描
+YARA rules folder:	YARA 規則資料夾：
+YARA: {0} rule files, {1} errors	YARA：{0} 個規則檔，{1} 個錯誤
+rule	規則
+tags	標籤
+severity	嚴重度
+identifier	識別碼
+length	長度
+metadata	中繼資料

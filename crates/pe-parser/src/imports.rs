@@ -118,8 +118,8 @@ impl Imports {
     }
 }
 
-/// Functions left to read, and the thunk slots (file offsets) already read: a slot yields one
-/// function at most, so descriptors sharing a thunk array cannot multiply the listing.
+/// Functions left to read, and the thunk slots (file offsets) already read: slots never overlap,
+/// so descriptors sharing (parts of) a thunk array cannot multiply the listing.
 struct Budget {
     left: usize,
     slots: HashSet<usize>,
@@ -170,11 +170,13 @@ fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, 
         if v == 0 {
             break;
         }
-        if let Some(off) = l.rva_to_offset(slot)
-            && !budget.slots.insert(off)
-        {
-            budget.shared = true;
-            break;
+        // a slot overlapping one already read (tables may start inside another table)
+        if let Some(off) = l.rva_to_offset(slot) {
+            if (off.saturating_sub(ts as usize - 1)..off + ts as usize).any(|x| budget.slots.contains(&x)) {
+                budget.shared = true;
+                break;
+            }
+            budget.slots.insert(off);
         }
         let iat_slot = iat_rva.wrapping_add(i * ts);
         let iat_value = read_thunk(r, l, iat_slot).unwrap_or(0);

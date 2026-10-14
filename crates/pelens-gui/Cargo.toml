@@ -35,3 +35,8 @@ pe-online = { workspace = true }
 
 [build-dependencies]
 winresource = "0.1"
+
+[features]
+default = ["yara"]
+# YARA rule scanning (YARA-X, about +20 MB). Build without it: cargo build --release --no-default-features
+yara = ["pe-analysis/yara"]

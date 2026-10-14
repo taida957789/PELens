@@ -283,3 +283,16 @@ copy as hex	16진수로 복사
 copy as text	텍스트로 복사
 close	닫기
 {0} - {1} ({2} bytes)	{0} - {1} ({2}바이트)
+
+# yara
+yara	YARA
+YARA	YARA
+enable YARA scan	YARA 검사 사용
+YARA rules folder:	YARA 규칙 폴더:
+YARA: {0} rule files, {1} errors	YARA: 규칙 파일 {0}개, 오류 {1}개
+rule	규칙
+tags	태그
+severity	심각도
+identifier	식별자
+length	길이
+metadata	메타데이터
