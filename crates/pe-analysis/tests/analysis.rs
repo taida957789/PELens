@@ -1275,6 +1275,10 @@ fn disassembly_view() {
     let a = analyze(&data, "c.exe", &k, &Options::default());
     let o = |start: Option<u32>, count: usize| ViewOptions { disasm_start: start, disasm_count: count, ..ViewOptions::default() };
     let note = |a: &Analysis, d: &[u8], o: &ViewOptions| view::table(a, &k, d, ItemType::Disassembly, o).note.unwrap_or_default();
+    // zero padding after the code ends the listing
+    let ep = a.pe.layout.as_ref().unwrap().optional_header.address_of_entry_point;
+    let all = pe_analysis::disasm::disassemble(&a, &data, ep, 1000).unwrap();
+    assert!(all.len() < 64 && !all.iter().any(|l| l.bytes.iter().all(|&b| b == 0)), "{}", all.len());
     // any RVA; an RVA outside the file
     let text = a.pe.layout.as_ref().unwrap().sections[0].virtual_address;
     assert!(note(&a, &data, &o(Some(text), 4)).starts_with("from RVA"));

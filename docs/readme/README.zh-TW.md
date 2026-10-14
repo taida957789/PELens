@@ -35,8 +35,8 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 | 匯入：群組、MITRE 技術與旗標 | 字串：標籤、位置分佈圖與群組 |
 | ![sections-light](../screenshots/sections-light.png) | ![certificate-light](../screenshots/certificate-light.png) |
 | 區段（亮色模式）與展開的 tree-view | Authenticode 憑證鏈與 WinVerifyTrust 結果 |
-| ![dotnet-dark](../screenshots/dotnet-dark.png) | |
-| .NET header、metadata streams、tables 與 namespaces | |
+| ![dotnet-dark](../screenshots/dotnet-dark.png) | ![disassembly](../screenshots/disassembly-hex-dark.png) |
+| .NET header、metadata streams、tables 與 namespaces | 反組譯（經由 IAT 的呼叫顯示函式名稱）與十六進位檢視 |
 
 ## 介面語言
 

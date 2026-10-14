@@ -691,7 +691,8 @@ impl PeLensApp {
         let mut area = egui::ScrollArea::both().id_salt("hexview").auto_shrink([false, false]);
         if let Some(off) = self.state.hex.scroll_to.take() {
             let line = (off as usize / HEX_WIDTH).saturating_sub(2);
-            area = area.vertical_scroll_offset(line as f32 * row_h);
+            // show_rows places a row every row height + item spacing
+            area = area.vertical_scroll_offset(line as f32 * (row_h + ui.spacing().item_spacing.y));
         }
         let range = self.state.hex.range;
         let in_range = |o: usize| range.is_some_and(|(s, n)| (o as u64) >= s && (o as u64) < s.saturating_add(n.max(1)));
@@ -841,6 +842,12 @@ impl PeLensApp {
                 let resp = row.response();
                 if resp.clicked() {
                     new_selected = Some(ri);
+                    // the open hex view follows the selected row
+                    if st.hex.open
+                        && let Some((off, size)) = r.dump
+                    {
+                        actions.push(Action::ShowHex(off, size));
+                    }
                 }
                 if resp.double_clicked() {
                     if let Some(j) = r.jump {

@@ -22,6 +22,8 @@ pub struct Line {
 
 /// Longest x86 instruction.
 const MAX_INSTRUCTION: usize = 15;
+/// Consecutive all-zero instructions taken as padding (the disassembly stops there).
+pub const PADDING_RUN: usize = 4;
 /// Upper bound of the instruction count (setting `<disassembly count>`).
 pub const MAX_COUNT: usize = 4096;
 
@@ -106,6 +108,12 @@ pub fn disassemble(a: &Analysis, data: &[u8], rva: u32, count: usize) -> Result<
             }
         }
         out.push(line);
+        // zero padding after the code: stop rather than list "add [eax], al" forever
+        let zeros = out.iter().rev().take_while(|l| !l.bytes.is_empty() && l.bytes.iter().all(|&b| b == 0)).count();
+        if zeros >= PADDING_RUN {
+            out.truncate(out.len() - zeros);
+            break;
+        }
     }
     Ok(out)
 }

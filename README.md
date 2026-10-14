@@ -40,8 +40,8 @@ compatible with pestudio's XML knowledge base and its `pestudiox` command line.
 | Imports with groups, MITRE techniques and flags | Strings with labels, location map and groups |
 | ![Sections (light)](docs/screenshots/sections-light.png) | ![Certificate (light)](docs/screenshots/certificate-light.png) |
 | Sections, light mode, with the expanded tree-view | Authenticode certificate chain and WinVerifyTrust result |
-| ![.NET](docs/screenshots/dotnet-dark.png) | |
-| .NET header, metadata streams, tables and namespaces | |
+| ![.NET](docs/screenshots/dotnet-dark.png) | ![Disassembly](docs/screenshots/disassembly-hex-dark.png) |
+| .NET header, metadata streams, tables and namespaces | Disassembly (calls through the IAT named) and hex view |
 
 ## Interface languages
 

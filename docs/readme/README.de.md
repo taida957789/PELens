@@ -35,8 +35,8 @@ PELens untersucht `.exe`-, `.dll`- und `.sys`-Dateien, **ohne sie auszuführen**
 | Importe mit Gruppen, MITRE-Techniken und Markierungen | Strings mit Labels, Positionskarte und Gruppen |
 | ![sections-light](../screenshots/sections-light.png) | ![certificate-light](../screenshots/certificate-light.png) |
 | Sections im hellen Modus mit aufgeklappter Baumansicht | Authenticode-Zertifikatskette und WinVerifyTrust-Ergebnis |
-| ![dotnet-dark](../screenshots/dotnet-dark.png) | |
-| .NET-Header, Metadaten-Streams, Tabellen und Namespaces | |
+| ![dotnet-dark](../screenshots/dotnet-dark.png) | ![disassembly](../screenshots/disassembly-hex-dark.png) |
+| .NET-Header, Metadaten-Streams, Tabellen und Namespaces | Disassemblierung (IAT-Aufrufe mit Funktionsnamen) und Hex-Ansicht |
 
 ## Sprachen der Oberfläche
 

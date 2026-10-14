@@ -35,8 +35,8 @@ PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、�
 | 导入：分组、MITRE 技术和标记 | 字符串：标签、位置分布图和分组 |
 | ![sections-light](../screenshots/sections-light.png) | ![certificate-light](../screenshots/certificate-light.png) |
 | 节区（浅色模式）与展开的树视图 | Authenticode 证书链与 WinVerifyTrust 结果 |
-| ![dotnet-dark](../screenshots/dotnet-dark.png) | |
-| .NET header、metadata streams、tables 和 namespaces | |
+| ![dotnet-dark](../screenshots/dotnet-dark.png) | ![disassembly](../screenshots/disassembly-hex-dark.png) |
+| .NET header、metadata streams、tables 和 namespaces | 反汇编（通过 IAT 的调用显示函数名）与十六进制视图 |
 
 ## 界面语言
 

@@ -450,6 +450,14 @@ fn hex_panel() {
     h.state_mut().state.apply(Action::HexGoto);
     h.run();
     assert_eq!(h.state().state.hex.range, Some((0x40, 1)));
+    // with the hex view open, clicking a row with a range moves the view there
+    h.state_mut().state.apply(Action::Select(ItemType::Sections));
+    h.run();
+    h.get_by_label(".rdata").click();
+    h.run();
+    let rdata =
+        h.state().state.doc.as_ref().unwrap().analysis.sections.iter().find(|s| s.name == ".rdata").map(|s| (s.raw_address, s.raw_size));
+    assert_eq!(h.state().state.hex.range, rdata);
     h.get_by_label("close").click();
     h.run();
     assert!(!h.state().state.hex.open);

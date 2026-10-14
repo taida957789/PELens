@@ -35,8 +35,8 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 | 임포트: 그룹, MITRE 기법, 플래그 | 문자열: 레이블, 위치 맵, 그룹 |
 | ![sections-light](../screenshots/sections-light.png) | ![certificate-light](../screenshots/certificate-light.png) |
 | 섹션(라이트 모드)과 펼친 트리 뷰 | Authenticode 인증서 체인과 WinVerifyTrust 결과 |
-| ![dotnet-dark](../screenshots/dotnet-dark.png) | |
-| .NET 헤더, 메타데이터 스트림, 테이블, 네임스페이스 | |
+| ![dotnet-dark](../screenshots/dotnet-dark.png) | ![disassembly](../screenshots/disassembly-hex-dark.png) |
+| .NET 헤더, 메타데이터 스트림, 테이블, 네임스페이스 | 디스어셈블리(IAT 호출에 함수 이름 표시)와 16진수 보기 |
 
 ## 인터페이스 언어
 

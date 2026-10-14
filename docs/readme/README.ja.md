@@ -35,8 +35,8 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 | インポート：グループ、MITRE テクニック、フラグ | 文字列：ラベル、位置マップ、グループ |
 | ![sections-light](../screenshots/sections-light.png) | ![certificate-light](../screenshots/certificate-light.png) |
 | セクション（ライトモード）と展開したツリービュー | Authenticode 証明書チェーンと WinVerifyTrust の結果 |
-| ![dotnet-dark](../screenshots/dotnet-dark.png) | |
-| .NET ヘッダー、メタデータストリーム、テーブル、名前空間 | |
+| ![dotnet-dark](../screenshots/dotnet-dark.png) | ![disassembly](../screenshots/disassembly-hex-dark.png) |
+| .NET ヘッダー、メタデータストリーム、テーブル、名前空間 | 逆アセンブル（IAT 経由の呼び出しに関数名）と 16 進ビュー |
 
 ## 表示言語
 

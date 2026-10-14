@@ -27,7 +27,7 @@ name = "pelens"
 path = "src/main.rs"
 
 [dev-dependencies]
-egui_kittest = "0.36"
+egui_kittest = { version = "0.36", features = ["wgpu"] }
 pe-analysis = { workspace = true }
 pe-parser = { workspace = true }
 pe-db = { workspace = true }
