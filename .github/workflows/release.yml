@@ -32,7 +32,8 @@ jobs:
           Copy-Item kb/SOURCES.md "$name/SOURCES-knowledge-base.md"
           Compress-Archive -Path $name -DestinationPath "$name.zip"
           $hash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLower()
-          "$hash  $name.zip" | Out-File -Encoding ascii "$name.zip.sha256"
+          # LF line ending: `sha256sum -c` on Linux / macOS reads CRLF as part of the file name
+          [IO.File]::WriteAllText("$PWD/$name.zip.sha256", "$hash  $name.zip`n")
       - uses: actions/upload-artifact@v4
         with:
           name: windows
