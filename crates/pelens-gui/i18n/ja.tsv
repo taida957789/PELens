@@ -108,8 +108,11 @@ query overlay score	overlay のスコアを問い合わせ
 API version	API バージョン
 proxy address	プロキシのアドレス
 proxy port	プロキシのポート
-Your own Virustotal key, stored in the Windows Credential Manager.	ご自身の VirusTotal キー。Windows 資格情報マネージャーに保存されます。
-the Virustotal key is stored in the Windows Credential Manager	VirusTotal キーを Windows 資格情報マネージャーに保存しました
+Your own Virustotal key, stored in the {0}.	ご自身の VirusTotal キー。{0}に保存されます。
+the Virustotal key is stored in the {0}	VirusTotal キーを{0}に保存しました
+Windows Credential Manager	Windows 資格情報マネージャー
+macOS Keychain	macOS キーチェーン
+Secret Service keyring	Secret Service キーリング
 cannot store the Virustotal key ({0})	VirusTotal キーを保存できません（{0}）
 
 # file dialogs

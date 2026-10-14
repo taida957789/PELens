@@ -46,7 +46,7 @@ PELens examine les fichiers `.exe`, `.dll` et `.sys` **sans les exécuter**. Il 
 | ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la dans « affichage > langue » ou dans les paramètres, ou lancez PELens avec `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Les résultats d’analyse (contenu des tableaux, indicateurs, rapports) restent en anglais pour correspondre aux rapports et à la recherche. Les traductions se trouvent dans `crates/pelens-gui/i18n/`.
+Par défaut, l’interface suit la langue du système (langue d’affichage de Windows, langue préférée de macOS, `LANG` sous Linux). Changez-la dans « affichage > langue » ou dans les paramètres, ou lancez PELens avec `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Les résultats d’analyse (contenu des tableaux, indicateurs, rapports) restent en anglais pour correspondre aux rapports et à la recherche. Les traductions se trouvent dans `crates/pelens-gui/i18n/`.
 
 ## Fonctionnalités
 
@@ -58,21 +58,23 @@ Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la d
 - **Modification de fichiers** : basculer entre DLL et EXE, définir le point d'entrée, basculer les characteristics, supprimer l'overlay, extraire n'importe quel élément et ouvrir un fichier intégré dans une nouvelle analyse.
 - **Rapports** en XML, JSON ou texte, construits à partir des mêmes tables que celles de l'interface.
 - **Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence).
+- **Interface en 8 langues** : English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch et Français ; par défaut, la langue du système.
 - **Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.
 - **Analyse YARA** (YARA-X) : indiquez le dossier de règles dans paramètres > YARA ou avec `-yara:<dir>` ; chaque règle correspondante produit un indicateur (gravité tirée de la métadonnée `severity` de la règle), les correspondances s’ouvrent dans la vue hexadécimale et figurent dans les rapports.
 - **Désassemblage** (x86/x64, iced-x86) : depuis le point d’entrée, une fonction exportée ou un callback TLS ; les appels via l’IAT affichent le nom de la fonction, on peut suivre les branchements et ouvrir le tout dans la vue hexadécimale.
+- **Multiplateforme** : les mêmes fonctions sous Windows, Linux et macOS — hors Windows, Authenticode est vérifié par un vérificateur intégré en Rust pur (racines Microsoft + racines du système) ; la clé VirusTotal est rangée dans le magasin d’identifiants du système (Gestionnaire d’identification Windows, trousseau macOS, Secret Service sous Linux) ; détection des lecteurs réseau/amovibles et ACL ; polices CJK du système ; raccourcis ⌘ sous macOS.
 
 ## Installation / compilation
 
-**Téléchargement** : récupérez `PELens-<version>-windows-x64.zip` sur [Releases](https://github.com/taida957789/PELens/releases/latest), décompressez-le et lancez `pelens.exe` (aucune installation). Un fichier `.sha256` permet de le vérifier. Pour compiler depuis les sources :
+**Téléchargement** : récupérez le fichier de votre plateforme (`windows-x64.zip`, `linux-x86_64.tar.gz`, `macos-universal.zip`) sur [Releases](https://github.com/taida957789/PELens/releases/latest) ; chacun est accompagné d’un `.sha256`. Windows : décompressez et lancez `pelens.exe`. Linux : décompressez et lancez `./pelens`, ou `./install.sh` pour l’installer dans `~/.local` (avec entrée de bureau et icône). macOS (Apple silicon et Intel) : décompressez et placez `PELens.app` dans Applications ; la première fois, clic droit > Ouvrir (pas de notarisation Apple). Pour compiler depuis les sources :
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (CLI)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (CLI; pelens-cli.exe on Windows)
 ```
 
-Nécessite Rust 1.88 ou plus récent (édition 2024). Développé et testé sous Windows 11 x64.
+Nécessite Rust 1.88 ou plus récent (édition 2024). La CI compile et exécute tous les tests sous Windows, Linux et macOS.
 
 ## Utilisation
 

@@ -108,8 +108,11 @@ query overlay score	查詢 overlay 評分
 API version	API 版本
 proxy address	Proxy 位址
 proxy port	Proxy 連接埠
-Your own Virustotal key, stored in the Windows Credential Manager.	您自己的 VirusTotal 金鑰，儲存在 Windows 認證管理員中。
-the Virustotal key is stored in the Windows Credential Manager	VirusTotal 金鑰已儲存在 Windows 認證管理員
+Your own Virustotal key, stored in the {0}.	您自己的 VirusTotal 金鑰，儲存在{0}中。
+the Virustotal key is stored in the {0}	VirusTotal 金鑰已儲存在{0}
+Windows Credential Manager	Windows 認證管理員
+macOS Keychain	macOS 鑰匙圈
+Secret Service keyring	Secret Service 金鑰圈
 cannot store the Virustotal key ({0})	無法儲存 VirusTotal 金鑰（{0}）
 
 # file dialogs

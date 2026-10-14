@@ -101,7 +101,7 @@ fn empty_window_and_menus() {
     // file menu → open
     h.get_by_label("file").click();
     h.run();
-    h.get_by_label("open file\tCtrl+O").click();
+    h.get_by_label(&menu("open file", "O")).click();
     h.run();
     assert!(h.state().state.doc.is_some());
 }
@@ -248,10 +248,10 @@ fn file_menu_and_copy_effects() {
     app.watchdog_every = std::time::Duration::from_millis(0);
     let mut h = harness(app);
     h.run();
-    for item in ["save file\tCtrl+S", "create report\tCtrl+R", "close file\tCtrl+E"] {
+    for item in [menu("save file", "S"), menu("create report", "R"), menu("close file", "E")] {
         h.get_by_label("file").click();
         h.run();
-        h.get_by_label(item).click();
+        h.get_by_label(&item).click();
         h.run();
         h.state_mut().state.dialog = Dialog::None;
         h.run();
@@ -259,7 +259,7 @@ fn file_menu_and_copy_effects() {
     assert!(h.state().state.doc.is_none());
     h.get_by_label("file").click();
     h.run();
-    h.get_by_label("exit PELens\tCtrl+X").click();
+    h.get_by_label(&menu("exit PELens", "X")).click();
     h.run();
     assert!(h.state().exit_requested);
     // url and title effects are forwarded to the context
@@ -352,7 +352,7 @@ fn tree_view_theme_and_layout() {
     }
     h.run();
     assert!(h.query_by_label("modified").is_some());
-    let l = pelens_gui::theme::font_definitions(std::path::Path::new("Z:/nope"), pelens_gui::i18n::Lang::En).1;
+    let l = pelens_gui::theme::font_definitions(&[std::path::PathBuf::from("Z:/nope")], pelens_gui::i18n::Lang::En).1;
     assert!(l.is_empty());
     assert!(pelens_gui::theme::is_mono_column("md5") && !pelens_gui::theme::is_mono_column("name"));
     for t in ItemType::ALL {
@@ -386,7 +386,7 @@ fn interface_language_switch() {
     assert!(h.query_by_label("検索をクリア").is_none() && h.query_by_label("重複を表示").is_some());
     h.get_by_label("ファイル").click();
     h.run();
-    assert!(h.query_by_label("ファイルを開く\tCtrl+O").is_some());
+    assert!(h.query_by_label(&menu("ファイルを開く", "O")).is_some());
     h.key_press(egui::Key::Escape);
     h.run();
     // settings: the language drop-down
@@ -426,7 +426,7 @@ fn hex_panel() {
     // view > hex view (Ctrl+H)
     h.get_by_label("view").click();
     h.run();
-    h.get_by_label("hex view\tCtrl+H").click();
+    h.get_by_label(&menu("hex view", "H")).click();
     h.run();
     assert!(h.state().state.hex.open);
     assert!(h.query_by_label_contains("4D 5A").is_some(), "first line of the file");
@@ -461,4 +461,9 @@ fn hex_panel() {
     h.get_by_label("close").click();
     h.run();
     assert!(!h.state().state.hex.open);
+}
+
+/// A menu entry with its shortcut (⌘ on macOS, Ctrl elsewhere).
+fn menu(label: &str, key: &str) -> String {
+    format!("{label}\t{}", pelens_gui::ui::shortcut(key))
 }

@@ -14,7 +14,7 @@ pub const DISCLAIMER: &str = "This software is provided 'as-is', without any exp
 In no event will the author be held liable for any damage arising from the use of this software.\n\
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.";
 
-pub const USAGE: &str = "pelens-cli -file:input [-report:output] [-banner] [-xml:dir] [-format:xml|json|text] [-vt] [-stdout] [-yara:dir]\n\n\
+pub const USAGE: &str = "pelens-cli [-file:]input [-report:output] [-banner] [-xml:dir] [-format:xml|json|text] [-vt] [-stdout] [-yara:dir]\n\n\
 -file:     input file to analyse\n\
 -report:   report file (default: the name of the input file appended with the report extension)\n\
 -banner:   hide the banner\n\
@@ -53,6 +53,9 @@ impl std::fmt::Display for ArgError {
 }
 
 /// Parse pestudio style arguments: `-name:value`, `/name:value` or `--name=value`.
+/// Option names (`-name`, `/name`, `--name`, with `:value` or `=value`).
+pub const OPTIONS: [&str; 11] = ["file", "report", "banner", "xml", "format", "vt", "stdout", "help", "?", "h", "yara"];
+
 pub fn parse_args(args: &[String]) -> Result<Args, ArgError> {
     let mut a = Args::default();
     for raw in args {
@@ -62,6 +65,15 @@ pub fn parse_args(args: &[String]) -> Result<Args, ArgError> {
             Some(p) => (&body[..p], Some(&body[p + 1..])),
             None => (body, None),
         };
+        // a file name: no option prefix, or a Unix path ("/tmp/a.exe") that is not "/option"
+        let known = OPTIONS.contains(&name.to_ascii_lowercase().as_str());
+        if !raw.starts_with('-') && (!raw.starts_with('/') || !known) {
+            if a.file.is_some() {
+                return Err(ArgError::Unknown(raw.clone()));
+            }
+            a.file = Some(PathBuf::from(raw));
+            continue;
+        }
         match (name.to_ascii_lowercase().as_str(), value) {
             ("file", Some(v)) if !v.is_empty() => a.file = Some(PathBuf::from(v)),
             ("report", Some(v)) if !v.is_empty() => a.report = Some(PathBuf::from(v)),
@@ -89,7 +101,7 @@ pub fn parse_args(args: &[String]) -> Result<Args, ArgError> {
 pub trait Env {
     fn exe_dir(&self) -> Option<PathBuf>;
     fn http(&self, k: &Knowledge) -> Box<dyn pe_online::HttpClient>;
-    /// Where the VirusTotal key is kept (the Windows Credential Manager).
+    /// Where the VirusTotal key is kept (the system credential store).
     fn key_store(&self) -> Box<dyn pe_online::secret::KeyStore>;
 }
 
@@ -150,7 +162,10 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
     };
     let mut k = match find_xml_dir(a.xml_dir.as_deref(), env.exe_dir().as_deref()) {
         Some(d) => Knowledge::load(d),
-        None => Knowledge::builtin(),
+        // the user's settings of the GUI (YARA folder, VirusTotal options…) apply to the CLI too
+        None => pe_db::user_config_dir()
+            .map(|d| Knowledge::builtin_with_user_settings(d.join("settings.xml")))
+            .unwrap_or_else(Knowledge::builtin),
     };
     for (f, e) in &k.errors {
         let _ = writeln!(err, "[!] {f}: {e}");
@@ -158,7 +173,7 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
     let store = env.key_store();
     match pe_online::secret::migrate_plaintext_key(&mut k, store.as_ref()) {
         Ok(true) => {
-            let _ = writeln!(err, "[+] the Virustotal key was moved from settings.xml to the Windows Credential Manager");
+            let _ = writeln!(err, "[+] the Virustotal key was moved from settings.xml to the {}", pe_online::secret::STORE_NAME);
         }
         Ok(false) => {}
         Err(e) => {

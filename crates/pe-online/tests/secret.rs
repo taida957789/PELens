@@ -74,11 +74,21 @@ fn key_order_migration_and_stores() {
     assert_eq!(arc.get(), None);
 }
 
-/// The real Windows Credential Manager, under a name used only by this test.
-#[cfg(windows)]
+/// The real credential store of the platform (Windows Credential Manager, macOS Keychain, Linux
+/// Secret Service), under a name used only by this test.
+#[cfg(any(windows, target_os = "macos", target_os = "linux"))]
 #[test]
-fn windows_credential_manager() {
+fn platform_credential_store() {
     let c = CredentialStore::new(&format!("PELens/test-{}", std::process::id()));
+    assert_eq!(c.get(), None);
+    if let Err(e) = c.set("probe")
+        && !cfg!(windows)
+    {
+        // a headless session without Secret Service / unlocked keychain: nothing to test
+        eprintln!("credential store unavailable: {e}");
+        return;
+    }
+    c.delete().unwrap();
     assert_eq!(c.get(), None);
     c.delete().unwrap(); // deleting a missing credential is fine
     c.set("sécret-ключ-鍵").unwrap();
@@ -92,5 +102,7 @@ fn windows_credential_manager() {
     assert_eq!(c.get(), None);
     assert_eq!(CredentialStore::vt().target, VT_TARGET);
     // invalid target names are reported, not panicked on
-    assert!(CredentialStore::new("").set("x").is_err());
+    if cfg!(windows) {
+        assert!(CredentialStore::new("").set("x").is_err());
+    }
 }

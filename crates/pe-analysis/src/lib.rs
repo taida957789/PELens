@@ -2,6 +2,7 @@
 
 pub mod actions;
 pub mod analyze;
+pub mod authenticode;
 pub mod disasm;
 pub mod indicators;
 pub mod model;
@@ -10,6 +11,8 @@ pub mod sigscan;
 pub mod strings;
 #[doc(hidden)]
 pub mod testkit;
+#[cfg(unix)]
+pub mod unix;
 pub mod util;
 pub mod verify;
 pub mod view;

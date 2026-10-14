@@ -65,6 +65,12 @@ fn parse_arguments() {
     assert_eq!(parse_args(&s(&["-format:pdf"])), Err(ArgError::BadFormat("pdf".into())));
     assert_eq!(parse_args(&s(&["-bogus"])), Err(ArgError::Unknown("-bogus".into())));
     assert_eq!(parse_args(&s(&["-file:"])), Err(ArgError::Unknown("-file:".into())));
+    // file names without -file: (Unix paths included); "/option" is still an option
+    assert_eq!(parse_args(&s(&["/tmp/a.exe", "-vt"])).unwrap().file, Some(PathBuf::from("/tmp/a.exe")));
+    assert_eq!(parse_args(&s(&["sample.dll"])).unwrap().file, Some(PathBuf::from("sample.dll")));
+    assert_eq!(parse_args(&s(&["/vt", "/home/u/x.exe"])).unwrap().file, Some(PathBuf::from("/home/u/x.exe")));
+    assert!(parse_args(&s(&["/vt"])).unwrap().vt);
+    assert_eq!(parse_args(&s(&["a.exe", "b.exe"])), Err(ArgError::Unknown("b.exe".into())));
     assert_eq!(ArgError::Unknown("x".into()).to_string(), "unknown argument: x");
     assert_eq!(ArgError::BadFormat("x".into()).to_string(), "unknown report format: x");
 }

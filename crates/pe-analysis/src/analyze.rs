@@ -83,7 +83,13 @@ pub fn file_security_descriptor(path: &std::path::Path) -> Option<Vec<u8>> {
     (ok != 0).then_some(buf)
 }
 
-#[cfg(not(windows))]
+/// Linux / macOS: owner, group, mode and ACL of the file.
+#[cfg(unix)]
+pub fn file_security_descriptor(path: &std::path::Path) -> Option<Vec<u8>> {
+    crate::unix::access_control(path)
+}
+
+#[cfg(not(any(windows, unix)))]
 pub fn file_security_descriptor(_path: &std::path::Path) -> Option<Vec<u8>> {
     None
 }
@@ -106,7 +112,12 @@ fn drive_type(path: &std::path::Path, a: &mut Analysis) {
     a.removable_drive = t == 2;
 }
 
-#[cfg(not(windows))]
+#[cfg(unix)]
+fn drive_type(path: &std::path::Path, a: &mut Analysis) {
+    (a.network_drive, a.removable_drive) = crate::unix::drive_kind(path);
+}
+
+#[cfg(not(any(windows, unix)))]
 fn drive_type(_path: &std::path::Path, _a: &mut Analysis) {}
 
 pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis {

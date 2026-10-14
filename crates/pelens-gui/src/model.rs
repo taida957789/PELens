@@ -885,7 +885,7 @@ impl State {
             self.set_vt_key(value);
             return;
         }
-        let r = if self.knowledge.dir.is_some() {
+        let r = if self.knowledge.settings_path().is_some() {
             self.knowledge.save_setting(elem, attr, value)
         } else {
             self.knowledge.settings.set(elem, attr, value);
@@ -941,12 +941,13 @@ impl State {
         match self.key_store.set(key) {
             Ok(()) => {
                 if self.knowledge.settings.get("score", "key").is_some_and(|k| !k.is_empty()) {
-                    let saved = self.knowledge.dir.is_some() && self.knowledge.save_setting("score", "key", "").is_ok();
+                    let saved = self.knowledge.settings_path().is_some() && self.knowledge.save_setting("score", "key", "").is_ok();
                     if !saved {
                         self.knowledge.settings.set("score", "key", "");
                     }
                 }
-                self.status = self.t("the Virustotal key is stored in the Windows Credential Manager").into();
+                let store = self.t(pe_online::secret::STORE_NAME);
+                self.status = self.tf("the Virustotal key is stored in the {0}", &[&store]);
             }
             Err(e) => self.status = self.tf("cannot store the Virustotal key ({0})", &[&e]),
         }
@@ -1237,6 +1238,15 @@ pub fn load_knowledge(explicit: Option<&Path>, exe_dir: Option<&Path>) -> Knowle
     }
     match knowledge_dir_candidates(exe_dir).into_iter().find(|c| c.join("settings.xml").exists()) {
         Some(d) => Knowledge::load(d),
+        None => builtin_knowledge(pe_db::user_config_dir()),
+    }
+}
+
+/// The built-in knowledge base with the settings of `config_dir` (theme, language, YARA folder…
+/// survive a restart); in memory only when there is no configuration folder.
+pub fn builtin_knowledge(config_dir: Option<PathBuf>) -> Knowledge {
+    match config_dir {
+        Some(d) => Knowledge::builtin_with_user_settings(d.join("settings.xml")),
         None => Knowledge::builtin(),
     }
 }

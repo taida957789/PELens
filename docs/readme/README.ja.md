@@ -46,7 +46,7 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 | ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-表示言語は既定で Windows の表示言語に従います。「表示 > 言語」または設定ダイアログで切り替えるか、`-lang:<コード>`（`en`・`zh-TW`・`zh-CN`・`ja`・`ko`・`es`・`de`・`fr`）で起動してください。解析結果（テーブルの内容、インジケーター、レポート）は、レポートや検索と一致するよう英語のままです。翻訳ファイルは `crates/pelens-gui/i18n/` にあります。
+表示言語は既定でシステムの言語（Windows の表示言語、macOS の優先言語、Linux の `LANG`）に従います。「表示 > 言語」または設定ダイアログで切り替えるか、`-lang:<コード>`（`en`・`zh-TW`・`zh-CN`・`ja`・`ko`・`es`・`de`・`fr`）で起動してください。解析結果（テーブルの内容、インジケーター、レポート）は、レポートや検索と一致するよう英語のままです。翻訳ファイルは `crates/pelens-gui/i18n/` にあります。
 
 ## 機能
 
@@ -58,22 +58,23 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 - **ファイル変更**：DLL ⇄ EXE の切り替え、エントリポイントの設定、characteristics の切り替え、overlay の削除、任意の項目のダンプ、埋め込みファイルを新しい解析で開く。
 - **レポート**：XML・JSON・テキスト。GUI と同じテーブルから生成します。
 - **GUI**：ツリービュー、ダーク／ライトテーマ、並べ替え・絞り込みできるテーブル、右クリックメニュー、ドラッグ＆ドロップ、ショートカット（Ctrl+O・S・E・R・X、Tab でツリーを移動）。
-- **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。
+- **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定ではシステムの言語に合わせます。
 - **16 進ビュー**（Ctrl+H）：表示中の行だけを描画するので大きなファイルでも軽快です。位置情報のある項目は右クリックの「16 進ビューで表示」から開け、オフセットや RVA への移動、16 進またはテキストでのコピーができます。
 - **YARA スキャン**（YARA-X）：設定 > YARA または `-yara:<dir>` でルールのフォルダーを指定します。一致したルールごとにインジケーターを出し（重大度はルールの `severity` メタデータ）、一致位置は 16 進ビューで確認でき、レポートにも出力されます。
 - **逆アセンブル**（x86／x64、iced-x86）：エントリポイント、エクスポート関数、TLS コールバックから開始できます。IAT 経由の呼び出しは関数名を表示し、分岐先へ移動でき、16 進ビューでも確認できます。
+- **クロスプラットフォーム**：Windows・Linux・macOS で同じ機能 — Windows 以外の Authenticode 検証は内蔵の純 Rust 検証器（Microsoft ルート＋OS のルート）、VirusTotal キーは OS の資格情報ストア（Windows 資格情報マネージャー、macOS キーチェーン、Linux Secret Service）、ネットワーク／リムーバブルドライブと ACL の確認、OS の CJK フォント、macOS では ⌘ ショートカット。
 
 ## インストール／ビルド
 
-**ダウンロード**：[Releases](https://github.com/taida957789/PELens/releases/latest) から `PELens-<バージョン>-windows-x64.zip` を入手し、展開して `pelens.exe` を実行します（インストール不要）。検証用の `.sha256` も付いています。ソースからビルドする場合：
+**ダウンロード**：[Releases](https://github.com/taida957789/PELens/releases/latest) から各プラットフォーム用のファイル（`windows-x64.zip`, `linux-x86_64.tar.gz`, `macos-universal.zip`）を入手してください。それぞれ検証用の `.sha256` が付いています。Windows：展開して `pelens.exe` を実行。Linux：展開して `./pelens` を実行するか、`./install.sh` で `~/.local` にインストール（デスクトップエントリとアイコン付き）。macOS（Apple silicon と Intel）：展開して `PELens.app` を「アプリケーション」へ。初回は右クリック > 開く（Apple の公証なし）。ソースからビルドする場合：
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (CLI)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (CLI; pelens-cli.exe on Windows)
 ```
 
-Rust 1.88 以降（edition 2024）が必要です。Windows 11 x64 で開発・テストしています。
+Rust 1.88 以降（edition 2024）が必要です。CI は Windows・Linux・macOS でビルドし、全テストを実行します。
 
 ## 使い方
 

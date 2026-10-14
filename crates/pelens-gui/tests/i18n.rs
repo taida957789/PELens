@@ -26,6 +26,10 @@ const EXTRA: &[&str] = &[
     "auto (system)",
     "no-limit",
     "16 bytes",
+    // credential store names (pe_online::secret::STORE_NAME on each platform)
+    "Windows Credential Manager",
+    "macOS Keychain",
+    "Secret Service keyring",
     "32 bytes",
     "64 bytes",
 ];
@@ -186,37 +190,50 @@ fn state_follows_the_language_setting() {
 
 #[test]
 fn fonts_follow_the_language() {
+    use pelens_gui::theme;
     let dir = std::env::temp_dir().join(format!("pelens-i18n-fonts-{}", std::process::id()));
-    std::fs::create_dir_all(&dir).unwrap();
-    let real = pelens_gui::theme::windows_fonts_dir();
-    let Ok(seg) = std::fs::read(real.join("segoeui.ttf")) else { return };
-    // fake CJK font files: the real Segoe UI bytes under the CJK file names
-    for n in ["segoeui.ttf", "msjh.ttc", "msyh.ttc", "malgun.ttf"] {
-        std::fs::write(dir.join(n), &seg).unwrap();
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("a/b")).unwrap();
+    // a real font (egui's bundled Ubuntu) under the file names this platform looks for, in nested folders
+    let bytes = egui::FontDefinitions::default().font_data["Ubuntu-Light"].font.to_vec();
+    let mut wanted = std::collections::BTreeSet::new();
+    for l in Lang::ALL {
+        for (_, files) in theme::font_candidates(l) {
+            wanted.insert(files[0]);
+        }
     }
-    let order = |l: Lang| {
-        let (defs, loaded) = pelens_gui::theme::font_definitions(&dir, l);
+    for (i, n) in wanted.iter().enumerate() {
+        let sub = if i % 2 == 0 { dir.join("a/b") } else { dir.clone() };
+        std::fs::write(sub.join(n), &bytes).unwrap();
+    }
+    assert!(theme::index_fonts(std::slice::from_ref(&dir)).len() >= wanted.len().min(4));
+    for l in Lang::ALL {
+        let c = theme::font_candidates(l);
+        assert_eq!(c.len(), 4, "proportional, monospace, CJK, Hangul/Hanja");
+        let (defs, loaded) = theme::font_definitions(std::slice::from_ref(&dir), l);
         let fam = defs.families[&egui::FontFamily::Proportional].clone();
-        (fam[..3].to_vec(), loaded)
-    };
-    let (zh_tw, loaded) = order(Lang::ZhTw);
-    assert_eq!(zh_tw, ["segoeui.ttf", "msjh.ttc", "malgun.ttf"]);
-    assert_eq!(loaded.len(), 3, "{loaded:?}");
-    assert_eq!(order(Lang::ZhCn).0, ["segoeui.ttf", "msyh.ttc", "malgun.ttf"]);
-    assert_eq!(order(Lang::Ja).0, ["segoeui.ttf", "msjh.ttc", "malgun.ttf"], "no Japanese font: Chinese fallback");
-    assert_eq!(order(Lang::Ko).0, ["segoeui.ttf", "malgun.ttf", "msjh.ttc"]);
-    // same metrics as the primary font: no baseline correction
-    let (defs, _) = pelens_gui::theme::font_definitions(&dir, Lang::ZhTw);
-    assert_eq!(defs.font_data["msjh.ttc"].tweak.y_offset_factor, 0.0);
+        // primary font, then the CJK fallback of the language, then the Hangul (Hanja for Korean) one
+        assert_eq!(fam[0], c[0].1[0], "{l:?}");
+        assert_eq!(fam[1], c[2].1[0], "{l:?}");
+        assert!(fam.contains(&c[3].1[0].to_string()) || c[3].1[0] == c[2].1[0], "{l:?}: {fam:?}");
+        assert!(loaded.len() >= 3, "{loaded:?}");
+        assert_eq!(defs.families[&egui::FontFamily::Monospace][0], c[1].1[0]);
+        // same metrics as the primary font: no baseline correction
+        assert_eq!(defs.font_data[c[2].1[0]].tweak.y_offset_factor, 0.0);
+    }
+    // nothing found: egui's own fonts stay
+    let (defs, loaded) = theme::font_definitions(&[dir.join("missing")], Lang::En);
+    assert!(loaded.is_empty() && !defs.families[&egui::FontFamily::Proportional].is_empty());
+    assert!(!theme::font_dirs().is_empty());
     // Yu Gothic (small ascent, large line gap) is moved down onto Segoe UI's baseline
-    let dy = pelens_gui::theme::baseline_offset((1.079, 1.33), (0.88, 1.602));
+    let dy = theme::baseline_offset((1.079, 1.33), (0.88, 1.602));
     assert!((dy - 0.335).abs() < 0.001, "{dy}");
-    assert_eq!(pelens_gui::theme::baseline_offset((1.0, 1.3), (1.0, 1.3)), 0.0);
-    let (asc, h) = pelens_gui::theme::em_metrics(&seg).unwrap();
-    assert!(asc > 1.0 && h > asc, "{asc} {h}");
-    assert_eq!(pelens_gui::theme::em_metrics(b"not a font"), None);
-    if real.join("YuGothR.ttc").is_file() {
-        let (defs, _) = pelens_gui::theme::font_definitions(&real, Lang::Ja);
+    assert_eq!(theme::baseline_offset((1.0, 1.3), (1.0, 1.3)), 0.0);
+    let (asc, h) = theme::em_metrics(&bytes).unwrap();
+    assert!(asc > 0.5 && h > asc, "{asc} {h}");
+    assert_eq!(theme::em_metrics(b"not a font"), None);
+    if theme::index_fonts(&theme::font_dirs()).contains_key("yugothr.ttc") {
+        let (defs, _) = theme::font_definitions(&theme::font_dirs(), Lang::Ja);
         assert!(defs.font_data["YuGothR.ttc"].tweak.y_offset_factor > 0.2);
     }
     let _ = std::fs::remove_dir_all(dir);

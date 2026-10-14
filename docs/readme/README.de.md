@@ -46,7 +46,7 @@ PELens untersucht `.exe`-, `.dll`- und `.sys`-Dateien, **ohne sie auszuführen**
 | ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln Sie sie unter „Ansicht > Sprache“ oder in den Einstellungen, oder starten Sie mit `-lang:<Code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Analyseergebnisse (Tabelleninhalte, Indikatoren, Berichte) bleiben auf Englisch, damit sie mit Berichten und der Suche übereinstimmen. Die Übersetzungen liegen in `crates/pelens-gui/i18n/`.
+Die Oberfläche folgt standardmäßig der Systemsprache (Windows-Anzeigesprache, bevorzugte Sprache von macOS, `LANG` unter Linux). Wechseln Sie sie unter „Ansicht > Sprache“ oder in den Einstellungen, oder starten Sie mit `-lang:<Code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Analyseergebnisse (Tabelleninhalte, Indikatoren, Berichte) bleiben auf Englisch, damit sie mit Berichten und der Suche übereinstimmen. Die Übersetzungen liegen in `crates/pelens-gui/i18n/`.
 
 ## Funktionen
 
@@ -58,22 +58,23 @@ Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln S
 - **Dateiänderungen**: zwischen DLL und EXE wechseln, Entry Point setzen, Characteristics umschalten, Overlay löschen, beliebige Elemente dumpen und eingebettete Dateien in einer neuen Analyse öffnen.
 - **Berichte** als XML, JSON oder Text, erzeugt aus denselben Tabellen, die die GUI anzeigt.
 - **GUI**: Baumansicht, dunkles und helles Design, sortier- und filterbare Tabellen, Kontextmenüs, Drag & Drop und Tastenkürzel (Strg+O, S, E, R, X; Tab bewegt sich durch den Baum).
-- **Oberfläche in 8 Sprachen**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch und Français; standardmäßig die Anzeigesprache von Windows.
+- **Oberfläche in 8 Sprachen**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch und Français; standardmäßig die Systemsprache.
 - **Hex-Ansicht** (Strg+H): zeichnet nur sichtbare Zeilen und bleibt auch bei großen Dateien flüssig; Einträge mit Position öffnen sich über „in der Hex-Ansicht zeigen“ im Kontextmenü, mit Sprung zu Offset oder RVA und Kopieren als Hex oder Text.
 - **YARA-Scan** (YARA-X): Regelordner unter Einstellungen > YARA oder mit `-yara:<dir>` angeben; jede zutreffende Regel erzeugt einen Indikator (Schweregrad aus dem Metadatum `severity` der Regel), Treffer öffnen sich in der Hex-Ansicht und erscheinen in den Berichten.
 - **Disassemblierung** (x86/x64, iced-x86): ab dem Einstiegspunkt, einer exportierten Funktion oder einem TLS-Callback; Aufrufe über die IAT zeigen den Funktionsnamen, Sprüngen kann gefolgt werden, und alles öffnet sich in der Hex-Ansicht.
+- **Plattformübergreifend**: dieselben Funktionen unter Windows, Linux und macOS – außerhalb von Windows prüft ein eingebauter Authenticode-Prüfer in reinem Rust (Microsoft- und System-Stammzertifikate); der VirusTotal-Schlüssel liegt im Anmeldeinformationsspeicher des Systems (Windows-Anmeldeinformationsverwaltung, macOS-Schlüsselbund, Linux Secret Service); Prüfung von Netzwerk-/Wechsellaufwerken und ACL; CJK-Schriften des Systems; ⌘-Kurzbefehle unter macOS.
 
 ## Installation / Build
 
-**Download**: Laden Sie `PELens-<Version>-windows-x64.zip` unter [Releases](https://github.com/taida957789/PELens/releases/latest) herunter, entpacken Sie es und starten Sie `pelens.exe` (keine Installation). Eine `.sha256`-Datei zur Prüfung liegt bei. Aus dem Quellcode bauen:
+**Download**: Laden Sie unter [Releases](https://github.com/taida957789/PELens/releases/latest) die Datei Ihrer Plattform herunter (`windows-x64.zip`, `linux-x86_64.tar.gz`, `macos-universal.zip`); jeweils liegt eine `.sha256`-Datei zur Prüfung bei. Windows: entpacken und `pelens.exe` starten. Linux: entpacken und `./pelens` starten oder mit `./install.sh` nach `~/.local` installieren (mit Desktop-Eintrag und Symbol). macOS (Apple Silicon und Intel): entpacken und `PELens.app` in „Programme“ ziehen; beim ersten Mal Rechtsklick > Öffnen (nicht von Apple notariell beglaubigt). Aus dem Quellcode bauen:
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (CLI)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (CLI; pelens-cli.exe on Windows)
 ```
 
-Benötigt Rust 1.88 oder neuer (Edition 2024). Entwickelt und getestet unter Windows 11 x64.
+Benötigt Rust 1.88 oder neuer (Edition 2024). Die CI baut und testet unter Windows, Linux und macOS.
 
 ## Verwendung
 

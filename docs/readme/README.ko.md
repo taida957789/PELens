@@ -46,7 +46,7 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 | ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-인터페이스는 기본적으로 Windows 표시 언어를 따릅니다. "보기 > 언어" 또는 설정 대화 상자에서 바꾸거나 `-lang:<코드>`(`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`)로 시작하세요. 분석 결과(테이블 내용, 지표, 보고서)는 보고서 및 검색과 일치하도록 영어로 유지됩니다. 번역 파일은 `crates/pelens-gui/i18n/`에 있습니다.
+인터페이스는 기본적으로 시스템 언어(Windows 표시 언어, macOS 선호 언어, Linux `LANG`)를 따릅니다. "보기 > 언어" 또는 설정 대화 상자에서 바꾸거나 `-lang:<코드>`(`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`)로 시작하세요. 분석 결과(테이블 내용, 지표, 보고서)는 보고서 및 검색과 일치하도록 영어로 유지됩니다. 번역 파일은 `crates/pelens-gui/i18n/`에 있습니다.
 
 ## 기능
 
@@ -58,22 +58,23 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 - **파일 수정**: DLL ⇄ EXE 전환, 엔트리 포인트 설정, characteristics 전환, overlay 삭제, 항목 덤프, 내장 파일을 새 분석으로 열기.
 - **보고서**: XML, JSON, 텍스트. GUI와 같은 테이블로 만듭니다.
 - **GUI**: 트리 뷰, 다크·라이트 테마, 정렬·필터 가능한 테이블, 컨텍스트 메뉴, 드래그 앤 드롭, 단축키(Ctrl+O, S, E, R, X, Tab으로 트리 이동).
-- **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.
+- **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 시스템 언어를 따릅니다.
 - **16진수 보기**(Ctrl+H): 보이는 행만 그려 큰 파일도 부드럽습니다. 위치 정보가 있는 항목은 오른쪽 클릭의 "16진수 보기에서 표시"로 열 수 있고, 오프셋이나 RVA로 이동하거나 16진수·텍스트로 복사할 수 있습니다.
 - **YARA 검사**(YARA-X): 설정 > YARA 또는 `-yara:<dir>`로 규칙 폴더를 지정합니다. 일치한 규칙마다 지표를 만들고(심각도는 규칙의 `severity` 메타데이터), 일치 위치는 16진수 보기에서 바로 보며 보고서에도 기록됩니다.
 - **디스어셈블리**(x86/x64, iced-x86): 진입점, 익스포트 함수, TLS 콜백에서 시작합니다. IAT를 통한 호출은 함수 이름을 보여 주고, 분기 대상을 따라가며, 16진수 보기에서도 볼 수 있습니다.
+- **크로스 플랫폼**: Windows, Linux, macOS에서 같은 기능 — Windows 외 플랫폼의 Authenticode 검증은 내장된 순수 Rust 검증기(Microsoft 루트 + OS 루트), VirusTotal 키는 OS 자격 증명 저장소(Windows 자격 증명 관리자, macOS 키체인, Linux Secret Service), 네트워크/이동식 드라이브와 ACL 확인, OS CJK 글꼴, macOS에서는 ⌘ 단축키.
 
 ## 설치／빌드
 
-**다운로드**: [Releases](https://github.com/taida957789/PELens/releases/latest)에서 `PELens-<버전>-windows-x64.zip`을 받아 압축을 풀고 `pelens.exe`를 실행하세요(설치 불필요). 검증용 `.sha256` 파일이 함께 제공됩니다. 소스에서 빌드하려면:
+**다운로드**: [Releases](https://github.com/taida957789/PELens/releases/latest)에서 플랫폼별 파일(`windows-x64.zip`, `linux-x86_64.tar.gz`, `macos-universal.zip`)을 받으세요. 각각 검증용 `.sha256`이 함께 제공됩니다. Windows: 압축을 풀고 `pelens.exe` 실행. Linux: 압축을 풀고 `./pelens`를 실행하거나 `./install.sh`로 `~/.local`에 설치(데스크톱 항목과 아이콘 포함). macOS(Apple silicon 및 Intel): 압축을 풀고 `PELens.app`을 응용 프로그램 폴더로 옮기세요. 처음에는 오른쪽 클릭 > 열기(Apple 공증 없음). 소스에서 빌드하려면:
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (CLI)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (CLI; pelens-cli.exe on Windows)
 ```
 
-Rust 1.88 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·테스트했습니다.
+Rust 1.88 이상(edition 2024)이 필요합니다. CI가 Windows, Linux, macOS에서 빌드하고 모든 테스트를 실행합니다.
 
 ## 사용법
 

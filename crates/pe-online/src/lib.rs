@@ -269,7 +269,7 @@ pub fn network_alive(timeout: Duration) -> bool {
 }
 
 /// Settings → (api, key, enabled).
-/// (API version, key, enabled) with the key from `VT_API_KEY`, the Windows Credential Manager or
+/// (API version, key, enabled) with the key from `VT_API_KEY`, the system credential store or
 /// a legacy plaintext `<score key>` (see [`secret::resolve_key`]).
 pub fn vt_settings(k: &pe_db::Knowledge) -> (VtApi, String, bool) {
     vt_settings_with(k, &secret::CredentialStore::vt())

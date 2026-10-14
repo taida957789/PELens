@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>PELens — a lens for Portable Executables</title>
-<meta name="description" content="PELens: static malware initial assessment for Windows executables, rebuilt in Rust. Indicators mapped to MITRE ATT&CK, YARA, hex view and disassembly. Free and open source.">
+<meta name="description" content="PELens: static malware initial assessment for Windows executables, rebuilt in Rust, for Windows, Linux and macOS. Indicators mapped to MITRE ATT&CK, YARA, hex view and disassembly. Free and open source.">
 <meta property="og:title" content="PELens — a lens for Portable Executables">
 <meta property="og:description" content="Static malware initial assessment for Windows executables, rebuilt in Rust.">
 <meta property="og:image" content="assets/pelens-512.png">
@@ -50,6 +50,11 @@
           </a>
           <a class="btn" href="https://github.com/taida957789/PELens" data-i18n="hero.source">Source code</a>
         </div>
+        <p class="other-os"><span data-i18n="hero.other">Also for</span>
+          <a data-os="windows" href="https://github.com/taida957789/PELens/releases/latest">Windows</a>
+          <a data-os="macos" href="https://github.com/taida957789/PELens/releases/latest">macOS</a>
+          <a data-os="linux" href="https://github.com/taida957789/PELens/releases/latest">Linux</a>
+        </p>
         <ul class="facts">
           <li><b>Rust</b> <span data-i18n="hero.fact1">memory-safe parser, fuzzed</span></li>
           <li><b>MIT</b> <span data-i18n="hero.fact2">free and open source</span></li>
@@ -101,14 +106,14 @@
       <div>
         <h2 data-i18n="start.title">Get started</h2>
         <ol class="steps">
-          <li data-i18n="start.s1">Download the zip from the latest release and unzip it. Nothing to install.</li>
+          <li data-i18n="start.s1">Download the file for your system from the latest release and extract it. Nothing to install.</li>
           <li data-i18n="start.s2">Optionally check the download against the published SHA-256.</li>
-          <li data-i18n="start.s3">Run pelens.exe and drop a file on the window, or use pelens-cli.exe for reports.</li>
+          <li data-i18n="start.s3">Start PELens and drop a file on the window, or use pelens-cli for reports.</li>
         </ol>
-        <p class="muted" data-i18n="start.note">Windows 10/11 x64. Building from source needs Rust 1.88 or newer.</p>
+        <p class="muted" data-i18n="start.note">Windows 10/11 x64, Linux x86_64, macOS 11 or newer (Apple silicon and Intel). Building from source needs Rust 1.88 or newer.</p>
       </div>
       <div class="code">
-        <div class="code-head"><span>PowerShell</span><button class="copy" data-copy="cli" data-i18n="start.copy">Copy</button></div>
+        <div class="code-head"><span id="shell">PowerShell</span><button class="copy" data-copy="cli" data-i18n="start.copy">Copy</button></div>
 <pre id="cli"><code><span class="c"># verify the download</span>
 Get-FileHash PELens-*-windows-x64.zip -Algorithm SHA256
 
@@ -117,6 +122,14 @@ Get-FileHash PELens-*-windows-x64.zip -Algorithm SHA256
 
 <span class="c"># JSON report with YARA rules and the VirusTotal score</span>
 .\pelens-cli.exe -file:sample.exe -format:json -yara:.\rules -vt</code></pre>
+<pre id="cli-unix" hidden><code><span class="c"># verify the download</span>
+shasum -a 256 -c PELens-*.sha256
+
+<span class="c"># open a file in the GUI, in Japanese, with the hex view</span>
+./pelens sample.exe -lang:ja -hex
+
+<span class="c"># JSON report with YARA rules and the VirusTotal score</span>
+./pelens-cli sample.exe -format:json -yara:./rules -vt</code></pre>
       </div>
     </div>
   </section>

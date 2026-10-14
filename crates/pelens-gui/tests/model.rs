@@ -445,7 +445,10 @@ fn settings_model() {
     assert!(k.dir.is_none() || k.dir.is_some());
     let kb = testkit::write_knowledge("gui-load");
     assert!(load_knowledge(Some(&kb), None).dir.is_some());
-    assert!(load_knowledge(None, Some(kb.parent().unwrap())).loaded.len() <= 11);
+    assert!(load_knowledge(None, Some(kb.parent().unwrap())).loaded.len() <= 12, "11 files and the user settings");
+    let cfg = std::env::temp_dir().join(format!("pelens-cfg-{}", std::process::id()));
+    assert_eq!(builtin_knowledge(Some(cfg.clone())).settings_file, Some(cfg.join("settings.xml")));
+    assert!(builtin_knowledge(None).settings_file.is_none());
     let c = knowledge_dir_candidates(Some(std::path::Path::new("e")));
     assert_eq!(c[0], PathBuf::from("e").join("xml"));
     assert_eq!(knowledge_dir_candidates(None).len(), 2);
@@ -536,7 +539,7 @@ fn virustotal_key_goes_to_the_key_store() {
     assert_eq!(s.stored_key(), "NEW");
     let xml = std::fs::read_to_string(dir.join("settings.xml")).unwrap();
     assert!(!xml.contains("NEW") && !xml.contains("key=\"K\""), "the key never reaches settings.xml");
-    assert!(s.status.contains("Credential Manager"), "{}", s.status);
+    assert!(s.status.contains(pe_online::secret::STORE_NAME), "{}", s.status);
     // queries use the stored key
     assert_eq!(pe_online::vt_settings_with(&s.knowledge, s.key_store.as_ref()).1, "NEW");
     // a store that cannot be written: nothing is saved anywhere, the user is told

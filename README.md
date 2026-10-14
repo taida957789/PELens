@@ -51,7 +51,8 @@ compatible with pestudio's XML knowledge base and its `pestudiox` command line.
 | ![繁體中文](docs/screenshots/strings-zh-TW.png) | ![日本語](docs/screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-The interface follows the Windows display language by default. Change it in view > language or
+The interface follows the system language by default (the Windows display language, the macOS
+preferred language, `LANG` on Linux). Change it in view > language or
 in the settings dialog, or start with `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`,
 `de`, `fr`). Analysis results (table contents, indicators, reports) stay in English so they
 match the reports and what the search box finds. The translations live in
@@ -87,20 +88,35 @@ match the reports and what the search box finds. The translations live in
   callback; calls through the IAT show the imported function, branches can be followed, and every
   instruction opens in the hex view.
 - **Interface in 8 languages**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch and
-  Français; by default the Windows display language.
+  Français; by default the system language.
+- **Cross-platform**: the same features on Windows, Linux and macOS. Outside Windows, Authenticode
+  signatures are checked by a built-in pure-Rust verifier (Microsoft roots plus the system's
+  roots); the VirusTotal key is kept in the system credential store (Windows Credential Manager,
+  macOS Keychain, Linux Secret Service); network/removable drives and file ACLs are detected; the
+  system's CJK fonts are used; shortcuts use ⌘ on macOS.
 
 ## Install / build
 
-**Download**: get `PELens-<version>-windows-x64.zip` from [Releases](https://github.com/taida957789/PELens/releases/latest), unzip it and run
-`pelens.exe`; nothing to install. A `.sha256` file is published next to it. To build from source:
+**Download** the file for your platform from [Releases](https://github.com/taida957789/PELens/releases/latest); each has a `.sha256`
+file next to it.
+
+| Platform | File | Run |
+|---|---|---|
+| Windows x64 | `PELens-<version>-windows-x64.zip` | unzip, run `pelens.exe`; nothing to install |
+| Linux x86_64 | `PELens-<version>-linux-x86_64.tar.gz` | extract, run `./pelens`, or `./install.sh` to install into `~/.local` (desktop entry and icon) |
+| macOS (Apple silicon and Intel) | `PELens-<version>-macos-universal.zip` | unzip, move `PELens.app` to Applications; the first time, right-click > Open (the app is not notarized) |
+
+To build from source:
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (command line)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (command line; pelens-cli.exe on Windows)
 ```
 
-You need Rust 1.88 or newer (edition 2024). It is developed and tested on Windows 11 x64.
+You need Rust 1.88 or newer (edition 2024). CI builds it and runs every test on Windows, Linux
+and macOS. On Linux, file dialogs use the XDG desktop portal and the VirusTotal key the Secret
+Service (GNOME Keyring, KWallet); without them, use `VT_API_KEY`.
 
 ## Usage
 

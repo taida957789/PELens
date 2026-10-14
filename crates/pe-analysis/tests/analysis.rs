@@ -50,11 +50,9 @@ fn suspicious_sample_end_to_end() {
         assert!(got.contains(&id), "indicator {id} missing: {got:?}");
     }
     assert!(!got.contains(&1999), "disabled indicator must not appear");
-    // Windows: the synthetic signature does not verify
-    if cfg!(windows) {
-        assert!(got.contains(&1046));
-        assert_eq!(a.certificate_check.as_ref().unwrap().verified, Some(false));
-    }
+    // the synthetic signature does not verify (every platform)
+    assert!(got.contains(&1046));
+    assert_eq!(a.certificate_check.as_ref().unwrap().verified, Some(false));
 
     assert_eq!(a.file_type, "executable");
     assert_eq!(a.cpu, "32-bit");
@@ -799,12 +797,10 @@ fn verify_messages() {
         assert!(!trust_message(c).is_empty());
     }
     let p = write_tmp("unsigned.exe", &PeBuilder::new().build());
+    // every platform verifies (WinVerifyTrust on Windows, the Rust verifier elsewhere)
     let r = verify_path(&p.to_string_lossy());
-    if cfg!(windows) {
-        assert_eq!(r.verified, Some(false));
-    } else {
-        assert_eq!(r.verified, None);
-    }
+    assert_eq!(r.verified, Some(false));
+    assert_eq!(verify_path("Z:/no/such/file.exe").verified, if cfg!(windows) { Some(false) } else { None });
     if std::fs::metadata("C:/Windows/System32/kernel32.dll").is_ok() {
         assert_eq!(verify_path("C:/Windows/System32/kernel32.dll").verified, Some(true));
     }
@@ -931,10 +927,8 @@ fn acl_footprint() {
     k.settings.set("footprints", "acl", "1");
     let p = write_tmp("acl.exe", &PeBuilder::new().build());
     let (_d, a) = analyze_file(&p, &k, &Options::default()).unwrap();
-    if cfg!(windows) {
-        assert!(a.footprints.iter().any(|f| f.item.starts_with("acl")));
-        assert!(analyze::file_security_descriptor(&p).is_some());
-    }
+    assert!(a.footprints.iter().any(|f| f.item.starts_with("acl")));
+    assert!(analyze::file_security_descriptor(&p).is_some());
     assert!(analyze::file_security_descriptor(std::path::Path::new("Z:/none/x")).is_none());
 }
 
@@ -1040,9 +1034,7 @@ fn verify_analysed_bytes_and_first_bytes() {
     assert_eq!(big.first_bytes_text.chars().count(), 64);
     // the temporary-file path also works for unsigned data
     let r = pe_analysis::verify::verify_data("Z:/nowhere/x.exe", &d);
-    if cfg!(windows) {
-        assert_eq!(r.verified, Some(false));
-    }
+    assert_eq!(r.verified, Some(false));
 }
 
 /// Code review minor items: 1023 lists each duplicate once; JSON rows have no duplicate keys.
@@ -1304,4 +1296,22 @@ fn disassembly_view() {
     let mut k2 = kb();
     k2.settings.set("disassembly", "count", "100000");
     assert_eq!(ViewOptions::from_settings(&k2).disasm_count, pe_analysis::disasm::MAX_COUNT);
+}
+
+/// Linux / macOS: drive kind and access control of the analysed file.
+#[cfg(unix)]
+#[test]
+fn unix_file_checks() {
+    use std::os::unix::fs::PermissionsExt;
+    let p = write_tmp("unix-acl.exe", &PeBuilder::new().build());
+    std::fs::set_permissions(&p, std::fs::Permissions::from_mode(0o640)).unwrap();
+    let acl = String::from_utf8_lossy(&pe_analysis::unix::access_control(&p).unwrap()).into_owned();
+    assert!(acl.starts_with("uid=") && acl.contains("mode=640"), "{acl}");
+    assert!(pe_analysis::unix::access_control(std::path::Path::new("/no/such/file")).is_none());
+    // a temporary file is on a local, fixed disk
+    let (network, removable) = pe_analysis::unix::drive_kind(&p);
+    assert!(!network, "temporary folder on a network file system?");
+    let _ = removable;
+    assert_eq!(pe_analysis::unix::drive_kind(std::path::Path::new("/no/such/file")), (false, false));
+    assert!(!pe_analysis::unix::NETWORK_FS_MAGIC.is_empty() && !pe_analysis::unix::NETWORK_FS_NAMES.is_empty());
 }

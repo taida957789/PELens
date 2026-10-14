@@ -11,7 +11,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  release:
+  windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,9 +33,98 @@ jobs:
           Compress-Archive -Path $name -DestinationPath "$name.zip"
           $hash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLower()
           "$hash  $name.zip" | Out-File -Encoding ascii "$name.zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: PELens-*.zip*
+
+  linux:
+    # the oldest supported runner: the binaries then run on older glibc versions too
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Tests
+        run: cargo test --workspace
+      - name: Build
+        run: cargo build --release -p pelens-gui -p pelens-cli
+      - name: Package
+        run: |
+          name="PELens-${GITHUB_REF_NAME}-linux-x86_64"
+          mkdir -p "$name/share/applications" "$name/share/icons/hicolor/512x512/apps" "$name/share/icons/hicolor/256x256/apps"
+          install -m755 target/release/pelens target/release/pelens-cli "$name/"
+          cp packaging/linux/pelens.desktop "$name/share/applications/"
+          cp assets/pelens-512.png "$name/share/icons/hicolor/512x512/apps/pelens.png"
+          cp assets/pelens.png "$name/share/icons/hicolor/256x256/apps/pelens.png"
+          cp packaging/linux/install.sh "$name/" && chmod +x "$name/install.sh"
+          cp README.md LICENSE "$name/"
+          cp kb/LICENSE "$name/LICENSE-knowledge-base.txt"
+          cp kb/SOURCES.md "$name/SOURCES-knowledge-base.md"
+          tar czf "$name.tar.gz" "$name"
+          sha256sum "$name.tar.gz" > "$name.tar.gz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: PELens-*.tar.gz*
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+      - name: Tests
+        run: cargo test --workspace
+      - name: Build (Apple silicon and Intel)
+        run: |
+          cargo build --release -p pelens-gui -p pelens-cli --target aarch64-apple-darwin
+          cargo build --release -p pelens-gui -p pelens-cli --target x86_64-apple-darwin
+      - name: Package (universal app bundle)
+        run: |
+          name="PELens-${GITHUB_REF_NAME}-macos-universal"
+          app="$name/PELens.app"
+          mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
+          for b in pelens pelens-cli; do
+            lipo -create -output "$app/Contents/MacOS/$b" \
+              "target/aarch64-apple-darwin/release/$b" "target/x86_64-apple-darwin/release/$b"
+          done
+          sed "s/@VERSION@/${GITHUB_REF_NAME#v}/g" packaging/macos/Info.plist > "$app/Contents/Info.plist"
+          plutil -lint "$app/Contents/Info.plist"
+          # icon: every size of an .iconset from the 512 px PNG
+          set_dir="$RUNNER_TEMP/pelens.iconset"
+          mkdir -p "$set_dir"
+          for s in 16 32 128 256 512; do
+            sips -z $s $s assets/pelens-512.png --out "$set_dir/icon_${s}x${s}.png" > /dev/null
+            d=$((s * 2))
+            if [ $d -le 512 ]; then sips -z $d $d assets/pelens-512.png --out "$set_dir/icon_${s}x${s}@2x.png" > /dev/null; fi
+          done
+          iconutil -c icns "$set_dir" -o "$app/Contents/Resources/pelens.icns"
+          # ad-hoc signature: required to run on Apple silicon
+          codesign --force --deep --sign - "$app"
+          cp README.md LICENSE "$name/"
+          cp kb/LICENSE "$name/LICENSE-knowledge-base.txt"
+          cp kb/SOURCES.md "$name/SOURCES-knowledge-base.md"
+          ditto -c -k --keepParent "$name" "$name.zip"
+          shasum -a 256 "$name.zip" > "$name.zip.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: PELens-*.zip*
+
+  publish:
+    needs: [windows, linux, macos]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
       - uses: softprops/action-gh-release@v2
         with:
           files: |
             PELens-*.zip
-            PELens-*.zip.sha256
+            PELens-*.tar.gz
+            PELens-*.sha256
           generate_release_notes: true

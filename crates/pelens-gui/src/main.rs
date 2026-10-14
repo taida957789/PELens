@@ -6,7 +6,7 @@ fn main() -> eframe::Result {
     let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.to_path_buf()));
     let mut k = pelens_gui::model::load_knowledge(xml.as_deref(), exe_dir.as_deref());
     let store = std::sync::Arc::new(pe_online::secret::CredentialStore::vt());
-    // a key from an older settings.xml moves to the Credential Manager (stays if that fails)
+    // a key from an older settings.xml moves to the system credential store (stays if that fails)
     let _ = pe_online::secret::migrate_plaintext_key(&mut k, store.as_ref());
     let mut state = pelens_gui::State::new(k);
     state.key_store = store;

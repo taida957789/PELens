@@ -29,6 +29,9 @@ pub const FILES: [(&str, &str); 10] = [
 #[derive(Debug, Clone, Default)]
 pub struct Knowledge {
     pub dir: Option<PathBuf>,
+    /// settings.xml written by `save_setting` when it is not the one of `dir` (the per-user
+    /// settings of the built-in knowledge base).
+    pub settings_file: Option<PathBuf>,
     pub settings: Settings,
     pub indicators: Vec<IndicatorDef>,
     pub thresholds: Vec<Threshold>,
@@ -127,6 +130,22 @@ impl Knowledge {
         })
     }
 
+    /// The built-in knowledge base with the user's own settings.xml (created on the first change).
+    pub fn builtin_with_user_settings(path: PathBuf) -> Self {
+        let mut k = Self::builtin();
+        if let Ok(d) = read_dom(&path) {
+            k.settings = Settings::from_dom(&d);
+            k.loaded.push(path.display().to_string());
+        }
+        k.settings_file = Some(path);
+        k
+    }
+
+    /// Where settings.xml is saved: the user settings file, else the one of the directory.
+    pub fn settings_path(&self) -> Option<PathBuf> {
+        self.settings_file.clone().or_else(|| self.dir.as_ref().map(|d| d.join("settings.xml")))
+    }
+
     /// The knowledge base of a directory (pestudio's XML files or a copy of `kb/`).
     pub fn load(dir: impl AsRef<Path>) -> Self {
         let dir = dir.as_ref().to_path_buf();
@@ -195,7 +214,17 @@ impl Knowledge {
 
     fn patch_file(&self, key: &str, target: &edit::Target, attr: &str, value: &str) -> Result<(), DbError> {
         let path = if key == "settings" {
-            self.dir.as_ref().ok_or(DbError::NoDirectory)?.join("settings.xml")
+            let p = self.settings_path().ok_or(DbError::NoDirectory)?;
+            if !p.exists()
+                && let Some(src) = open_kb::file("settings.xml")
+            {
+                // first change of the user settings: start from the built-in ones
+                if let Some(parent) = p.parent() {
+                    std::fs::create_dir_all(parent)?;
+                }
+                std::fs::write(&p, src)?;
+            }
+            p
         } else {
             self.file_path(key).ok_or(DbError::NoDirectory)?
         };
@@ -319,7 +348,7 @@ impl Knowledge {
         let target = edit::Target { scope: Some(("setting", edit::Key::First)), tag: elem, key: edit::Key::First };
         match self.patch_file("settings", &target, attr, value) {
             Err(DbError::NotFound(_)) => {
-                let path = self.dir.as_ref().ok_or(DbError::NoDirectory)?.join("settings.xml");
+                let path = self.settings_path().ok_or(DbError::NoDirectory)?;
                 let src = std::fs::read_to_string(&path)?;
                 let out = edit::insert_child(&src, "setting", elem, attr, value).ok_or_else(|| DbError::NotFound("setting".into()))?;
                 std::fs::write(&path, out)?;
@@ -328,6 +357,19 @@ impl Knowledge {
         }
         self.settings.set(elem, attr, value);
         Ok(())
+    }
+}
+
+/// Per-user configuration folder of PELens: `%APPDATA%\PELens` (Windows),
+/// `~/Library/Application Support/PELens` (macOS), `$XDG_CONFIG_HOME/pelens` or `~/.config/pelens`.
+pub fn user_config_dir() -> Option<PathBuf> {
+    let env = |v: &str| std::env::var_os(v).filter(|s| !s.is_empty()).map(PathBuf::from);
+    if cfg!(windows) {
+        env("APPDATA").map(|d| d.join("PELens"))
+    } else if cfg!(target_os = "macos") {
+        env("HOME").map(|h| h.join("Library/Application Support/PELens"))
+    } else {
+        env("XDG_CONFIG_HOME").or_else(|| env("HOME").map(|h| h.join(".config"))).map(|d| d.join("pelens"))
     }
 }
 

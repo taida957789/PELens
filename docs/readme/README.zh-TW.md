@@ -46,7 +46,7 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 | ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
 | 繁體中文 | 日本語 |
 
-介面預設跟隨 Windows 的顯示語言；可在「檢視 > 語言」或設定對話框中切換，或用 `-lang:<代碼>` 啟動（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析結果（表格內容、指標、報告）維持英文，與報告及搜尋一致。翻譯檔位於 `crates/pelens-gui/i18n/`。
+介面預設跟隨系統語言（Windows 顯示語言、macOS 偏好語言、Linux 的 `LANG`）；可在「檢視 > 語言」或設定對話框中切換，或用 `-lang:<代碼>` 啟動（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析結果（表格內容、指標、報告）維持英文，與報告及搜尋一致。翻譯檔位於 `crates/pelens-gui/i18n/`。
 
 ## 功能
 
@@ -58,22 +58,23 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 - **檔案修改**：DLL ⇄ EXE 切換、設定 entry-point、切換 characteristics、刪除 overlay、匯出任何項目、在新分析中開啟嵌入檔。
 - **報告**：XML、JSON、純文字，內容與 GUI 顯示的表格相同。
 - **GUI**：tree-view、暗色／亮色主題、可排序與篩選的表格、右鍵選單、拖放、快捷鍵（Ctrl+O、S、E、R、X；Tab 在樹狀中移動）。
-- **8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨 Windows 顯示語言。
+- **8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨系統語言。
 - **十六進位檢視**（Ctrl+H）：只繪製可見的列，大檔案也流暢；各檢視中有位置資訊的項目可右鍵「在十六進位檢視中顯示」，並可前往位移或 RVA、複製為十六進位或文字。
 - **YARA 掃描**（YARA-X）：在設定 > YARA 或 `-yara:<dir>` 指定規則資料夾；每條命中的規則產生指標（嚴重度取自規則的 `severity` metadata），比對位置可直接在十六進位檢視中查看，也會寫入報告。
 - **反組譯**（x86／x64，iced-x86）：從進入點、匯出函式或 TLS callback 開始；經由 IAT 呼叫的函式會顯示名稱，可跟隨跳躍目標，並可在十六進位檢視中查看。
+- **跨平台**：Windows、Linux、macOS 功能相同 — Authenticode 驗證在非 Windows 平台使用內建的純 Rust 驗證器（Microsoft 根憑證＋系統根憑證）、VirusTotal key 存在系統憑證庫（Windows 認證管理員、macOS 鑰匙圈、Linux Secret Service）、網路／卸除式磁碟與 ACL 檢查、系統 CJK 字型，macOS 快捷鍵使用 ⌘。
 
 ## 安裝／建置
 
-**下載**：到 [Releases](https://github.com/taida957789/PELens/releases/latest) 下載 `PELens-<版本>-windows-x64.zip`，解壓縮後執行 `pelens.exe`，不需安裝。附有 `.sha256` 可驗證檔案。從原始碼建置：
+**下載**：到 [Releases](https://github.com/taida957789/PELens/releases/latest) 下載對應平台的檔案（`windows-x64.zip`, `linux-x86_64.tar.gz`, `macos-universal.zip`），各附 `.sha256` 可驗證。Windows：解壓縮後執行 `pelens.exe`。Linux：解壓縮後執行 `./pelens`，或執行 `./install.sh` 安裝到 `~/.local`（含桌面捷徑與圖示）。macOS（Apple silicon 與 Intel）：解壓縮後把 `PELens.app` 拖到「應用程式」；第一次開啟請按右鍵 > 開啟（未經 Apple 公證）。從原始碼建置：
 
 ```bash
 cargo build --release
-# target/release/pelens.exe      (GUI)
-# target/release/pelens-cli.exe  (CLI)
+# target/release/pelens      (GUI; pelens.exe on Windows)
+# target/release/pelens-cli  (CLI; pelens-cli.exe on Windows)
 ```
 
-需要 Rust 1.88 以上（edition 2024），於 Windows 11 x64 開發與測試。
+需要 Rust 1.88 以上（edition 2024）。CI 在 Windows、Linux、macOS 上建置並執行全部測試。
 
 ## 使用方式
 

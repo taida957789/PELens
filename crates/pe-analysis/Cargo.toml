@@ -12,6 +12,10 @@ sha1 = { workspace = true }
 sha2 = { workspace = true }
 msvc-demangler = { workspace = true }
 yara-x = { version = "1.21", optional = true }
+# Authenticode verification outside Windows (src/authenticode.rs)
+rsa = { version = "0.9", default-features = false, features = ["std", "pem"] }
+p256 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8", "std"] }
+p384 = { version = "0.13", default-features = false, features = ["ecdsa", "pkcs8", "std"] }
 iced-x86 = { version = "1.21", default-features = false, features = ["std", "decoder", "intel", "instr_info"] }
 
 [features]
@@ -19,8 +23,15 @@ default = ["yara"]
 # YARA rule scanning (YARA-X); without it rule folders are reported as ignored.
 yara = ["dep:yara-x"]
 
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security", "Win32_Storage_FileSystem", "Win32_Security_WinTrust", "Win32_Security_Cryptography", "Win32_System_Com"] }
 
 [dev-dependencies]
 serde_json = { workspace = true }
+rand_chacha = "0.3"
+# key export of the test PKI
+p256 = { version = "0.13", default-features = false, features = ["pem"] }
+p384 = { version = "0.13", default-features = false, features = ["pem"] }

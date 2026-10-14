@@ -1,5 +1,23 @@
-// Language, screenshot tabs, copy button and the latest release on the download button.
+// Language, screenshot tabs, copy button and the latest release on the download buttons.
 (function () {
+  // the visitor's system picks the main download button
+  const OS = {
+    windows: { name: 'Windows', info: 'x64 · zip', asset: /windows-x64\.zip$/ },
+    macos: { name: 'macOS', info: 'Apple silicon + Intel · zip', asset: /macos-universal\.zip$/ },
+    linux: { name: 'Linux', info: 'x86_64 · tar.gz', asset: /linux-x86_64\.tar\.gz$/ },
+  };
+  const ua = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || '') + ' ' + navigator.userAgent;
+  const os = /mac|iphone|ipad/i.test(ua) ? 'macos' : /linux|x11|cros/i.test(ua) && !/android/i.test(ua) ? 'linux' : 'windows';
+  document.querySelectorAll('.other-os a').forEach(function (a) { a.hidden = a.dataset.os === os; });
+  document.querySelector('[data-i18n="hero.download"]').dataset.en = 'Download for {os}';
+  document.getElementById('release-info').textContent = OS[os].info;
+  if (os !== 'windows') {
+    document.getElementById('cli').hidden = true;
+    document.getElementById('cli-unix').hidden = false;
+    document.getElementById('shell').textContent = os === 'macos' ? 'Terminal' : 'Shell';
+    document.querySelector('.copy').dataset.copy = 'cli-unix';
+  }
+
   const select = document.getElementById('lang');
   const supported = Object.keys(window.PELENS_I18N);
 
@@ -21,7 +39,7 @@
     document.querySelectorAll('[data-i18n]').forEach(function (el) {
       const key = el.getAttribute('data-i18n');
       if (!el.dataset.en) el.dataset.en = el.innerHTML;
-      el.innerHTML = t[key] || el.dataset.en;
+      el.innerHTML = (t[key] || el.dataset.en).replace('{os}', OS[os].name);
     });
     if (t['meta.title']) document.title = t['meta.title'];
     select.value = lang;
@@ -57,15 +75,20 @@
     });
   });
 
-  // latest release: version and size of the zip
+  // latest release: version and size of the package of each system
   fetch('https://api.github.com/repos/taida957789/PELens/releases/latest')
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (rel) {
       if (!rel) return;
-      const zip = (rel.assets || []).find(function (a) { return /\.zip$/.test(a.name); });
-      const info = document.getElementById('release-info');
-      info.textContent = rel.tag_name + ' · x64 · ' + (zip ? (zip.size / 1048576).toFixed(1) + ' MB' : 'zip');
-      if (zip) document.getElementById('download').href = zip.browser_download_url;
+      const find = function (k) { return (rel.assets || []).find(function (a) { return OS[k].asset.test(a.name); }); };
+      const main = find(os);
+      document.getElementById('release-info').textContent =
+        rel.tag_name + ' · ' + OS[os].info.split(' · ')[0] + (main ? ' · ' + (main.size / 1048576).toFixed(1) + ' MB' : '');
+      if (main) document.getElementById('download').href = main.browser_download_url;
+      document.querySelectorAll('.other-os a').forEach(function (a) {
+        const f = find(a.dataset.os);
+        if (f) a.href = f.browser_download_url;
+      });
     })
     .catch(function () {});
 })();

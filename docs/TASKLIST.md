@@ -267,6 +267,17 @@
 - [x] T20.4 TLS callback、匯出函式、進入點皆可右鍵「從這裡反組譯」
 - [x] T20.5 發佈 v0.3.0：https://github.com/taida957789/PELens/releases/tag/v0.3.0（zip 26.9 MB）
 
+## M21 跨平台：Linux 與 macOS（2026-10-14）
+- [x] T21.1 Authenticode 純 Rust 驗證器（`pe-analysis/src/authenticode.rs`）：PKCS#7 SignedData、image digest（MD5/SHA-1/SHA-2）、RSA PKCS#1／PSS 與 ECDSA P-256/P-384、signed attributes、憑證鏈與 code-signing EKU、PKCS#9 與 RFC 3161 時間戳記；信任錨為內建 Microsoft 根憑證＋系統根憑證（Linux PEM bundle、macOS `security`）；與 WinVerifyTrust 比對 459 個檔案 458 個一致（唯一差異為 WDK 測試憑證）
+- [x] T21.2 網路／卸除式磁碟（Linux `statfs` + sysfs；macOS `MNT_LOCAL` + `diskutil`）與 ACL footprint（uid/gid/mode＋POSIX／macOS ACL）
+- [x] T21.3 VirusTotal 金鑰：macOS 鑰匙圈、Linux Secret Service（`keyring` 3.6，純 Rust D-Bus）
+- [x] T21.4 設定檔：內建知識庫時寫入使用者設定（`%APPDATA%\PELens`、`~/Library/Application Support/PELens`、`$XDG_CONFIG_HOME/pelens`）
+- [x] T21.5 介面：系統語言偵測（`sys-locale`）、各平台 CJK 字型（遞迴搜尋字型資料夾）、macOS 快捷鍵顯示 ⌘、Linux X11／Wayland、檔案對話框使用 XDG portal
+- [x] T21.6 CLI 接受不加 `-file:` 的路徑與 Unix 路徑（`/tmp/a.exe`）
+- [x] T21.7 測試不再依平台跳過（驗證、ACL、憑證庫在三個平台都會跑）；CI 加入 ubuntu-latest、macos-latest
+- [x] T21.8 Release：Linux x86_64 tar.gz（含 `.desktop`、圖示、`install.sh`）、macOS universal `.app`（Apple silicon＋Intel，ad-hoc 簽章）
+- [x] T21.9 README（8 種語言）與網站：各平台下載、依瀏覽者系統顯示下載按鈕
+
 ## 待辦（未排程）
 - 模糊雜湊（TLSH / ssdeep）、Authentihash、Rich header hash
 - 混淆字串解碼（stack strings、單位元組 XOR）

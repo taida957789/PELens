@@ -108,8 +108,11 @@ query overlay score	consultar puntuación del overlay
 API version	versión de la API
 proxy address	dirección del proxy
 proxy port	puerto del proxy
-Your own Virustotal key, stored in the Windows Credential Manager.	Su propia clave de VirusTotal, guardada en el Administrador de credenciales de Windows.
-the Virustotal key is stored in the Windows Credential Manager	la clave de VirusTotal está guardada en el Administrador de credenciales de Windows
+Your own Virustotal key, stored in the {0}.	Su propia clave de VirusTotal, guardada en {0}.
+the Virustotal key is stored in the {0}	la clave de VirusTotal está guardada en {0}
+Windows Credential Manager	el Administrador de credenciales de Windows
+macOS Keychain	el llavero de macOS
+Secret Service keyring	el llavero de Secret Service
 cannot store the Virustotal key ({0})	no se puede guardar la clave de VirusTotal ({0})
 
 # file dialogs

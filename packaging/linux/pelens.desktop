@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=PELens
+GenericName=PE file analyzer
+Comment=Malware initial assessment of Windows executables
+Exec=pelens %f
+Icon=pelens
+Terminal=false
+Categories=Development;Security;Utility;
+MimeType=application/x-msdownload;application/x-dosexec;application/vnd.microsoft.portable-executable;application/x-ms-dos-executable;
+StartupWMClass=pelens

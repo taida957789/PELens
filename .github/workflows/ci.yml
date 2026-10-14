@@ -30,3 +30,28 @@ jobs:
         run: cargo clippy -p pelens-cli -p pelens-gui --no-default-features -- -D warnings
       - name: Tests and coverage (fails under 90 % of lines)
         run: cargo llvm-cov --workspace --summary-only --fail-under-lines 90
+
+  # Linux and macOS: same lints and tests (the coverage gate runs on Windows)
+  unix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: Swatinem/rust-cache@v2
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+      - name: Build without YARA
+        run: cargo clippy -p pelens-cli -p pelens-gui --no-default-features -- -D warnings
+      - name: Tests
+        run: cargo test --workspace
+      - name: Command line on a sample (Unix path, positional input)
+        run: |
+          cargo run -q -p pe-analysis --example demo_sample -- "$RUNNER_TEMP/samples"
+          cargo run -q -p pelens-cli -- "$RUNNER_TEMP/samples/demo-suspicious.exe" -stdout -format:json > "$RUNNER_TEMP/report.json"
+          grep -q '"sha256"' "$RUNNER_TEMP/report.json"

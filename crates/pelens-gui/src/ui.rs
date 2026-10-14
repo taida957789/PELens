@@ -42,6 +42,11 @@ impl Host for RfdHost {
     }
 }
 
+/// Label of a keyboard shortcut: ⌘ on macOS (egui's COMMAND modifier), Ctrl elsewhere.
+pub fn shortcut(key: &str) -> String {
+    if cfg!(target_os = "macos") { format!("⌘{key}") } else { format!("Ctrl+{key}") }
+}
+
 const TREE_ROW: f32 = 21.0;
 const TREE_INDENT: f32 = 16.0;
 const ROW_H: f32 = 20.0;
@@ -238,24 +243,24 @@ impl PeLensApp {
         egui::MenuBar::new().ui(ui, |ui| {
             ui.menu_button(self.state.t("file"), |ui| {
                 let has = self.state.doc.is_some();
-                if ui.button(format!("{}\tCtrl+O", self.state.t("open file"))).clicked() {
+                if ui.button(format!("{}\t{}", self.state.t("open file"), shortcut("O"))).clicked() {
                     self.push(Action::OpenDialog);
                     ui.close();
                 }
-                if ui.add_enabled(has, egui::Button::new(format!("{}\tCtrl+S", self.state.t("save file")))).clicked() {
+                if ui.add_enabled(has, egui::Button::new(format!("{}\t{}", self.state.t("save file"), shortcut("S")))).clicked() {
                     self.push(Action::Save);
                     ui.close();
                 }
-                if ui.add_enabled(has, egui::Button::new(format!("{}\tCtrl+E", self.state.tr(607, "close file")))).clicked() {
+                if ui.add_enabled(has, egui::Button::new(format!("{}\t{}", self.state.tr(607, "close file"), shortcut("E")))).clicked() {
                     self.push(Action::Close);
                     ui.close();
                 }
-                if ui.add_enabled(has, egui::Button::new(format!("{}\tCtrl+R", self.state.t("create report")))).clicked() {
+                if ui.add_enabled(has, egui::Button::new(format!("{}\t{}", self.state.t("create report"), shortcut("R")))).clicked() {
                     self.push(Action::CreateReport);
                     ui.close();
                 }
                 ui.separator();
-                if ui.button(format!("{}\tCtrl+X", self.state.t("exit PELens"))).clicked() {
+                if ui.button(format!("{}\t{}", self.state.t("exit PELens"), shortcut("X"))).clicked() {
                     self.push(Action::Exit);
                     ui.close();
                 }
@@ -267,7 +272,7 @@ impl PeLensApp {
                     ui.close();
                 }
                 let mut hex = self.state.hex.open;
-                if ui.checkbox(&mut hex, format!("{}\tCtrl+H", self.state.t("hex view"))).clicked() {
+                if ui.checkbox(&mut hex, format!("{}\t{}", self.state.t("hex view"), shortcut("H"))).clicked() {
                     self.push(Action::ToggleHex);
                     ui.close();
                 }
@@ -321,10 +326,10 @@ impl PeLensApp {
             if keys.is_empty() { s.to_string() } else { format!("{s} ({keys})") }
         };
         let tips = [
-            tip("open file", "Ctrl+O"),
-            tip("save file", "Ctrl+S"),
-            tip("close file", "Ctrl+E"),
-            tip("create report", "Ctrl+R"),
+            tip("open file", &shortcut("O")),
+            tip("save file", &shortcut("S")),
+            tip("close file", &shortcut("E")),
+            tip("create report", &shortcut("R")),
             tip("query Virustotal score", ""),
             tip("settings", ""),
             tip(if dark { "light mode" } else { "dark mode" }, ""),
@@ -1012,7 +1017,8 @@ impl PeLensApp {
                         };
                         if f.attr == "key" {
                             self.key_buffer = v.clone();
-                            r.clone().on_hover_text(self.state.t("Your own Virustotal key, stored in the Windows Credential Manager."));
+                            let store = self.state.t(pe_online::secret::STORE_NAME);
+                            r.clone().on_hover_text(self.state.tf("Your own Virustotal key, stored in the {0}.", &[&store]));
                         }
                         if r.lost_focus() && v != cur {
                             changes.push((f.elem, f.attr, v));

@@ -45,13 +45,18 @@ pub fn verify_path(path: &str) -> CertificateCheck {
     CertificateCheck { verified: Some(code == 0), message: trust_message(code) }
 }
 
+/// Outside Windows: the Rust Authenticode verifier (see `authenticode.rs`) with the system roots.
 #[cfg(not(windows))]
-pub fn verify_path(_path: &str) -> CertificateCheck {
-    CertificateCheck { verified: None, message: "verification not available on this platform".into() }
+pub fn verify_path(path: &str) -> CertificateCheck {
+    match std::fs::read(path) {
+        Ok(data) => crate::authenticode::verify_now(&data),
+        Err(e) => CertificateCheck { verified: None, message: format!("cannot read the file ({e})") },
+    }
 }
 
 /// Verify the signature of `data`, the bytes actually analysed. When they differ from the file
 /// on disk (an in-memory modification), they are verified through a temporary copy.
+#[cfg(windows)]
 pub fn verify_data(path: &str, data: &[u8]) -> CertificateCheck {
     if std::fs::read(path).is_ok_and(|disk| disk == data) {
         return verify_path(path);
@@ -65,4 +70,10 @@ pub fn verify_data(path: &str, data: &[u8]) -> CertificateCheck {
     let r = verify_path(&tmp.to_string_lossy());
     let _ = std::fs::remove_file(&tmp);
     r
+}
+
+/// Outside Windows the verifier works on the bytes directly.
+#[cfg(not(windows))]
+pub fn verify_data(_path: &str, data: &[u8]) -> CertificateCheck {
+    crate::authenticode::verify_now(data)
 }

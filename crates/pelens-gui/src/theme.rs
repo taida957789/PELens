@@ -2,7 +2,7 @@
 
 use crate::i18n::Lang;
 use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, FontTweak, Stroke, TextStyle};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::sync::Arc;
 
 /// Colours used by the custom drawing (tree, table headers, flags, links).
@@ -105,43 +105,145 @@ pub fn apply(ctx: &egui::Context, p: &Palette) {
     });
 }
 
-/// Candidate font files: (family, files tried in order). CJK fonts are used as fallbacks so that
-/// Chinese/Japanese/Korean text (interface and sample strings) renders instead of showing boxes.
-/// The interface language picks the first CJK font (its glyph shapes win); Malgun Gothic is
-/// always added for Hangul, which the Chinese and Japanese fonts lack.
-pub fn font_candidates(fonts_dir: &Path, lang: Lang) -> Vec<(FontFamily, Vec<PathBuf>)> {
-    let f = |n: &str| fonts_dir.join(n);
-    let cjk = |files: &[&str]| files.iter().map(|n| f(n)).collect::<Vec<_>>();
-    let primary = match lang {
-        Lang::ZhCn => cjk(&["msyh.ttc", "msjh.ttc"]),
-        Lang::Ja => cjk(&["YuGothR.ttc", "meiryo.ttc", "msgothic.ttc", "msjh.ttc"]),
-        Lang::Ko => cjk(&["malgun.ttf", "msjh.ttc"]),
-        _ => cjk(&["msjh.ttc", "msyh.ttc", "YuGothR.ttc"]),
-    };
-    let mut v = vec![
-        (FontFamily::Proportional, vec![f("segoeui.ttf"), f("arial.ttf")]),
-        (FontFamily::Monospace, vec![f("consola.ttf"), f("cour.ttf")]),
-        // fallbacks shared by both families, in this order
-        (FontFamily::Name("cjk".into()), primary),
-        (FontFamily::Name("hangul".into()), vec![f("malgun.ttf")]),
-    ];
+/// Candidate font files per family, by file name, tried in order. CJK fonts are fallbacks so
+/// that Chinese/Japanese/Korean text (interface and sample strings) renders instead of boxes.
+/// The interface language picks the first CJK font (its glyph shapes win); a Hangul font is
+/// always added, the Chinese and Japanese fonts lack Hangul.
+pub fn font_candidates(lang: Lang) -> Vec<(FontFamily, Vec<&'static str>)> {
+    let (prop, mono, cjk, hangul, hanja) = platform_fonts(lang);
+    let mut v = vec![(FontFamily::Proportional, prop), (FontFamily::Monospace, mono), (FontFamily::Name("cjk".into()), cjk)];
     if lang == Lang::Ko {
-        // Hanja: Malgun Gothic has none
-        v[3] = (FontFamily::Name("hanja".into()), vec![f("msjh.ttc"), f("msyh.ttc")]);
+        v.push((FontFamily::Name("hanja".into()), hanja));
+    } else {
+        v.push((FontFamily::Name("hangul".into()), hangul));
     }
     v
 }
 
-/// Build font definitions from system fonts, keeping egui's built-in fonts (emoji icons) as fallbacks.
-/// Returns the definitions and the names of the fonts that were loaded.
-pub fn font_definitions(fonts_dir: &Path, lang: Lang) -> (FontDefinitions, Vec<String>) {
+type FontLists = (Vec<&'static str>, Vec<&'static str>, Vec<&'static str>, Vec<&'static str>, Vec<&'static str>);
+
+/// (proportional, monospace, CJK for the language, Hangul, Hanja) font files of the platform.
+#[cfg(windows)]
+fn platform_fonts(lang: Lang) -> FontLists {
+    let cjk = match lang {
+        Lang::ZhCn => vec!["msyh.ttc", "msjh.ttc"],
+        Lang::Ja => vec!["YuGothR.ttc", "meiryo.ttc", "msgothic.ttc", "msjh.ttc"],
+        Lang::Ko => vec!["malgun.ttf", "msjh.ttc"],
+        _ => vec!["msjh.ttc", "msyh.ttc", "YuGothR.ttc"],
+    };
+    (vec!["segoeui.ttf", "arial.ttf"], vec!["consola.ttf", "cour.ttf"], cjk, vec!["malgun.ttf"], vec!["msjh.ttc", "msyh.ttc"])
+}
+
+#[cfg(target_os = "macos")]
+fn platform_fonts(lang: Lang) -> FontLists {
+    let cjk = match lang {
+        Lang::Ja => vec!["ヒラギノ角ゴシック W3.ttc", "Hiragino Sans GB.ttc", "PingFang.ttc", "STHeiti Light.ttc"],
+        Lang::Ko => vec!["AppleSDGothicNeo.ttc", "PingFang.ttc"],
+        Lang::ZhCn => vec!["PingFang.ttc", "Hiragino Sans GB.ttc", "STHeiti Light.ttc"],
+        _ => vec!["PingFang.ttc", "STHeiti Light.ttc", "Hiragino Sans GB.ttc"],
+    };
+    (
+        vec!["SFNS.ttf", "SFNSText.ttf", "HelveticaNeue.ttc", "Helvetica.ttc", "Arial.ttf"],
+        vec!["SFNSMono.ttf", "Menlo.ttc", "Monaco.ttf", "Courier New.ttf"],
+        cjk,
+        vec!["AppleSDGothicNeo.ttc"],
+        vec!["PingFang.ttc", "STHeiti Light.ttc"],
+    )
+}
+
+#[cfg(not(any(windows, target_os = "macos")))]
+fn platform_fonts(lang: Lang) -> FontLists {
+    const TC: [&str; 3] = ["NotoSansCJKtc-Regular.otf", "NotoSansTC-Regular.otf", "NotoSansCJKtc-Regular.ttc"];
+    const SC: [&str; 3] = ["NotoSansCJKsc-Regular.otf", "NotoSansSC-Regular.otf", "NotoSansCJKsc-Regular.ttc"];
+    const JP: [&str; 3] = ["NotoSansCJKjp-Regular.otf", "NotoSansJP-Regular.otf", "NotoSansCJKjp-Regular.ttc"];
+    const KR: [&str; 4] = ["NotoSansCJKkr-Regular.otf", "NotoSansKR-Regular.otf", "NotoSansCJKkr-Regular.ttc", "NanumGothic.ttf"];
+    // the multi-language collections and the common fallbacks of the distributions
+    const ANY: [&str; 5] =
+        ["NotoSansCJK-Regular.ttc", "wqy-microhei.ttc", "wqy-zenhei.ttc", "DroidSansFallbackFull.ttf", "DroidSansFallback.ttf"];
+    let order: Vec<&[&'static str]> = match lang {
+        Lang::ZhCn => vec![&SC, &TC, &ANY],
+        Lang::Ja => vec![&JP, &ANY, &TC],
+        Lang::Ko => vec![&KR, &ANY],
+        _ => vec![&TC, &SC, &ANY],
+    };
+    (
+        vec![
+            "NotoSans-Regular.ttf",
+            "DejaVuSans.ttf",
+            "LiberationSans-Regular.ttf",
+            "Ubuntu-R.ttf",
+            "Cantarell-Regular.otf",
+            "FreeSans.ttf",
+        ],
+        vec!["NotoSansMono-Regular.ttf", "DejaVuSansMono.ttf", "LiberationMono-Regular.ttf", "UbuntuMono-R.ttf", "FreeMono.ttf"],
+        order.concat(),
+        [&KR[..], &ANY[..]].concat(),
+        [&TC[..], &SC[..], &ANY[..]].concat(),
+    )
+}
+
+/// Folders holding the fonts of the platform (searched recursively).
+pub fn font_dirs() -> Vec<PathBuf> {
+    let home = std::env::var_os("HOME").map(PathBuf::from);
+    let mut v: Vec<PathBuf> = Vec::new();
+    if cfg!(windows) {
+        v.push(std::env::var_os("WINDIR").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("C:\\Windows")).join("Fonts"));
+        if let Some(l) = std::env::var_os("LOCALAPPDATA") {
+            v.push(PathBuf::from(l).join("Microsoft").join("Windows").join("Fonts"));
+        }
+    } else if cfg!(target_os = "macos") {
+        v.extend(["/System/Library/Fonts", "/Library/Fonts", "/System/Library/AssetsV2"].map(PathBuf::from));
+        v.extend(home.map(|h| h.join("Library/Fonts")));
+    } else {
+        let data = std::env::var("XDG_DATA_DIRS").unwrap_or_else(|_| "/usr/local/share:/usr/share".into());
+        v.extend(data.split(':').filter(|d| !d.is_empty()).map(|d| PathBuf::from(d).join("fonts")));
+        if let Some(h) = home {
+            v.push(h.join(".local/share/fonts"));
+            v.push(h.join(".fonts"));
+        }
+    }
+    v
+}
+
+/// Font files under `dirs` by lower-case file name (first found wins).
+pub fn index_fonts(dirs: &[PathBuf]) -> std::collections::HashMap<String, PathBuf> {
+    let mut out = std::collections::HashMap::new();
+    let mut stack: Vec<(PathBuf, usize)> = dirs.iter().map(|d| (d.clone(), 0)).collect();
+    let mut seen = 0usize;
+    while let Some((d, depth)) = stack.pop() {
+        let Ok(rd) = std::fs::read_dir(&d) else { continue };
+        for e in rd.flatten() {
+            seen += 1;
+            if seen > 200_000 {
+                return out;
+            }
+            let p = e.path();
+            if p.is_dir() {
+                if depth < 8 {
+                    stack.push((p, depth + 1));
+                }
+            } else if let Some(name) = p.file_name().map(|n| n.to_string_lossy().to_lowercase())
+                && (name.ends_with(".ttf") || name.ends_with(".ttc") || name.ends_with(".otf"))
+            {
+                out.entry(name).or_insert(p);
+            }
+        }
+    }
+    out
+}
+
+/// Build font definitions from the fonts found under `dirs`, keeping egui's built-in fonts (emoji
+/// icons, and the text fonts when nothing is found) as fallbacks. Returns the definitions and the
+/// names of the fonts that were loaded.
+pub fn font_definitions(dirs: &[PathBuf], lang: Lang) -> (FontDefinitions, Vec<String>) {
+    let index = index_fonts(dirs);
     let mut defs = FontDefinitions::default();
     let mut loaded: Vec<String> = Vec::new();
     let mut fallbacks: Vec<String> = Vec::new();
     // vertical metrics of the main interface font, to align the fallbacks on it
     let mut primary: Option<(f32, f32)> = None;
-    for (family, files) in font_candidates(fonts_dir, lang) {
-        let Some(path) = files.iter().find(|p| p.is_file()) else { continue };
+    for (family, files) in font_candidates(lang) {
+        let Some(path) = files.iter().find_map(|f| index.get(&f.to_lowercase())) else { continue };
         let name = path.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
         if !loaded.contains(&name) {
             let Ok(bytes) = std::fs::read(path) else { continue };
@@ -195,12 +297,8 @@ pub fn baseline_offset(primary: (f32, f32), fallback: (f32, f32)) -> f32 {
     primary.0 - (fallback.0 + 0.5 * (primary.1 - fallback.1))
 }
 
-pub fn windows_fonts_dir() -> PathBuf {
-    std::env::var_os("WINDIR").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("C:\\Windows")).join("Fonts")
-}
-
 pub fn install_fonts(ctx: &egui::Context, lang: Lang) -> Vec<String> {
-    let (defs, loaded) = font_definitions(&windows_fonts_dir(), lang);
+    let (defs, loaded) = font_definitions(&font_dirs(), lang);
     ctx.set_fonts(defs);
     loaded
 }

@@ -114,7 +114,11 @@ fn locale_name() -> Option<String> {
     (n > 1).then(|| String::from_utf16_lossy(&buf[..n as usize - 1]))
 }
 
+/// macOS: the first preferred language of the user (GUI apps get no LANG); Linux and other Unix
+/// systems: LC_ALL / LC_MESSAGES / LANG.
 #[cfg(not(windows))]
 fn locale_name() -> Option<String> {
-    ["LC_ALL", "LC_MESSAGES", "LANG"].iter().filter_map(|v| std::env::var(v).ok()).find(|v| !v.is_empty())
+    sys_locale::get_locale()
+        .filter(|l| !l.is_empty() && l != "C" && l != "POSIX")
+        .or_else(|| ["LC_ALL", "LC_MESSAGES", "LANG"].iter().filter_map(|v| std::env::var(v).ok()).find(|v| !v.is_empty()))
 }

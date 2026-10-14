@@ -1,7 +1,18 @@
-//! Where the VirusTotal API key lives: the Windows Credential Manager (per user, never written to
-//! settings.xml), the `VT_API_KEY` environment variable, or a legacy plaintext `<score key>`.
+//! Where the VirusTotal API key lives: the system credential store (Windows Credential Manager,
+//! macOS Keychain, Linux Secret Service; never settings.xml), the `VT_API_KEY` environment
+//! variable, or a legacy plaintext `<score key>`.
 
 use std::sync::Mutex;
+
+/// Name of the system credential store, for messages.
+#[cfg(windows)]
+pub const STORE_NAME: &str = "Windows Credential Manager";
+#[cfg(target_os = "macos")]
+pub const STORE_NAME: &str = "macOS Keychain";
+#[cfg(target_os = "linux")]
+pub const STORE_NAME: &str = "Secret Service keyring";
+#[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
+pub const STORE_NAME: &str = "credential store";
 
 /// Credential Manager target name of the VirusTotal key.
 pub const VT_TARGET: &str = "PELens/VirusTotal";
@@ -143,13 +154,35 @@ impl KeyStore for CredentialStore {
     }
 }
 
-#[cfg(not(windows))]
+/// macOS Keychain / Linux Secret Service (the kernel keyring when no Secret Service runs).
+#[cfg(any(target_os = "macos", target_os = "linux"))]
+impl KeyStore for CredentialStore {
+    fn get(&self) -> Option<String> {
+        keyring::Entry::new(&self.target, "virustotal").ok()?.get_password().ok().filter(|k| !k.is_empty())
+    }
+    fn set(&self, key: &str) -> Result<(), String> {
+        if key.is_empty() {
+            return self.delete();
+        }
+        let e = keyring::Entry::new(&self.target, "virustotal").map_err(|e| e.to_string())?;
+        e.set_password(key).map_err(|e| e.to_string())
+    }
+    fn delete(&self) -> Result<(), String> {
+        let e = keyring::Entry::new(&self.target, "virustotal").map_err(|e| e.to_string())?;
+        match e.delete_credential() {
+            Ok(()) | Err(keyring::Error::NoEntry) => Ok(()),
+            Err(e) => Err(e.to_string()),
+        }
+    }
+}
+
+#[cfg(not(any(windows, target_os = "macos", target_os = "linux")))]
 impl KeyStore for CredentialStore {
     fn get(&self) -> Option<String> {
         None
     }
     fn set(&self, _key: &str) -> Result<(), String> {
-        Err("no credential store on this platform".into())
+        Err("no credential store on this platform; use VT_API_KEY".into())
     }
     fn delete(&self) -> Result<(), String> {
         Ok(())
@@ -169,7 +202,7 @@ pub fn migrate_plaintext_key(k: &mut pe_db::Knowledge, store: &dyn KeyStore) -> 
         return Ok(false);
     };
     store.set(&key)?;
-    if k.dir.is_some() {
+    if k.settings_path().is_some() {
         k.save_setting("score", "key", "").map_err(|e| e.to_string())?;
     } else {
         k.settings.set("score", "key", "");

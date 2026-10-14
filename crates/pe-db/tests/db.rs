@@ -517,3 +517,30 @@ fn library_listed_twice() {
     assert_eq!(f.function("k.dll", "C").map(|x| x.flag), Some(false));
     assert!(!f.library("k.dll").unwrap().flag, "the first entry describes the library");
 }
+
+/// The built-in knowledge base keeps the user's settings in their own settings.xml.
+#[test]
+fn user_settings_of_the_builtin_knowledge_base() {
+    let dir = std::env::temp_dir().join(format!("pelens-user-settings-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    let file = dir.join("sub").join("settings.xml");
+    let mut k = Knowledge::builtin_with_user_settings(file.clone());
+    assert!(k.dir.is_none() && k.settings_path() == Some(file.clone()));
+    assert!(!file.exists(), "nothing is written before the first change");
+    // first change: the file is created from the built-in settings, then patched
+    k.save_setting("theme", "dark", "0").unwrap();
+    k.save_setting("yara", "dir", "C:/rules").unwrap();
+    let text = std::fs::read_to_string(&file).unwrap();
+    assert!(text.contains("<theme dark=\"0\"/>") && text.contains("dir=\"C:/rules\""), "{text}");
+    // the next start reads them back
+    let k2 = Knowledge::builtin_with_user_settings(file.clone());
+    assert_eq!((k2.settings.get("theme", "dark"), k2.settings.get("yara", "dir")), (Some("0"), Some("C:/rules")));
+    assert_eq!(k2.loaded.len(), 12);
+    assert!(k2.indicators.len() > 100, "the knowledge itself stays the built-in one");
+    // without any file: in memory only
+    let mut mem = Knowledge::builtin();
+    assert!(mem.settings_path().is_none());
+    assert!(mem.save_setting("theme", "dark", "0").is_err());
+    assert!(pe_db::user_config_dir().is_some());
+    let _ = std::fs::remove_dir_all(dir);
+}
