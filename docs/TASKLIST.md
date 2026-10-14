@@ -189,7 +189,7 @@
 - [x] T13.2 清除 clippy 的 15 個警告，改以 `-D warnings` 執行（stable 1.99 新增的 lint 也已修正；最低版本改為 Rust 1.88）
 - [x] T13.3 `.github/workflows/ci.yml`：rustfmt、clippy、test、llvm-cov（< 90% 失敗）；CI 綠燈
 - [x] T13.4 確認測試在 CI 中不依賴本機（pestudio XML、字型、語系）；`.gitattributes` 統一 LF
-- [ ] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE、知識庫授權與來源）＋ SHA-256 → GitHub Releases
+- [x] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE、知識庫授權與來源）＋ SHA-256 → GitHub Releases；v0.3.0 驗證通過（SHA-256 相符、執行正常、Defender 掃描無威脅）
 - [x] T13.6 README（8 種語言）加入下載說明與 CI badge
 
 ## M14 Fuzzing
@@ -265,7 +265,7 @@
 - [x] T20.2 第 29 個檢視 `disassembly`：從進入點或任意 RVA 線性反組譯，N 條指令（設定 `<disassembly count>`，預設 64，上限 4096）；每條指令可在十六進位檢視中顯示
 - [x] T20.3 經由 IAT 的呼叫顯示「函式庫!函式」（可疑的匯入標紅）；跳躍目標顯示 RVA 與區段，右鍵「跟隨跳躍目標」；進入點不在第一個可執行區段時於檢視註明
 - [x] T20.4 TLS callback、匯出函式、進入點皆可右鍵「從這裡反組譯」
-- [ ] T20.5 發佈 v0.3.0
+- [x] T20.5 發佈 v0.3.0：https://github.com/taida957789/PELens/releases/tag/v0.3.0（zip 26.9 MB）
 
 ## 待辦（未排程）
 - 模糊雜湊（TLSH / ssdeep）、Authentihash、Rich header hash
