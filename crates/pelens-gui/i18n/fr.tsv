@@ -296,3 +296,13 @@ severity	gravité
 identifier	identifiant
 length	longueur
 metadata	métadonnées
+
+# disassembly
+disassembly	désassemblage
+Instructions to disassemble:	Instructions à désassembler :
+bytes	octets
+instruction	instruction
+comment	commentaire
+disassemble here	désassembler ici
+disassemble from the entry point	désassembler depuis le point d’entrée
+follow the branch	suivre le branchement

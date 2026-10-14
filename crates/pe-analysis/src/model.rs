@@ -35,10 +35,11 @@ pub enum ItemType {
     Manifest = 25,
     Overlay = 26,
     Yara = 27,
+    Disassembly = 28,
 }
 
 impl ItemType {
-    pub const ALL: [ItemType; 28] = [
+    pub const ALL: [ItemType; 29] = [
         ItemType::Image,
         ItemType::Footprints,
         ItemType::Groups,
@@ -67,6 +68,7 @@ impl ItemType {
         ItemType::Manifest,
         ItemType::Overlay,
         ItemType::Yara,
+        ItemType::Disassembly,
     ];
 
     pub fn name(self) -> &'static str {
@@ -99,6 +101,7 @@ impl ItemType {
             "manifest",
             "overlay",
             "yara",
+            "disassembly",
         ][self as usize]
     }
 

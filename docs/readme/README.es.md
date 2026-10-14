@@ -60,6 +60,7 @@ La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo 
 - **Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.
 - **Vista hexadecimal** (Ctrl+H): solo dibuja las filas visibles, también fluida con archivos grandes; los elementos con posición se abren con «mostrar en hexadecimal» del menú contextual, con salto a un desplazamiento o RVA y copia como hexadecimal o texto.
 - **Análisis YARA** (YARA-X): indique la carpeta de reglas en configuración > YARA o con `-yara:<dir>`; cada regla que coincide genera un indicador (gravedad según el metadato `severity` de la regla), las coincidencias se abren en la vista hexadecimal y aparecen en los informes.
+- **Desensamblado** (x86/x64, iced-x86): desde el punto de entrada, una función exportada o un callback TLS; las llamadas a través de la IAT muestran el nombre de la función, se pueden seguir los saltos y abrir en la vista hexadecimal.
 
 ## Instalación / compilación
 
@@ -106,7 +107,7 @@ Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (2
 ## Calidad
 
 ```bash
-cargo test --workspace                       # 102 pruebas
+cargo test --workspace                       # 107 pruebas
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de cobertura de líneas
 python tools/crossval.py 250                 # verificación cruzada con pefile
 ```

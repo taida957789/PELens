@@ -296,3 +296,13 @@ severity	严重性
 identifier	标识符
 length	长度
 metadata	元数据
+
+# disassembly
+disassembly	反汇编
+Instructions to disassemble:	反汇编的指令数：
+bytes	字节
+instruction	指令
+comment	注释
+disassemble here	从这里反汇编
+disassemble from the entry point	从入口点反汇编
+follow the branch	跟随跳转目标

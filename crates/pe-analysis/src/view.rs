@@ -141,11 +141,15 @@ pub struct ViewOptions {
     pub first_bytes: usize,
     pub uppercase_hashes: bool,
     pub google: bool,
+    /// Instructions shown by the disassembly view (`<disassembly count>`).
+    pub disasm_count: usize,
+    /// Where the disassembly starts (None: the entry point).
+    pub disasm_start: Option<u32>,
 }
 
 impl Default for ViewOptions {
     fn default() -> Self {
-        Self { epoch: false, first_bytes: 32, uppercase_hashes: true, google: true }
+        Self { epoch: false, first_bytes: 32, uppercase_hashes: true, google: true, disasm_count: 64, disasm_start: None }
     }
 }
 
@@ -156,6 +160,8 @@ impl ViewOptions {
             first_bytes: k.settings.get_int("indicators", "bytes", 32).clamp(1, 256) as usize,
             uppercase_hashes: k.settings.get_int("hashes", "case", 1) != 0,
             google: k.settings.get_bool("google", "enable", true),
+            disasm_count: k.settings.get_int("disassembly", "count", 64).clamp(1, crate::disasm::MAX_COUNT as i64) as usize,
+            disasm_start: None,
         }
     }
 
@@ -228,6 +234,7 @@ pub fn table(a: &Analysis, k: &Knowledge, data: &[u8], item: ItemType, o: &ViewO
         ItemType::Manifest => manifest(a, data),
         ItemType::Overlay => overlay(a, k, data, o),
         ItemType::Yara => yara(a),
+        ItemType::Disassembly => disassembly(a, data, o),
     };
     Table { item: Some(item), ..t }
 }
@@ -1017,7 +1024,11 @@ fn tls(a: &Analysis) -> Table {
     let l = a.pe.layout.as_ref();
     for (i, cb) in x.callbacks.iter().enumerate() {
         let sec = l.and_then(|l| l.va_to_rva(*cb).map(|r| l.section_name_of_rva(r))).unwrap_or_default();
-        t.rows.push(Row::kv(&format!("callback[{i}]"), format!("0x{cb:X} ({sec})")).flag(true));
+        let mut r = Row::kv(&format!("callback[{i}]"), format!("0x{cb:X} ({sec})")).flag(true);
+        if let Some(rva) = l.and_then(|l| l.va_to_rva(*cb)) {
+            r.key = format!("rva:{rva}");
+        }
+        t.rows.push(r);
     }
     t
 }
@@ -1373,6 +1384,44 @@ fn overlay(a: &Analysis, k: &Knowledge, data: &[u8], o: &ViewOptions) -> Table {
     t.rows.push(Row::kv("first-bytes-text", bytes_text(b, o.first_bytes)));
     let n = a.strings.iter().filter(|s| s.location == "overlay").count();
     t.rows.push(Row::kv("strings", n.to_string()).jump_to(ItemType::Strings));
+    t
+}
+
+fn disassembly(a: &Analysis, data: &[u8], o: &ViewOptions) -> Table {
+    let Some(l) = a.pe.layout.as_ref() else { return Table::na(ItemType::Disassembly, "n/a (not a portable executable)") };
+    let ep = l.optional_header.address_of_entry_point;
+    let start = match o.disasm_start {
+        Some(r) => r,
+        None if ep != 0 => ep,
+        None => return Table::na(ItemType::Disassembly, "n/a (no entry point)"),
+    };
+    let lines = match crate::disasm::disassemble(a, data, start, o.disasm_count) {
+        Ok(v) => v,
+        Err(e) => return Table::na(ItemType::Disassembly, &format!("n/a ({e})")),
+    };
+    let wide = l.is_64();
+    let base = l.image_base();
+    let mut t = Table::new(ItemType::Disassembly, &["address", "file-offset", "bytes", "instruction", "comment"]);
+    let mut note = if o.disasm_start.is_some() {
+        format!("from RVA 0x{start:08X} ({})", l.section_name_of_rva(start))
+    } else {
+        format!("from the entry point, RVA 0x{start:08X} ({})", l.section_name_of_rva(start))
+    };
+    let first_exec = l.sections.iter().find(|s| s.is_executable()).map(|s| s.name.clone());
+    if o.disasm_start.is_none() && l.section_of_rva(ep).map(|s| s.name.clone()) != first_exec {
+        note.push_str(" - the entry point is not in the first executable section");
+    }
+    t.note = Some(note);
+    for x in lines {
+        let va = base.wrapping_add(x.rva as u64);
+        let addr = if wide { format!("0x{va:016X}") } else { format!("0x{:08X}", va as u32) };
+        let bytes = x.bytes.iter().map(|b| format!("{b:02X}")).collect::<Vec<_>>().join(" ");
+        let mut r = Row::new(vec![addr, hex32(x.offset), bytes, x.text, x.comment]).flag(x.flag).dump(x.offset, x.bytes.len() as u64);
+        if let Some(target) = x.target {
+            r.key = format!("rva:{target}");
+        }
+        t.rows.push(r);
+    }
     t
 }
 

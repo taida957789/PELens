@@ -358,6 +358,7 @@ SETTING = [
     ('tooltips', [('enable', '1')]),
     ('stamps', [('epoch', '0')]),
     ('yara', [('enable', '1'), ('dir', '')]),
+    ('disassembly', [('count', '64')]),
 ]
 STANDARD_SECTIONS = ['.text', '.rdata', '.data', '.rsrc', '.reloc', '.pdata', '.idata', '.edata', '.tls', '.bss', '.CRT',
                      '.didat', '.gfids', '.giats', '.00cfg', '.xdata', '.sdata', 'CODE', 'DATA', 'BSS', '.textbss', 'INIT',

@@ -59,6 +59,7 @@ Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la d
 - **Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence).
 - **Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.
 - **Analyse YARA** (YARA-X) : indiquez le dossier de règles dans paramètres > YARA ou avec `-yara:<dir>` ; chaque règle correspondante produit un indicateur (gravité tirée de la métadonnée `severity` de la règle), les correspondances s’ouvrent dans la vue hexadécimale et figurent dans les rapports.
+- **Désassemblage** (x86/x64, iced-x86) : depuis le point d’entrée, une fonction exportée ou un callback TLS ; les appels via l’IAT affichent le nom de la fonction, on peut suivre les branchements et ouvrir le tout dans la vue hexadécimale.
 
 ## Installation / compilation
 
@@ -105,7 +106,7 @@ Documents de conception : [inventaire des fonctionnalités](../FEATURE_INVENTORY
 ## Qualité
 
 ```bash
-cargo test --workspace                       # 102 tests
+cargo test --workspace                       # 107 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de couverture des lignes
 python tools/crossval.py 250                 # vérification croisée avec pefile
 ```

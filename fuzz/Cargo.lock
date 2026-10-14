@@ -677,7 +677,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -943,6 +943,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f31827a206f56af32e590ba56d5d2d085f558508192593743f16b2306495269f"
 dependencies = [
  "cc",
+]
+
+[[package]]
+name = "iced-x86"
+version = "1.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c447cff8c7f384a7d4f741cfcff32f75f3ad02b406432e8d6c878d56b1edf6b"
+dependencies = [
+ "lazy_static",
 ]
 
 [[package]]
@@ -1383,8 +1392,9 @@ dependencies = [
 
 [[package]]
 name = "pe-analysis"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
+ "iced-x86",
  "md-5",
  "msvc-demangler",
  "pe-db",
@@ -1397,7 +1407,7 @@ dependencies = [
 
 [[package]]
 name = "pe-db"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "miniz_oxide 0.8.9",
  "quick-xml",
@@ -1405,7 +1415,7 @@ dependencies = [
 
 [[package]]
 name = "pe-parser"
-version = "0.1.0"
+version = "0.3.0"
 
 [[package]]
 name = "pelens-fuzz"
@@ -1800,7 +1810,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.12.1",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2059,7 +2069,7 @@ dependencies = [
  "getrandom 0.4.3",
  "once_cell",
  "rustix 1.1.5",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2534,7 +2544,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

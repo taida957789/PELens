@@ -38,12 +38,13 @@ T = {
  vt='只送出**雜湊值**，從不上傳樣本。在設定對話框或 `VT_API_KEY` 環境變數中填入你自己的 API key。預設使用 API v3，也可選 v2。',
  roles=['PE 解析（邊界檢查、不會 panic）與修改', 'pestudio XML 知識庫，讀寫時保留原格式', '指標、簽章、字串、檢視、報告、動作', 'VirusTotal、搜尋連結、更新檢查', '命令列（相容 pestudiox）', 'eframe/egui 圖形介面'],
  docs='設計文件：[功能盤點](../FEATURE_INVENTORY.md)（212 項，每項附對照）· [開發計畫](../DEVELOPMENT_PLAN.md) · [Tasklist](../TASKLIST.md)。',
+ dis_feat='**反組譯**（x86／x64，iced-x86）：從進入點、匯出函式或 TLS callback 開始；經由 IAT 呼叫的函式會顯示名稱，可跟隨跳躍目標，並可在十六進位檢視中查看。',
  yara_feat='**YARA 掃描**（YARA-X）：在設定 > YARA 或 `-yara:<dir>` 指定規則資料夾；每條命中的規則產生指標（嚴重度取自規則的 `severity` metadata），比對位置可直接在十六進位檢視中查看，也會寫入報告。',
  hex_feat='**十六進位檢視**（Ctrl+H）：只繪製可見的列，大檔案也流暢；各檢視中有位置資訊的項目可右鍵「在十六進位檢視中顯示」，並可前往位移或 RVA、複製為十六進位或文字。',
  h_lang='介面語言',
  lang_note='介面預設跟隨 Windows 的顯示語言；可在「檢視 > 語言」或設定對話框中切換，或用 `-lang:<代碼>` 啟動（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析結果（表格內容、指標、報告）維持英文，與報告及搜尋一致。翻譯檔位於 `crates/pelens-gui/i18n/`。',
  lang_caps=['繁體中文', '日本語'],
- q=['102 個測試', '約 97% 行覆蓋率', '與 pefile 交叉驗證'],
+ q=['107 個測試', '約 97% 行覆蓋率', '與 pefile 交叉驗證'],
  disc='PELens 是獨立專案，與 Winitor 及 pestudio 作者無關，也未獲其背書。請僅分析你有權限分析的檔案。',
  crate='crate', role='用途'),
 'zh-CN': dict(
@@ -68,12 +69,13 @@ T = {
  vt='只发送**哈希值**，从不上传样本。在设置对话框或 `VT_API_KEY` 环境变量中填入你自己的 API key。默认使用 API v3，也可选 v2。',
  roles=['PE 解析（边界检查、不会 panic）与修改', 'pestudio XML 知识库，读写时保留原格式', '指标、签名、字符串、视图、报告、操作', 'VirusTotal、搜索链接、更新检查', '命令行（兼容 pestudiox）', 'eframe/egui 图形界面'],
  docs='设计文档：[功能清单](../FEATURE_INVENTORY.md)（212 项，每项附对照）· [开发计划](../DEVELOPMENT_PLAN.md) · [任务清单](../TASKLIST.md)。',
+ dis_feat='**反汇编**（x86／x64，iced-x86）：从入口点、导出函数或 TLS callback 开始；通过 IAT 调用的函数会显示名称，可跟随跳转目标，并可在十六进制视图中查看。',
  yara_feat='**YARA 扫描**（YARA-X）：在设置 > YARA 或 `-yara:<dir>` 指定规则文件夹；每条命中的规则产生指标（严重性取自规则的 `severity` metadata），匹配位置可直接在十六进制视图中查看，也会写入报告。',
  hex_feat='**十六进制视图**（Ctrl+H）：只绘制可见的行，大文件也流畅；各视图中带位置信息的项目可右键“在十六进制视图中显示”，并可转到偏移或 RVA、复制为十六进制或文本。',
  h_lang='界面语言',
  lang_note='界面默认跟随 Windows 的显示语言；可在“视图 > 语言”或设置对话框中切换，或用 `-lang:<代码>` 启动（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析结果（表格内容、指标、报告）保持英文，与报告及搜索一致。翻译文件位于 `crates/pelens-gui/i18n/`。',
  lang_caps=['繁體中文', '日本語'],
- q=['102 个测试', '约 97% 行覆盖率', '与 pefile 交叉验证'],
+ q=['107 个测试', '约 97% 行覆盖率', '与 pefile 交叉验证'],
  disc='PELens 是独立项目，与 Winitor 及 pestudio 作者无关，也未获其认可。请仅分析你有权分析的文件。',
  crate='crate', role='用途'),
 'ja': dict(
@@ -98,12 +100,13 @@ T = {
  vt='送信するのは**ハッシュだけ**で、サンプルはアップロードしません。API キーは設定ダイアログか `VT_API_KEY` で指定してください。既定は API v3 で、v2 も選べます。',
  roles=['PE 解析（境界チェック済み、パニックしない）とパッチ', 'pestudio XML ナレッジベース（書式を保ったまま読み書き）', 'インジケーター、シグネチャ、文字列、ビュー、レポート、アクション', 'VirusTotal、検索リンク、更新チェック', 'コマンドライン（pestudiox 互換）', 'eframe/egui GUI'],
  docs='設計資料：[機能一覧](../FEATURE_INVENTORY.md)（212 項目、それぞれ実装箇所へのリンク付き）· [開発計画](../DEVELOPMENT_PLAN.md) · [タスクリスト](../TASKLIST.md)。',
+ dis_feat='**逆アセンブル**（x86／x64、iced-x86）：エントリポイント、エクスポート関数、TLS コールバックから開始できます。IAT 経由の呼び出しは関数名を表示し、分岐先へ移動でき、16 進ビューでも確認できます。',
  yara_feat='**YARA スキャン**（YARA-X）：設定 > YARA または `-yara:<dir>` でルールのフォルダーを指定します。一致したルールごとにインジケーターを出し（重大度はルールの `severity` メタデータ）、一致位置は 16 進ビューで確認でき、レポートにも出力されます。',
  hex_feat='**16 進ビュー**（Ctrl+H）：表示中の行だけを描画するので大きなファイルでも軽快です。位置情報のある項目は右クリックの「16 進ビューで表示」から開け、オフセットや RVA への移動、16 進またはテキストでのコピーができます。',
  h_lang='表示言語',
  lang_note='表示言語は既定で Windows の表示言語に従います。「表示 > 言語」または設定ダイアログで切り替えるか、`-lang:<コード>`（`en`・`zh-TW`・`zh-CN`・`ja`・`ko`・`es`・`de`・`fr`）で起動してください。解析結果（テーブルの内容、インジケーター、レポート）は、レポートや検索と一致するよう英語のままです。翻訳ファイルは `crates/pelens-gui/i18n/` にあります。',
  lang_caps=['繁體中文', '日本語'],
- q=['102 件のテスト', '約 97% の行カバレッジ', 'pefile とのクロスチェック'],
+ q=['107 件のテスト', '約 97% の行カバレッジ', 'pefile とのクロスチェック'],
  disc='PELens は独立したプロジェクトで、Winitor および pestudio の作者とは関係がなく、承認も受けていません。解析する権限のあるファイルにのみ使用してください。',
  crate='crate', role='役割'),
 'ko': dict(
@@ -128,12 +131,13 @@ T = {
  vt='**해시만** 전송하며 샘플은 절대 업로드하지 않습니다. 설정 대화 상자나 `VT_API_KEY`에 본인의 API 키를 넣으세요. 기본은 API v3이며 v2도 선택할 수 있습니다.',
  roles=['PE 파싱(경계 검사, 패닉 없음)과 패치', 'pestudio XML 지식 베이스(서식을 유지한 채 읽기·쓰기)', '지표, 시그니처, 문자열, 뷰, 보고서, 동작', 'VirusTotal, 검색 링크, 업데이트 확인', '명령줄(pestudiox 호환)', 'eframe/egui GUI'],
  docs='설계 문서: [기능 목록](../FEATURE_INVENTORY.md)(212개 항목, 각 항목에 구현 위치 연결) · [개발 계획](../DEVELOPMENT_PLAN.md) · [작업 목록](../TASKLIST.md).',
+ dis_feat='**디스어셈블리**(x86/x64, iced-x86): 진입점, 익스포트 함수, TLS 콜백에서 시작합니다. IAT를 통한 호출은 함수 이름을 보여 주고, 분기 대상을 따라가며, 16진수 보기에서도 볼 수 있습니다.',
  yara_feat='**YARA 검사**(YARA-X): 설정 > YARA 또는 `-yara:<dir>`로 규칙 폴더를 지정합니다. 일치한 규칙마다 지표를 만들고(심각도는 규칙의 `severity` 메타데이터), 일치 위치는 16진수 보기에서 바로 보며 보고서에도 기록됩니다.',
  hex_feat='**16진수 보기**(Ctrl+H): 보이는 행만 그려 큰 파일도 부드럽습니다. 위치 정보가 있는 항목은 오른쪽 클릭의 "16진수 보기에서 표시"로 열 수 있고, 오프셋이나 RVA로 이동하거나 16진수·텍스트로 복사할 수 있습니다.',
  h_lang='인터페이스 언어',
  lang_note='인터페이스는 기본적으로 Windows 표시 언어를 따릅니다. "보기 > 언어" 또는 설정 대화 상자에서 바꾸거나 `-lang:<코드>`(`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`)로 시작하세요. 분석 결과(테이블 내용, 지표, 보고서)는 보고서 및 검색과 일치하도록 영어로 유지됩니다. 번역 파일은 `crates/pelens-gui/i18n/`에 있습니다.',
  lang_caps=['繁體中文', '日本語'],
- q=['테스트 102개', '라인 커버리지 약 97%', 'pefile과 교차 검증'],
+ q=['테스트 107개', '라인 커버리지 약 97%', 'pefile과 교차 검증'],
  disc='PELens는 독립 프로젝트이며 Winitor 및 pestudio 작성자와 관련이 없고 보증을 받지 않았습니다. 분석 권한이 있는 파일에만 사용하세요.',
  crate='crate', role='역할'),
 'es': dict(
@@ -158,12 +162,13 @@ T = {
  vt='Solo se envía el **hash**; las muestras nunca se suben. Configura tu propia clave de API en el diálogo de ajustes o en `VT_API_KEY`. Se usa la API v3 por defecto; la v2 está disponible como opción.',
  roles=['análisis PE (con comprobación de límites, sin pánicos) y parcheo', 'base de conocimiento XML de pestudio, lectura y escritura sin reformatear', 'indicadores, firmas, cadenas, vistas, informes, acciones', 'VirusTotal, enlaces de búsqueda, comprobación de actualizaciones', 'línea de comandos (compatible con pestudiox)', 'GUI eframe/egui'],
  docs='Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (212 elementos, cada uno enlazado a su implementación) · [plan de desarrollo](../DEVELOPMENT_PLAN.md) · [lista de tareas](../TASKLIST.md).',
+ dis_feat='**Desensamblado** (x86/x64, iced-x86): desde el punto de entrada, una función exportada o un callback TLS; las llamadas a través de la IAT muestran el nombre de la función, se pueden seguir los saltos y abrir en la vista hexadecimal.',
  yara_feat='**Análisis YARA** (YARA-X): indique la carpeta de reglas en configuración > YARA o con `-yara:<dir>`; cada regla que coincide genera un indicador (gravedad según el metadato `severity` de la regla), las coincidencias se abren en la vista hexadecimal y aparecen en los informes.',
  hex_feat='**Vista hexadecimal** (Ctrl+H): solo dibuja las filas visibles, también fluida con archivos grandes; los elementos con posición se abren con «mostrar en hexadecimal» del menú contextual, con salto a un desplazamiento o RVA y copia como hexadecimal o texto.',
  h_lang='Idiomas de la interfaz',
  lang_note='La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo en «ver > idioma» o en la configuración, o inicie con `-lang:<código>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Los resultados del análisis (contenido de las tablas, indicadores, informes) se mantienen en inglés para coincidir con los informes y las búsquedas. Las traducciones están en `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['102 pruebas', '≈ 97 % de cobertura de líneas', 'verificación cruzada con pefile'],
+ q=['107 pruebas', '≈ 97 % de cobertura de líneas', 'verificación cruzada con pefile'],
  disc='PELens es un proyecto independiente. No está afiliado a Winitor ni al autor de pestudio, ni cuenta con su respaldo. Úsalo solo con archivos que tengas autorización para analizar.',
  crate='crate', role='función'),
 'de': dict(
@@ -188,12 +193,13 @@ T = {
  vt='Es wird nur der **Hash** gesendet; Proben werden nie hochgeladen. Trage deinen eigenen API-Schlüssel im Einstellungsdialog oder in `VT_API_KEY` ein. Standard ist API v3; v2 ist optional verfügbar.',
  roles=['PE-Parsing (mit Grenzprüfungen, ohne Panics) und Patching', 'pestudio-XML-Wissensbasis, Lesen und Schreiben ohne Umformatierung', 'Indikatoren, Signaturen, Strings, Ansichten, Berichte, Aktionen', 'VirusTotal, Suchlinks, Update-Prüfung', 'Kommandozeile (pestudiox-kompatibel)', 'eframe/egui-GUI'],
  docs='Designdokumente: [Funktionsinventar](../FEATURE_INVENTORY.md) (212 Punkte, jeweils mit Verweis auf die Implementierung) · [Entwicklungsplan](../DEVELOPMENT_PLAN.md) · [Aufgabenliste](../TASKLIST.md).',
+ dis_feat='**Disassemblierung** (x86/x64, iced-x86): ab dem Einstiegspunkt, einer exportierten Funktion oder einem TLS-Callback; Aufrufe über die IAT zeigen den Funktionsnamen, Sprüngen kann gefolgt werden, und alles öffnet sich in der Hex-Ansicht.',
  yara_feat='**YARA-Scan** (YARA-X): Regelordner unter Einstellungen > YARA oder mit `-yara:<dir>` angeben; jede zutreffende Regel erzeugt einen Indikator (Schweregrad aus dem Metadatum `severity` der Regel), Treffer öffnen sich in der Hex-Ansicht und erscheinen in den Berichten.',
  hex_feat='**Hex-Ansicht** (Strg+H): zeichnet nur sichtbare Zeilen und bleibt auch bei großen Dateien flüssig; Einträge mit Position öffnen sich über „in der Hex-Ansicht zeigen“ im Kontextmenü, mit Sprung zu Offset oder RVA und Kopieren als Hex oder Text.',
  h_lang='Sprachen der Oberfläche',
  lang_note='Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln Sie sie unter „Ansicht > Sprache“ oder in den Einstellungen, oder starten Sie mit `-lang:<Code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Analyseergebnisse (Tabelleninhalte, Indikatoren, Berichte) bleiben auf Englisch, damit sie mit Berichten und der Suche übereinstimmen. Die Übersetzungen liegen in `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['102 Tests', '≈ 97 % Zeilenabdeckung', 'Abgleich mit pefile'],
+ q=['107 Tests', '≈ 97 % Zeilenabdeckung', 'Abgleich mit pefile'],
  disc='PELens ist ein unabhängiges Projekt. Es steht in keiner Verbindung zu Winitor oder dem Autor von pestudio und wird von ihnen nicht unterstützt. Verwende es nur für Dateien, die du analysieren darfst.',
  crate='Crate', role='Aufgabe'),
 'fr': dict(
@@ -218,12 +224,13 @@ T = {
  roles=['analyse PE (bornes vérifiées, jamais de panique) et modification', 'base de connaissances XML de pestudio, lecture et écriture sans reformatage', 'indicateurs, signatures, chaînes, vues, rapports, actions', 'VirusTotal, liens de recherche, vérification des mises à jour', 'ligne de commande (compatible pestudiox)', 'interface eframe/egui',
   '**Interface en 8 langues** : English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch et Français ; par défaut, la langue d’affichage de Windows.'],
  docs='Documents de conception : [inventaire des fonctionnalités](../FEATURE_INVENTORY.md) (212 éléments, chacun relié à son implémentation) · [plan de développement](../DEVELOPMENT_PLAN.md) · [liste des tâches](../TASKLIST.md).',
+ dis_feat='**Désassemblage** (x86/x64, iced-x86) : depuis le point d’entrée, une fonction exportée ou un callback TLS ; les appels via l’IAT affichent le nom de la fonction, on peut suivre les branchements et ouvrir le tout dans la vue hexadécimale.',
  yara_feat='**Analyse YARA** (YARA-X) : indiquez le dossier de règles dans paramètres > YARA ou avec `-yara:<dir>` ; chaque règle correspondante produit un indicateur (gravité tirée de la métadonnée `severity` de la règle), les correspondances s’ouvrent dans la vue hexadécimale et figurent dans les rapports.',
  hex_feat='**Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.',
  h_lang='Langues de l’interface',
  lang_note='Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la dans « affichage > langue » ou dans les paramètres, ou lancez PELens avec `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Les résultats d’analyse (contenu des tableaux, indicateurs, rapports) restent en anglais pour correspondre aux rapports et à la recherche. Les traductions se trouvent dans `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['102 tests', '≈ 97 % de couverture des lignes', 'vérification croisée avec pefile'],
+ q=['107 tests', '≈ 97 % de couverture des lignes', 'vérification croisée avec pefile'],
  disc="PELens est un projet indépendant. Il n'est ni affilié à Winitor ni à l'auteur de pestudio, ni approuvé par eux. Ne l'utilisez que sur des fichiers que vous êtes autorisé à analyser.",
  crate='crate', role='rôle'),
 }
@@ -293,6 +300,7 @@ def render(code, t):
 {feats}
 - {t["hex_feat"]}
 - {t["yara_feat"]}
+- {t["dis_feat"]}
 
 ## {t["h_build"]}
 

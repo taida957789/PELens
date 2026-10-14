@@ -61,7 +61,7 @@ match the reports and what the search box finds. The translations live in
 - **27 views** like pestudio's: image, footprints, groups, indicators, MITRE, VirusTotal score,
   DOS stub and header, Rich header, file and optional headers, directories, sections,
   libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources,
-  version, debug, strings, manifest and overlay, plus a YARA view.
+  version, debug, strings, manifest and overlay, plus YARA and disassembly views.
 - **150 indicators**, mapped to MITRE ATT&CK tactics and techniques, with severities you can edit.
 - **Signature engine**: entry-point signatures (PEiD style, with nibble wildcards), text
   signatures, and embedded-file detection in resources, sections, the overlay and base64 data.
@@ -82,6 +82,9 @@ match the reports and what the search box finds. The translations live in
 - **YARA scan** (YARA-X): set a rules folder in settings > YARA or with `-yara:<dir>`. Every
   matching rule raises an indicator (severity from the rule's `severity` metadata); the matches
   open in the hex view and are part of the reports.
+- **Disassembly** (x86/x64, iced-x86): from the entry point, an exported function or a TLS
+  callback; calls through the IAT show the imported function, branches can be followed, and every
+  instruction opens in the hex view.
 - **Interface in 8 languages**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch and
   Français; by default the Windows display language.
 
@@ -140,7 +143,7 @@ traceability link) · [development plan](docs/DEVELOPMENT_PLAN.md) · [task list
 ## Quality
 
 ```bash
-cargo test --workspace                       # 102 tests
+cargo test --workspace                       # 107 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % line coverage
 python tools/crossval.py 250                 # cross-check against pefile
 ```

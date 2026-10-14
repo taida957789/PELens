@@ -60,6 +60,7 @@ Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln S
 - **Oberfläche in 8 Sprachen**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch und Français; standardmäßig die Anzeigesprache von Windows.
 - **Hex-Ansicht** (Strg+H): zeichnet nur sichtbare Zeilen und bleibt auch bei großen Dateien flüssig; Einträge mit Position öffnen sich über „in der Hex-Ansicht zeigen“ im Kontextmenü, mit Sprung zu Offset oder RVA und Kopieren als Hex oder Text.
 - **YARA-Scan** (YARA-X): Regelordner unter Einstellungen > YARA oder mit `-yara:<dir>` angeben; jede zutreffende Regel erzeugt einen Indikator (Schweregrad aus dem Metadatum `severity` der Regel), Treffer öffnen sich in der Hex-Ansicht und erscheinen in den Berichten.
+- **Disassemblierung** (x86/x64, iced-x86): ab dem Einstiegspunkt, einer exportierten Funktion oder einem TLS-Callback; Aufrufe über die IAT zeigen den Funktionsnamen, Sprüngen kann gefolgt werden, und alles öffnet sich in der Hex-Ansicht.
 
 ## Installation / Build
 
@@ -106,7 +107,7 @@ Designdokumente: [Funktionsinventar](../FEATURE_INVENTORY.md) (212 Punkte, jewei
 ## Qualität
 
 ```bash
-cargo test --workspace                       # 102 Tests
+cargo test --workspace                       # 107 Tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % Zeilenabdeckung
 python tools/crossval.py 250                 # Abgleich mit pefile
 ```

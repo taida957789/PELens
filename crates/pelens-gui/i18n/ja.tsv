@@ -296,3 +296,13 @@ severity	重大度
 identifier	識別子
 length	長さ
 metadata	メタデータ
+
+# disassembly
+disassembly	逆アセンブル
+Instructions to disassemble:	逆アセンブルする命令数:
+bytes	バイト
+instruction	命令
+comment	コメント
+disassemble here	ここから逆アセンブル
+disassemble from the entry point	エントリポイントから逆アセンブル
+follow the branch	分岐先へ移動

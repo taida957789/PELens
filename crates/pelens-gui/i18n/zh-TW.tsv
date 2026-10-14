@@ -296,3 +296,13 @@ severity	嚴重度
 identifier	識別碼
 length	長度
 metadata	中繼資料
+
+# disassembly
+disassembly	反組譯
+Instructions to disassemble:	反組譯的指令數：
+bytes	位元組
+instruction	指令
+comment	註解
+disassemble here	從這裡反組譯
+disassemble from the entry point	從進入點反組譯
+follow the branch	跟隨跳躍目標

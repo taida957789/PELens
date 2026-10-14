@@ -2134,6 +2134,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "iced-x86"
+version = "1.21.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7c447cff8c7f384a7d4f741cfcff32f75f3ad02b406432e8d6c878d56b1edf6b"
+dependencies = [
+ "lazy_static",
+]
+
+[[package]]
 name = "icu_collections"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3319,8 +3328,9 @@ dependencies = [
 
 [[package]]
 name = "pe-analysis"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
+ "iced-x86",
  "md-5",
  "msvc-demangler",
  "pe-db",
@@ -3334,7 +3344,7 @@ dependencies = [
 
 [[package]]
 name = "pe-db"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "miniz_oxide 0.8.9",
  "quick-xml 0.37.5",
@@ -3342,7 +3352,7 @@ dependencies = [
 
 [[package]]
 name = "pe-online"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "pe-analysis",
  "pe-db",
@@ -3354,11 +3364,11 @@ dependencies = [
 
 [[package]]
 name = "pe-parser"
-version = "0.1.0"
+version = "0.3.0"
 
 [[package]]
 name = "pelens-cli"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "pe-analysis",
  "pe-db",
@@ -3369,7 +3379,7 @@ dependencies = [
 
 [[package]]
 name = "pelens-gui"
-version = "0.1.0"
+version = "0.3.0"
 dependencies = [
  "eframe",
  "egui",

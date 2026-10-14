@@ -395,7 +395,7 @@ fn views_cover_every_node() {
     a.network_drive = true;
     a.removable_drive = true;
     let ts = all_tables(&a, &k, &data);
-    assert_eq!(ts.len(), 28);
+    assert_eq!(ts.len(), 29);
     for t in &ts {
         assert!(t.item.is_some());
         assert!(!t.columns.is_empty());
@@ -560,7 +560,7 @@ fn item_type_helpers() {
     assert_eq!(ItemType::from_index(99), None);
     assert_eq!(ItemType::from_index(-1), None);
     assert_eq!(ItemType::Tls.name(), "thread-local-storage");
-    assert_eq!(ItemType::ALL.len(), 28);
+    assert_eq!(ItemType::ALL.len(), 29);
     for (i, t) in ItemType::ALL.iter().enumerate() {
         assert_eq!(*t as usize, i);
     }
@@ -1216,4 +1216,88 @@ rule never { strings: $x = "this text is not in the sample" condition: $x }"#,
     assert_eq!(YaraMatch::default().severity(), 2);
     assert_eq!(a.flagged_count(ItemType::Yara), 3);
     let _ = std::fs::remove_dir_all(dir);
+}
+
+/// A sample whose entry point calls an imported function through the IAT, then itself.
+fn call_sample(is64: bool) -> Vec<u8> {
+    let mut b = PeBuilder::new();
+    b.is64 = is64;
+    b.imports = vec![Import { dll: "kernel32.dll".into(), functions: vec!["CreateRemoteThread".into(), "Sleep".into()], delay: false }];
+    b.code = vec![0x90; 64];
+    let mut data = b.build();
+    let pe = pe_parser::PeFile::parse(&data);
+    let l = pe.layout.as_ref().unwrap();
+    let ep = l.optional_header.address_of_entry_point;
+    let at = l.rva_to_offset(ep).unwrap();
+    let iat = pe.imports.libraries[0].functions[0].iat_rva;
+    let mut code = Vec::new();
+    if is64 {
+        // call qword ptr [rip + disp32]
+        let disp = iat as i64 - (ep as i64 + 6);
+        code.extend([0xFF, 0x15]);
+        code.extend((disp as i32).to_le_bytes());
+    } else {
+        // call dword ptr [abs32]
+        code.extend([0xFF, 0x15]);
+        code.extend(((l.image_base() + iat as u64) as u32).to_le_bytes());
+    }
+    // call $-? back to the entry point, then ret
+    let here = ep as i64 + code.len() as i64 + 5;
+    code.push(0xE8);
+    code.extend(((ep as i64 - here) as i32).to_le_bytes());
+    code.push(0xC3);
+    data[at..at + code.len()].copy_from_slice(&code);
+    data
+}
+
+#[test]
+fn disassembly_view() {
+    let k = kb();
+    for is64 in [false, true] {
+        let data = call_sample(is64);
+        let a = analyze(&data, "c.exe", &k, &Options::default());
+        let lines =
+            pe_analysis::disasm::disassemble(&a, &data, a.pe.layout.as_ref().unwrap().optional_header.address_of_entry_point, 3).unwrap();
+        assert_eq!(lines.len(), 3, "count is honoured");
+        assert!(lines[0].text.starts_with("call"), "{:?}", lines[0]);
+        assert_eq!(lines[0].comment, "kernel32.dll!CreateRemoteThread", "{is64}");
+        assert!(lines[0].flag, "CreateRemoteThread is a flagged import");
+        assert!(lines[1].comment.starts_with("→ 0x") && lines[1].target.is_some(), "{:?}", lines[1]);
+        assert_eq!(lines[2].text, "ret");
+        let v = view::table(&a, &k, &data, ItemType::Disassembly, &ViewOptions::from_settings(&k));
+        assert_eq!(v.columns, ["address", "file-offset", "bytes", "instruction", "comment"]);
+        assert!(v.note.as_deref().unwrap().starts_with("from the entry point"));
+        assert_eq!(v.rows[0].cells[0].len(), if is64 { 18 } else { 10 });
+        assert!(v.rows[0].flag && v.rows[0].dump.is_some());
+        assert!(v.rows[1].key.starts_with("rva:"));
+    }
+    let data = call_sample(false);
+    let a = analyze(&data, "c.exe", &k, &Options::default());
+    let o = |start: Option<u32>, count: usize| ViewOptions { disasm_start: start, disasm_count: count, ..ViewOptions::default() };
+    let note = |a: &Analysis, d: &[u8], o: &ViewOptions| view::table(a, &k, d, ItemType::Disassembly, o).note.unwrap_or_default();
+    // any RVA; an RVA outside the file
+    let text = a.pe.layout.as_ref().unwrap().sections[0].virtual_address;
+    assert!(note(&a, &data, &o(Some(text), 4)).starts_with("from RVA"));
+    assert!(note(&a, &data, &o(Some(0x7fff_0000), 4)).contains("not backed by the file"));
+    // other architectures, no entry point, not a PE
+    let mut arm = data.clone();
+    let fh = a.pe.layout.as_ref().unwrap().file_header.offset as usize;
+    arm[fh..fh + 2].copy_from_slice(&0xAA64u16.to_le_bytes());
+    let a_arm = analyze(&arm, "arm.exe", &k, &Options::default());
+    assert!(note(&a_arm, &arm, &o(None, 4)).contains("unsupported architecture"));
+    let mut dll = PeBuilder::new();
+    dll.dll = true;
+    dll.entry_offset_in_text = None;
+    let dll = dll.build();
+    let a_dll = analyze(&dll, "d.dll", &k, &Options::default());
+    if a_dll.pe.layout.as_ref().unwrap().optional_header.address_of_entry_point == 0 {
+        assert_eq!(note(&a_dll, &dll, &o(None, 4)), "n/a (no entry point)");
+    }
+    let txt = analyze(b"just text", "t.txt", &k, &Options::default());
+    assert!(note(&txt, b"just text", &o(None, 4)).contains("not a portable executable"));
+    assert!(pe_analysis::disasm::disassemble(&txt, b"just text", 0, 4).is_err());
+    // the count comes from the settings, clamped
+    let mut k2 = kb();
+    k2.settings.set("disassembly", "count", "100000");
+    assert_eq!(ViewOptions::from_settings(&k2).disasm_count, pe_analysis::disasm::MAX_COUNT);
 }

@@ -154,6 +154,8 @@ pub enum Action {
     SetSignatureSeverity(String, u8),
     ToggleNamespaceFlag(String),
     QueryScore,
+    /// Disassemble from an RVA (None: from the entry point).
+    DisassembleAt(Option<u32>),
     /// Open the hex view on a range (file offset, size).
     ShowHex(u64, u64),
     ToggleHex,
@@ -517,6 +519,7 @@ impl State {
                     self.selected_row = None;
                     self.hex.range = None;
                     self.hex.scroll_to = Some(0);
+                    self.view.disasm_start = None;
                     self.effects.title = Some(self.title());
                     if self.knowledge.settings.get_bool("score", "enable", false) {
                         self.apply(Action::QueryScore);
@@ -788,6 +791,13 @@ impl State {
                 }
                 self.update_rx = Some(rx);
                 self.poll();
+            }
+            Action::DisassembleAt(rva) => {
+                self.view.disasm_start = rva;
+                if let Some(d) = self.doc.as_mut() {
+                    d.invalidate();
+                }
+                self.apply(Action::Select(ItemType::Disassembly));
             }
             Action::ShowHex(off, size) => {
                 self.hex.open = true;
@@ -1062,6 +1072,20 @@ impl State {
         }
         if row.key == "ep" {
             v.push((t(603, "set entry-point"), Action::ShowDialog(Dialog::EntryPoint(String::new()))));
+            v.push((self.t("disassemble here").into(), Action::DisassembleAt(None)));
+        }
+        // code addresses: TLS callbacks, branch targets in the disassembly, exports
+        let code_rva = row.key.strip_prefix("rva:").and_then(|r| r.parse::<u32>().ok()).or_else(|| {
+            let ordinal = row.key.strip_prefix("export:")?.parse::<u32>().ok()?;
+            let e = self.doc.as_ref()?.analysis.exports.iter().find(|e| e.ordinal == ordinal && e.forwarder.is_none())?;
+            (e.rva != 0).then_some(e.rva)
+        });
+        if let Some(rva) = code_rva {
+            let label = if item == ItemType::Disassembly { "follow the branch" } else { "disassemble here" };
+            v.push((self.t(label).into(), Action::DisassembleAt(Some(rva))));
+        }
+        if item == ItemType::Disassembly && self.view.disasm_start.is_some() {
+            v.push((self.t("disassemble from the entry point").into(), Action::DisassembleAt(None)));
         }
         if row.key == "overlay" {
             v.push((self.tf("{0} overlay", &[&t(596, "delete")]), Action::Modify(Modification::RemoveOverlay)));
@@ -1161,6 +1185,13 @@ pub const SETTING_FIELDS: &[SettingField] = &[
     SettingField { tab: "Virustotal", label: "API version", elem: "score", attr: "api", choices: &[("3", "v3"), ("2", "v2")] },
     SettingField { tab: "Virustotal", label: "proxy address", elem: "proxy", attr: "address", choices: &[("*", "")] },
     SettingField { tab: "Virustotal", label: "proxy port", elem: "proxy", attr: "port", choices: &[("*", "")] },
+    SettingField {
+        tab: "General",
+        label: "Instructions to disassemble:",
+        elem: "disassembly",
+        attr: "count",
+        choices: &[("32", "32"), ("64", "64"), ("128", "128"), ("256", "256")],
+    },
     SettingField { tab: "YARA", label: "enable YARA scan", elem: "yara", attr: "enable", choices: &[] },
     SettingField { tab: "YARA", label: "YARA rules folder:", elem: "yara", attr: "dir", choices: &[("*", "")] },
 ];
@@ -1181,6 +1212,7 @@ pub fn setting_default(f: &SettingField) -> &'static str {
         ("indicators", "bytes") => "32",
         ("report", "type") | ("strings", "limit") => "0",
         ("score", "api") => "3",
+        ("disassembly", _) => "64",
         ("language", _) => "auto",
         ("score", "key") | ("score", "favorite") | ("proxy", _) | ("yara", "dir") => "",
         ("overlay", "score") | ("strings", "cjk") => "0",

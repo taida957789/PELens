@@ -296,3 +296,13 @@ severity	Schweregrad
 identifier	Bezeichner
 length	Länge
 metadata	Metadaten
+
+# disassembly
+disassembly	Disassemblierung
+Instructions to disassemble:	Anzahl zu disassemblierender Befehle:
+bytes	Bytes
+instruction	Befehl
+comment	Kommentar
+disassemble here	hier disassemblieren
+disassemble from the entry point	ab dem Einstiegspunkt disassemblieren
+follow the branch	dem Sprung folgen

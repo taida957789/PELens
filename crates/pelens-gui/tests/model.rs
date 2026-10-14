@@ -69,7 +69,7 @@ fn open_select_close() {
     // score queried automatically (score enable=1 in the fixture)
     assert_eq!(s.doc.as_ref().unwrap().analysis.score.as_ref().unwrap().positives, 1);
     assert!(s.doc.as_ref().unwrap().analysis.has_indicator(1064));
-    assert_eq!(s.nodes().len(), 28);
+    assert_eq!(s.nodes().len(), 29);
     s.apply(Action::Select(ItemType::Imports));
     let t = s.visible_table().unwrap();
     assert!(t.rows.len() > 5);
@@ -96,7 +96,7 @@ fn open_select_close() {
     assert_eq!(s.selected, ItemType::Libraries);
     s.apply(Action::Select(ItemType::Image));
     s.apply(Action::SelectPrevious);
-    assert_eq!(s.selected, ItemType::Yara, "wraps to the last view");
+    assert_eq!(s.selected, ItemType::Disassembly, "wraps to the last view");
     s.apply(Action::Close);
     assert!(s.doc.is_none());
     // missing file
@@ -632,4 +632,42 @@ fn yara_rules_from_the_settings() {
     s.set_setting("yara", "enable", "0");
     assert!(s.yara.is_none());
     assert!(s.doc.as_ref().unwrap().analysis.yara.is_empty());
+}
+
+#[test]
+fn disassemble_here() {
+    let (mut s, sample) = state("disasm");
+    s.apply(Action::Open(sample.clone()));
+    let find = |s: &mut State, item: ItemType, key_prefix: &str, label: &str| {
+        s.apply(Action::Select(item));
+        let t = s.visible_table().unwrap();
+        let row = t.rows.iter().find(|r| r.key.starts_with(key_prefix)).cloned()?;
+        s.context_actions(item, &row, &t.columns, "|").into_iter().find(|(l, _)| l == label).map(|(_, a)| a)
+    };
+    // from the entry-point row of the optional header
+    let a = find(&mut s, ItemType::OptionalHeader, "ep", "disassemble here").unwrap();
+    assert_eq!(a, Action::DisassembleAt(None));
+    s.apply(a);
+    assert_eq!((s.selected, s.view.disasm_start), (ItemType::Disassembly, None));
+    assert!(!s.visible_table().unwrap().rows.is_empty());
+    // a TLS callback
+    {
+        let a = find(&mut s, ItemType::Tls, "rva:", "disassemble here").expect("the sample has a TLS callback");
+        s.apply(a);
+        assert!(s.view.disasm_start.is_some());
+        let t = s.visible_table().unwrap();
+        assert!(t.note.as_deref().unwrap_or("").starts_with("from RVA"), "{:?}", t.note);
+        // back to the entry point from the disassembly itself
+        let row = t.rows[0].clone();
+        let back = s.context_actions(ItemType::Disassembly, &row, &t.columns, "|");
+        assert!(back.iter().any(|(l, a)| l == "disassemble from the entry point" && *a == Action::DisassembleAt(None)));
+    }
+    // an exported function
+    let export = find(&mut s, ItemType::Exports, "export:", "disassemble here").expect("the sample exports a function");
+    let Action::DisassembleAt(Some(rva)) = export else { panic!("{export:?}") };
+    s.apply(Action::DisassembleAt(Some(rva)));
+    assert_eq!(s.view.disasm_start, Some(rva));
+    // opening a file starts from the entry point again
+    s.apply(Action::Open(sample));
+    assert_eq!(s.view.disasm_start, None);
 }

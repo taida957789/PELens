@@ -481,6 +481,7 @@ pub fn default_settings() -> Settings {
         ("tooltips", &[("enable", "1")]),
         ("stamps", &[("epoch", "0")]),
         ("yara", &[("enable", "1"), ("dir", "")]),
+        ("disassembly", &[("count", "64")]),
     ];
     for (e, attrs) in defaults {
         s.setting.push((e.to_string(), attrs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()));

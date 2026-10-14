@@ -60,6 +60,7 @@ PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、�
 - **8 种界面语言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，默认跟随 Windows 显示语言。
 - **十六进制视图**（Ctrl+H）：只绘制可见的行，大文件也流畅；各视图中带位置信息的项目可右键“在十六进制视图中显示”，并可转到偏移或 RVA、复制为十六进制或文本。
 - **YARA 扫描**（YARA-X）：在设置 > YARA 或 `-yara:<dir>` 指定规则文件夹；每条命中的规则产生指标（严重性取自规则的 `severity` metadata），匹配位置可直接在十六进制视图中查看，也会写入报告。
+- **反汇编**（x86／x64，iced-x86）：从入口点、导出函数或 TLS callback 开始；通过 IAT 调用的函数会显示名称，可跟随跳转目标，并可在十六进制视图中查看。
 
 ## 安装／构建
 
@@ -106,7 +107,7 @@ PELens 内置自己的**开放知识库**（`kb/`，CC0）：142 个指标定义
 ## 质量
 
 ```bash
-cargo test --workspace                       # 102 个测试
+cargo test --workspace                       # 107 个测试
 cargo llvm-cov --workspace --summary-only    # 约 97% 行覆盖率
 python tools/crossval.py 250                 # 与 pefile 交叉验证
 ```

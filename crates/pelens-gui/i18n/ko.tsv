@@ -296,3 +296,13 @@ severity	심각도
 identifier	식별자
 length	길이
 metadata	메타데이터
+
+# disassembly
+disassembly	디스어셈블리
+Instructions to disassemble:	디스어셈블할 명령 수:
+bytes	바이트
+instruction	명령
+comment	주석
+disassemble here	여기서 디스어셈블
+disassemble from the entry point	진입점에서 디스어셈블
+follow the branch	분기 대상 따라가기

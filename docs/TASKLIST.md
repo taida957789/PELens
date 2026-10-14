@@ -196,7 +196,7 @@
 - [x] T14.1 `fuzz/` crate 與 5 個目標：parse_pe、certificate、dotnet、resources、analyze（Windows 需把 MSVC 的 ASan DLL 加入 PATH）
 - [x] T14.2 種子語料：`tools/fuzz_seeds.py`（testkit 樣本＋本機系統 PE，不提交）
 - [x] T14.3 `tests/mutation.rs`：固定種子變異（每次 12,000 次解析＋800 次完整分析，`PELENS_MUTATIONS` 可放大），檢查不 panic、不超時、輸出量與輸入成正比；本機以 200 倍跑過
-- [ ] T14.4 每個目標本機各跑 ≥ 30 分鐘；修正找到的問題
+- [x] T14.4 每個目標本機各跑 30 分鐘無 crash（parse_pe 3.4 萬次、certificate 104 萬次、dotnet 308 萬次、resources 110 萬次、analyze 每次約 1 秒）；過程中找到並修正 3 個輸出放大問題（exports、resources、imports，見下）
 - [x] T14.5 `tests/corpus/`（僅放 testkit 衍生的輸入；系統 PE 衍生的另寫合成測試）
 
 - 修正：fuzzing 與變異測試找到兩個放大問題
@@ -223,7 +223,7 @@
 - [x] T16.1 Windows 認證管理員讀寫（`PELens/VirusTotal`，`pe_online::secret`）
 - [x] T16.2 自動搬移 settings.xml 中的明文金鑰（GUI 與 CLI 啟動時；認證管理員寫入失敗時保留原處）
 - [x] T16.3 讀取順序：`VT_API_KEY` → 認證管理員 → settings.xml；CLI 與 GUI 共用；設定對話框只寫入認證管理員
-- [ ] T16.4 發佈 v0.2.0
+- [x] T16.4 v0.2.0 未單獨發佈：M13–M16 完成時版本號仍是 0.1.0，為避免發佈檔顯示錯誤版本，併入 v0.3.0 一起發佈
 
 ## M17 開放知識庫
 - [x] T17.1 `kb/` 目錄、授權（CC0；MITRE 名稱依其使用條款）與 `kb/SOURCES.md`
@@ -261,10 +261,10 @@
 - [x] T19.4 有位置資訊的列（sections、resources、directories、debug、.NET streams、strings、overlay、certificate…）右鍵「在十六進位檢視中顯示」
 
 ## M20 進入點反組譯
-- [ ] T20.1 加入 `iced-x86`；x86 / x64，其他架構顯示不支援
-- [ ] T20.2 新檢視 `disassembly`：進入點或任意 RVA，N 條指令（`<disassembly count>`，預設 64）
-- [ ] T20.3 IAT 呼叫顯示函式名稱；進入點位置異常時提示
-- [ ] T20.4 TLS callback 反組譯
+- [x] T20.1 加入 `iced-x86` 1.21（只啟用 decoder、Intel 格式）；x86 / x64，其他架構（如 ARM64）在檢視中註明不支援
+- [x] T20.2 第 29 個檢視 `disassembly`：從進入點或任意 RVA 線性反組譯，N 條指令（設定 `<disassembly count>`，預設 64，上限 4096）；每條指令可在十六進位檢視中顯示
+- [x] T20.3 經由 IAT 的呼叫顯示「函式庫!函式」（可疑的匯入標紅）；跳躍目標顯示 RVA 與區段，右鍵「跟隨跳躍目標」；進入點不在第一個可執行區段時於檢視註明
+- [x] T20.4 TLS callback、匯出函式、進入點皆可右鍵「從這裡反組譯」
 - [ ] T20.5 發佈 v0.3.0
 
 ## 待辦（未排程）

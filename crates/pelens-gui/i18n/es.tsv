@@ -296,3 +296,13 @@ severity	gravedad
 identifier	identificador
 length	longitud
 metadata	metadatos
+
+# disassembly
+disassembly	desensamblado
+Instructions to disassemble:	Instrucciones a desensamblar:
+bytes	bytes
+instruction	instrucción
+comment	comentario
+disassemble here	desensamblar aquí
+disassemble from the entry point	desensamblar desde el punto de entrada
+follow the branch	seguir el salto

@@ -2,6 +2,7 @@
 
 pub mod actions;
 pub mod analyze;
+pub mod disasm;
 pub mod indicators;
 pub mod model;
 pub mod report;

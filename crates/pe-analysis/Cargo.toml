@@ -12,6 +12,7 @@ sha1 = { workspace = true }
 sha2 = { workspace = true }
 msvc-demangler = { workspace = true }
 yara-x = { version = "1.21", optional = true }
+iced-x86 = { version = "1.21", default-features = false, features = ["std", "decoder", "intel", "instr_info"] }
 
 [features]
 default = ["yara"]
