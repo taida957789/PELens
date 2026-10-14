@@ -1,0 +1,86 @@
+# PELens open knowledge base: libraries.
+# Written from public Microsoft documentation.
+# library	group	flag	description
+# core system
+kernel32.dll	--	0	Windows base API (processes, memory, files, synchronization)
+kernelbase.dll	--	0	Windows base API implementation layer
+ntdll.dll	--	0	Windows native API and runtime library
+advapi32.dll	--	0	Advanced Windows API (registry, services, security, CryptoAPI)
+user32.dll	11	0	Windows user interface (windows, messages, input)
+gdi32.dll	11	0	Windows graphics device interface
+gdiplus.dll	11	0	GDI+ graphics and image encoding
+shell32.dll	20	0	Windows shell API
+shlwapi.dll	20	0	Shell lightweight utility API (paths, strings, registry helpers)
+shfolder.dll	20	0	Shell special folder helper
+ole32.dll	21	0	Component Object Model runtime
+oleaut32.dll	21	0	OLE automation (BSTR, VARIANT, type libraries)
+comctl32.dll	11	0	Common controls
+comdlg32.dll	11	0	Common dialog boxes
+version.dll	--	0	File version information
+imm32.dll	13	0	Input method manager
+msvcrt.dll	--	0	Microsoft C runtime (legacy)
+ucrtbase.dll	--	0	Universal C runtime
+winspool.drv	--	0	Print spooler API
+# networking
+ws2_32.dll	03	1	Windows Sockets 2
+wsock32.dll	03	1	Windows Sockets 1.1 (legacy)
+mswsock.dll	03	1	Microsoft Windows Sockets extensions
+wininet.dll	03	1	Windows Internet API (HTTP, FTP, URL cache)
+winhttp.dll	03	1	Windows HTTP services
+urlmon.dll	03	1	URL moniker services (downloads)
+dnsapi.dll	03	1	DNS client API
+iphlpapi.dll	03	1	IP helper API (adapters, routes, connections)
+netapi32.dll	03	1	Network management API (users, shares, domains)
+mpr.dll	03	1	Multiple provider router (network connections)
+wtsapi32.dll	07	1	Remote Desktop Services API (sessions)
+rasapi32.dll	03	1	Remote access service API
+wldap32.dll	03	1	LDAP client API
+wlanapi.dll	03	1	Native Wi-Fi API
+fwpuclnt.dll	03	1	Windows Filtering Platform user-mode API
+mapi32.dll	03	1	Simple MAPI (mail)
+# cryptography
+crypt32.dll	04	1	Cryptographic API (certificates, encoding, DPAPI)
+bcrypt.dll	04	1	Cryptography API: Next Generation primitives
+ncrypt.dll	04	1	Cryptography API: Next Generation key storage
+cryptbase.dll	04	0	Base cryptographic helpers
+cryptsp.dll	04	1	Cryptographic service provider API
+cabinet.dll	10	0	Cabinet and compression API
+# security
+secur32.dll	15	0	Security support provider interface
+sspicli.dll	15	0	Security support provider client
+wintrust.dll	15	0	Authenticode trust verification
+credui.dll	15	1	Credential user interface
+userenv.dll	15	0	User profile and environment
+samlib.dll	15	1	Security accounts manager client (internal)
+vaultcli.dll	15	1	Credential vault client (internal)
+amsi.dll	15	1	Antimalware scan interface
+fltlib.dll	15	1	Filter manager user-mode API
+# diagnostic
+wevtapi.dll	16	0	Windows event log API
+dbghelp.dll	16	1	Debug help library (symbols, minidumps)
+dbgcore.dll	16	1	Debug core library (minidumps)
+imagehlp.dll	16	0	Image help library
+psapi.dll	07	1	Process status API
+pdh.dll	07	0	Performance data helper
+activeds.dll	07	1	Active Directory service interfaces
+# services, COM, execution
+taskschd.dll	21	1	Task scheduler COM server
+comsvcs.dll	21	1	COM+ services
+mscoree.dll	--	0	.NET runtime execution engine
+msi.dll	02	0	Windows Installer
+ktmw32.dll	06	1	Kernel transaction manager
+rstrtmgr.dll	06	1	Restart manager
+# storage, devices
+setupapi.dll	18	0	Device installation and setup API
+cfgmgr32.dll	18	0	Configuration manager (device tree)
+srclient.dll	18	1	System restore client
+vssapi.dll	18	1	Volume shadow copy service API
+powrprof.dll	--	0	Power profile API
+hid.dll	13	0	Human interface device API
+# multimedia, capture
+winmm.dll	--	0	Windows multimedia (audio, timers, MCI)
+avicap32.dll	--	1	Video capture
+# kernel mode
+ntoskrnl.exe	--	1	Windows kernel (driver import)
+hal.dll	--	1	Hardware abstraction layer (driver import)
+fltmgr.sys	--	1	Filter manager (minifilter driver import)

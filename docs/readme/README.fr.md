@@ -57,6 +57,7 @@ Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la d
 - **Modification de fichiers** : basculer entre DLL et EXE, définir le point d'entrée, basculer les characteristics, supprimer l'overlay, extraire n'importe quel élément et ouvrir un fichier intégré dans une nouvelle analyse.
 - **Rapports** en XML, JSON ou texte, construits à partir des mêmes tables que celles de l'interface.
 - **Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence).
+- **Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.
 
 ## Installation / compilation
 
@@ -73,7 +74,7 @@ Nécessite Rust 1.88 ou plus récent (édition 2024). Développé et testé sous
 ## Utilisation
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -81,7 +82,7 @@ Par défaut, la CLI écrit `<input>.xml` à côté de l'échantillon, comme pest
 
 ### Base de connaissances
 
-PELens lit les fichiers XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`…) depuis votre propre installation de pestudio. Indiquez-les avec `-xml:<dir>` ou placez un dossier `xml` à côté de l'exécutable. **Ces fichiers ne sont pas distribués avec PELens** : ils appartiennent à l'auteur de pestudio. Sans eux, PELens fonctionne avec des valeurs par défaut intégrées.
+PELens embarque sa propre **base de connaissances ouverte** (`kb/`, CC0) : 142 définitions d’indicateurs, environ 2 500 fonctions de l’API Windows, environ 900 chaînes suspectes, environ 100 signatures et la correspondance avec MITRE ATT&CK. Elle est générée depuis `kb/src` par `tools/build_kb.py` ; chaque entrée provient de sources publiques (voir [kb/SOURCES.md](../../kb/SOURCES.md)) et rien n’est copié des XML de pestudio. Vous pouvez aussi utiliser les fichiers XML de votre propre installation de pestudio avec `-xml:<dir>` ; ils appartiennent à l’auteur de pestudio et ne sont pas distribués avec PELens.
 
 ### VirusTotal
 
@@ -103,7 +104,7 @@ Documents de conception : [inventaire des fonctionnalités](../FEATURE_INVENTORY
 ## Qualité
 
 ```bash
-cargo test --workspace                       # 87 tests
+cargo test --workspace                       # 102 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de couverture des lignes
 python tools/crossval.py 250                 # vérification croisée avec pefile
 ```

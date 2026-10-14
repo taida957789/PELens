@@ -237,12 +237,13 @@ pub struct LibraryDef {
 pub struct Functions {
     pub libs: Vec<LibraryDef>,
     lib_index: HashMap<String, usize>,
-    /// lower(lib) → lower(fct) → (lib idx, fct idx)
-    fct_index: HashMap<String, HashMap<String, usize>>,
+    /// lower(lib) → lower(fct) → (lib idx, fct idx). A library listed twice keeps the functions of
+    /// both entries, so the library index is stored with each function.
+    fct_index: HashMap<String, HashMap<String, (usize, usize)>>,
     /// lower(fct) → first (lib idx, fct idx)
     global: HashMap<String, (usize, usize)>,
-    /// lower(lib) → ordinal → fct idx
-    ordinals: HashMap<String, HashMap<u16, usize>>,
+    /// lower(lib) → ordinal → (lib idx, fct idx)
+    ordinals: HashMap<String, HashMap<u16, (usize, usize)>>,
 }
 
 fn group_attr(e: &Element) -> Option<u8> {
@@ -296,11 +297,11 @@ impl Functions {
             for (fi, fc) in l.functions.iter().enumerate() {
                 let n = fc.name.to_ascii_lowercase();
                 if !n.is_empty() {
-                    m.entry(n.clone()).or_insert(fi);
+                    m.entry(n.clone()).or_insert((li, fi));
                     self.global.entry(n).or_insert((li, fi));
                 }
                 if let Some(o) = fc.ordinal {
-                    self.ordinals.entry(ln.clone()).or_default().entry(o).or_insert(fi);
+                    self.ordinals.entry(ln.clone()).or_default().entry(o).or_insert((li, fi));
                 }
             }
         }
@@ -314,7 +315,7 @@ impl Functions {
     pub fn function(&self, lib: &str, name: &str) -> Option<&FunctionDef> {
         let ln = lib.to_ascii_lowercase();
         let n = name.to_ascii_lowercase();
-        if let (Some(&li), Some(&fi)) = (self.lib_index.get(&ln), self.fct_index.get(&ln).and_then(|m| m.get(&n))) {
+        if let Some(&(li, fi)) = self.fct_index.get(&ln).and_then(|m| m.get(&n)) {
             return Some(&self.libs[li].functions[fi]);
         }
         // Strip A/W suffixes and decorations for a second chance.
@@ -334,9 +335,7 @@ impl Functions {
     }
 
     pub fn function_by_ordinal(&self, lib: &str, ordinal: u16) -> Option<&FunctionDef> {
-        let ln = lib.to_ascii_lowercase();
-        let li = *self.lib_index.get(&ln)?;
-        let fi = *self.ordinals.get(&ln)?.get(&ordinal)?;
+        let (li, fi) = *self.ordinals.get(&lib.to_ascii_lowercase())?.get(&ordinal)?;
         Some(&self.libs[li].functions[fi])
     }
 
@@ -357,7 +356,7 @@ impl Functions {
     pub fn set_function_flag(&mut self, lib: &str, name: &str, flag: bool) -> bool {
         let ln = lib.to_ascii_lowercase();
         let n = name.to_ascii_lowercase();
-        if let (Some(&li), Some(&fi)) = (self.lib_index.get(&ln), self.fct_index.get(&ln).and_then(|m| m.get(&n))) {
+        if let Some(&(li, fi)) = self.fct_index.get(&ln).and_then(|m| m.get(&n)) {
             self.libs[li].functions[fi].flag = flag;
             return true;
         }
@@ -739,6 +738,9 @@ pub struct RichDb {
     pub ides: HashMap<u8, String>,
     /// build number → (ide id, version label)
     pub builds: HashMap<u16, (u8, String)>,
+    /// (first build, last build, ide id, label): `<item min max ide>`, a PELens extension of the
+    /// format for toolsets that span many builds.
+    pub ranges: Vec<(u16, u16, u8, String)>,
 }
 
 impl RichDb {
@@ -762,10 +764,13 @@ impl RichDb {
         }
         if let Some(p) = root.child("version") {
             for e in p.children_named("item") {
+                let ide = e.attr_int("ide").unwrap_or(23) as u8;
                 // build values are written with leading zeros ("04407"): decimal.
-                if let Some(v) = e.attr("value").and_then(|s| s.trim().parse::<u32>().ok()) {
-                    let ide = e.attr_int("ide").unwrap_or(23) as u8;
-                    r.builds.insert(v as u16, (ide, e.text_trim().to_string()));
+                let num = |a: &str| e.attr(a).and_then(|s| s.trim().parse::<u32>().ok()).map(|v| v.min(u16::MAX as u32) as u16);
+                if let Some(v) = num("value") {
+                    r.builds.insert(v, (ide, e.text_trim().to_string()));
+                } else if let (Some(lo), Some(hi)) = (num("min"), num("max")) {
+                    r.ranges.push((lo, hi, ide, e.text_trim().to_string()));
                 }
             }
         }
@@ -778,7 +783,11 @@ impl RichDb {
 
     /// "Visual Studio 2019 (16.x)" style label for a build number.
     pub fn tooling(&self, build: u16) -> Option<String> {
-        let (ide, label) = self.builds.get(&build)?;
+        let (ide, label) = self
+            .builds
+            .get(&build)
+            .map(|(i, l)| (i, l))
+            .or_else(|| self.ranges.iter().find(|(lo, hi, _, _)| (*lo..=*hi).contains(&build)).map(|(_, _, i, l)| (i, l)))?;
         let ide_name = self.ides.get(ide).cloned().unwrap_or_else(|| "Visual Studio".into());
         Some(if label.is_empty() { ide_name } else { format!("{ide_name} ({label})") })
     }

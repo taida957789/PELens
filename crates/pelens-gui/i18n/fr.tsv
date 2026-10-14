@@ -165,7 +165,8 @@ Cancel	Annuler
 Malware Initial Assessment (Rust remake of pestudio 9.61)	Évaluation initiale de logiciels malveillants (réécriture en Rust de pestudio 9.61)
 This software is provided 'as-is', without any expressed or implied warranty.	Ce logiciel est fourni « tel quel », sans aucune garantie expresse ou implicite.
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	Lors de la récupération du score en ligne d’un fichier, seul son hachage est envoyé, jamais le fichier lui-même.
-Knowledge base: pestudio XML files from your own installation	Base de connaissances : fichiers XML de votre propre installation de pestudio
+Knowledge base: XML files of a directory (e.g. your pestudio installation)	Base de connaissances : fichiers XML d’un dossier (par ex. votre installation de pestudio)
+Knowledge base: the PELens open knowledge base (built in)	Base de connaissances : la base de connaissances ouverte de PELens (intégrée)
 loaded: {0} | errors: {1}	chargés : {0} | erreurs : {1}
 fonts: {0}	polices : {0}
 Check online for an update	Rechercher une mise à jour en ligne
@@ -273,3 +274,12 @@ hint	indice
 map	correspondance
 namespace	espace de noms
 undocumented	non documenté
+
+# hex view
+hex view	vue hexadécimale
+show in hex	afficher en hexadécimal
+go to offset	aller à l’offset
+copy as hex	copier en hexadécimal
+copy as text	copier en texte
+close	fermer
+{0} - {1} ({2} bytes)	{0} - {1} ({2} octets)

@@ -1,0 +1,143 @@
+# kind	id	name	tactic	flag	level
+# MITRE ATT&CK Enterprise tactics and techniques (ids without "TA"/"T").
+# © The MITRE Corporation. This work is reproduced and distributed with the permission of
+# The MITRE Corporation (ATT&CK terms of use, https://attack.mitre.org/resources/legal-and-branding/terms-of-use/).
+ta	0043	Reconnaissance	-	0	1
+ta	0042	Resource Development	-	0	1
+ta	0001	Initial Access	-	0	1
+ta	0002	Execution	-	0	1
+ta	0003	Persistence	-	0	1
+ta	0004	Privilege Escalation	-	0	1
+ta	0005	Defense Evasion	-	0	1
+ta	0006	Credential Access	-	0	1
+ta	0007	Discovery	-	0	1
+ta	0008	Lateral Movement	-	0	1
+ta	0009	Collection	-	0	1
+ta	0011	Command and Control	-	0	1
+ta	0010	Exfiltration	-	0	1
+ta	0040	Impact	-	0	1
+ti	1001	Data Obfuscation	0011	0	2
+ti	1003	OS Credential Dumping	0006	1	1
+ti	1005	Data from Local System	0009	0	2
+ti	1006	Direct Volume Access	0005	1	2
+ti	1007	System Service Discovery	0007	0	2
+ti	1008	Fallback Channels	0011	0	2
+ti	1010	Application Window Discovery	0007	0	2
+ti	1012	Query Registry	0007	0	2
+ti	1014	Rootkit	0005	1	1
+ti	1016	System Network Configuration Discovery	0007	0	2
+ti	1018	Remote System Discovery	0007	0	2
+ti	1021	Remote Services	0008	0	2
+ti	1027	Obfuscated Files or Information	0005	1	1
+ti	1033	System Owner/User Discovery	0007	0	2
+ti	1036	Masquerading	0005	1	2
+ti	1037	Boot or Logon Initialization Scripts	0003	0	2
+ti	1040	Network Sniffing	0006	1	2
+ti	1041	Exfiltration Over C2 Channel	0010	0	2
+ti	1046	Network Service Discovery	0007	0	2
+ti	1047	Windows Management Instrumentation	0002	1	2
+ti	1048	Exfiltration Over Alternative Protocol	0010	0	2
+ti	1049	System Network Connections Discovery	0007	0	2
+ti	1053	Scheduled Task/Job	0002	1	2
+ti	1055	Process Injection	0005	1	1
+ti	1056	Input Capture	0009	1	1
+ti	1057	Process Discovery	0007	0	2
+ti	1059	Command and Scripting Interpreter	0002	1	2
+ti	1068	Exploitation for Privilege Escalation	0004	1	2
+ti	1069	Permission Groups Discovery	0007	0	2
+ti	1070	Indicator Removal	0005	1	1
+ti	1071	Application Layer Protocol	0011	0	2
+ti	1074	Data Staged	0009	0	2
+ti	1080	Taint Shared Content	0008	0	2
+ti	1082	System Information Discovery	0007	0	2
+ti	1083	File and Directory Discovery	0007	0	2
+ti	1087	Account Discovery	0007	0	2
+ti	1090	Proxy	0011	0	2
+ti	1091	Replication Through Removable Media	0008	1	2
+ti	1095	Non-Application Layer Protocol	0011	0	2
+ti	1102	Web Service	0011	0	2
+ti	1104	Multi-Stage Channels	0011	0	2
+ti	1105	Ingress Tool Transfer	0011	1	2
+ti	1106	Native API	0002	0	2
+ti	1110	Brute Force	0006	1	2
+ti	1112	Modify Registry	0005	1	2
+ti	1113	Screen Capture	0009	1	1
+ti	1115	Clipboard Data	0009	1	1
+ti	1119	Automated Collection	0009	0	2
+ti	1120	Peripheral Device Discovery	0007	0	2
+ti	1123	Audio Capture	0009	1	1
+ti	1124	System Time Discovery	0007	0	2
+ti	1125	Video Capture	0009	1	1
+ti	1129	Shared Modules	0002	0	2
+ti	1132	Data Encoding	0011	0	2
+ti	1134	Access Token Manipulation	0004	1	1
+ti	1135	Network Share Discovery	0007	0	2
+ti	1137	Office Application Startup	0003	1	2
+ti	1140	Deobfuscate/Decode Files or Information	0005	0	2
+ti	1176	Browser Extensions	0003	0	2
+ti	1197	BITS Jobs	0005	1	2
+ti	1201	Password Policy Discovery	0007	0	2
+ti	1202	Indirect Command Execution	0005	0	2
+ti	1204	User Execution	0002	0	2
+ti	1211	Exploitation for Defense Evasion	0005	1	2
+ti	1217	Browser Information Discovery	0007	0	2
+ti	1218	System Binary Proxy Execution	0005	1	2
+ti	1219	Remote Access Software	0011	1	2
+ti	1222	File and Directory Permissions Modification	0005	0	2
+ti	1480	Execution Guardrails	0005	0	2
+ti	1484	Domain or Tenant Policy Modification	0005	1	2
+ti	1485	Data Destruction	0040	1	1
+ti	1486	Data Encrypted for Impact	0040	1	1
+ti	1489	Service Stop	0040	1	2
+ti	1490	Inhibit System Recovery	0040	1	1
+ti	1491	Defacement	0040	0	2
+ti	1495	Firmware Corruption	0040	1	2
+ti	1497	Virtualization/Sandbox Evasion	0005	1	1
+ti	1499	Endpoint Denial of Service	0040	0	2
+ti	1518	Software Discovery	0007	0	2
+ti	1529	System Shutdown/Reboot	0040	1	2
+ti	1539	Steal Web Session Cookie	0006	1	2
+ti	1542	Pre-OS Boot	0005	1	2
+ti	1543	Create or Modify System Process	0003	1	2
+ti	1546	Event Triggered Execution	0003	1	2
+ti	1547	Boot or Logon Autostart Execution	0003	1	2
+ti	1548	Abuse Elevation Control Mechanism	0004	1	1
+ti	1552	Unsecured Credentials	0006	1	2
+ti	1553	Subvert Trust Controls	0005	1	2
+ti	1555	Credentials from Password Stores	0006	1	1
+ti	1558	Steal or Forge Kerberos Tickets	0006	1	2
+ti	1559	Inter-Process Communication	0002	0	2
+ti	1560	Archive Collected Data	0009	0	2
+ti	1562	Impair Defenses	0005	1	1
+ti	1564	Hide Artifacts	0005	1	2
+ti	1566	Phishing	0001	0	2
+ti	1567	Exfiltration Over Web Service	0010	0	2
+ti	1568	Dynamic Resolution	0011	0	2
+ti	1569	System Services	0002	1	2
+ti	1570	Lateral Tool Transfer	0008	0	2
+ti	1571	Non-Standard Port	0011	0	2
+ti	1572	Protocol Tunneling	0011	0	2
+ti	1573	Encrypted Channel	0011	0	2
+ti	1574	Hijack Execution Flow	0003	1	2
+ti	1600	Weaken Encryption	0005	0	2
+ti	1614	System Location Discovery	0007	0	2
+ti	1615	Group Policy Discovery	0007	0	2
+ti	1620	Reflective Code Loading	0005	1	1
+ti	1622	Debugger Evasion	0005	1	2
+ti	1652	Device Driver Discovery	0007	0	2
+ti	1654	Log Enumeration	0007	0	2
+ti	1114	Email Collection	0009	1	2
+ti	1127	Trusted Developer Utilities Proxy Execution	0005	1	2
+ti	1136	Create Account	0003	1	2
+ti	1216	System Script Proxy Execution	0005	1	2
+ti	1220	XSL Script Processing	0005	0	2
+ti	1482	Domain Trust Discovery	0007	0	2
+ti	1496	Resource Hijacking	0040	1	2
+ti	1505	Server Software Component	0003	1	2
+ti	1528	Steal Application Access Token	0006	1	2
+ti	1550	Use Alternate Authentication Material	0005	1	2
+ti	1556	Modify Authentication Process	0006	1	2
+ti	1561	Disk Wipe	0040	1	1
+ti	1649	Steal or Forge Authentication Certificates	0006	1	2
+ti	1098	Account Manipulation	0003	1	2
+ti	1531	Account Access Removal	0040	1	2

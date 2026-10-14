@@ -58,6 +58,7 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 - **보고서**: XML, JSON, 텍스트. GUI와 같은 테이블로 만듭니다.
 - **GUI**: 트리 뷰, 다크·라이트 테마, 정렬·필터 가능한 테이블, 컨텍스트 메뉴, 드래그 앤 드롭, 단축키(Ctrl+O, S, E, R, X, Tab으로 트리 이동).
 - **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.
+- **16진수 보기**(Ctrl+H): 보이는 행만 그려 큰 파일도 부드럽습니다. 위치 정보가 있는 항목은 오른쪽 클릭의 "16진수 보기에서 표시"로 열 수 있고, 오프셋이나 RVA로 이동하거나 16진수·텍스트로 복사할 수 있습니다.
 
 ## 설치／빌드
 
@@ -74,7 +75,7 @@ Rust 1.88 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·
 ## 사용법
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -82,7 +83,7 @@ CLI는 기본적으로 pestudio처럼 샘플 옆에 `<input>.xml`을 씁니다.
 
 ### 지식 베이스
 
-PELens는 사용자가 설치한 pestudio의 XML 파일(`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml` 등)을 읽습니다. `-xml:<dir>`로 지정하거나 실행 파일 옆에 `xml` 폴더를 두세요. **이 파일들은 PELens와 함께 배포되지 않습니다**. pestudio 작성자의 소유입니다. 파일이 없어도 PELens는 내장 기본값으로 동작합니다.
+PELens에는 자체 **오픈 지식 베이스**(`kb/`, CC0)가 내장되어 있습니다. 지표 정의 142개, Windows API 함수 약 2,500개, 의심 문자열 약 900개, 시그니처 약 100개와 MITRE ATT&CK 매핑을 담고 있습니다. `tools/build_kb.py`로 `kb/src`에서 생성하며, 모든 항목은 공개 자료를 바탕으로 작성했습니다([kb/SOURCES.md](../../kb/SOURCES.md) 참고). pestudio의 XML은 복사하지 않았습니다. `-xml:<dir>`로 직접 설치한 pestudio의 XML 파일을 사용할 수도 있습니다. 이 파일은 pestudio 작성자의 것이므로 PELens와 함께 배포되지 않습니다.
 
 ### VirusTotal
 
@@ -104,7 +105,7 @@ PELens는 사용자가 설치한 pestudio의 XML 파일(`settings.xml`, `indicat
 ## 품질
 
 ```bash
-cargo test --workspace                       # 테스트 87개
+cargo test --workspace                       # 테스트 102개
 cargo llvm-cov --workspace --summary-only    # 라인 커버리지 약 97%
 python tools/crossval.py 250                 # pefile과 교차 검증
 ```

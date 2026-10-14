@@ -165,7 +165,8 @@ Cancel	取消
 Malware Initial Assessment (Rust remake of pestudio 9.61)	惡意程式初步評估（pestudio 9.61 的 Rust 重製版）
 This software is provided 'as-is', without any expressed or implied warranty.	本軟體依「現狀」提供，不提供任何明示或默示的擔保。
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	查詢檔案的線上評分時不會上傳檔案本身，只會傳送其雜湊值。
-Knowledge base: pestudio XML files from your own installation	知識庫：使用您自己安裝的 pestudio XML 檔案
+Knowledge base: XML files of a directory (e.g. your pestudio installation)	知識庫：資料夾中的 XML 檔案（例如您自己安裝的 pestudio）
+Knowledge base: the PELens open knowledge base (built in)	知識庫：PELens 開放知識庫（內建）
 loaded: {0} | errors: {1}	已載入：{0} | 錯誤：{1}
 fonts: {0}	字型：{0}
 Check online for an update	線上檢查更新
@@ -273,3 +274,12 @@ hint	提示
 map	對應
 namespace	命名空間
 undocumented	未公開
+
+# hex view
+hex view	十六進位檢視
+show in hex	在十六進位檢視中顯示
+go to offset	前往位移
+copy as hex	複製為十六進位
+copy as text	複製為文字
+close	關閉
+{0} - {1} ({2} bytes)	{0} - {1}（{2} 位元組）

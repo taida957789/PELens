@@ -2389,6 +2389,7 @@ dependencies = [
 name = "pe-db"
 version = "0.1.0"
 dependencies = [
+ "miniz_oxide 0.8.9",
  "quick-xml 0.37.5",
 ]
 

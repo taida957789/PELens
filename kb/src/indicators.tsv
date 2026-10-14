@@ -1,0 +1,185 @@
+# id	severity	view	technique	name	detail
+# Written for PELens from what each check in crates/pe-analysis/src/indicators.rs does.
+# The ids stay compatible with pestudio's indicators.xml; names and details are our own.
+# Arguments of the detail (and of %s in a name) come in the order the engine passes them.
+# Views: 00 image 01 footprints 02 groups 04 mitre 05 score 06 dos-stub 07 dos-header
+# 08 rich-header 09 file-header 10 optional-header 11 directories 12 sections 13 libraries
+# 14 imports 15 exports 16 exceptions 17 certificate 19 tls 20 dotnet 21 resources 22 version
+# 23 debug 24 strings 25 manifest 26 overlay
+
+# file
+1000	3	00	----	file > summary	%i bytes, entropy %.03f
+1001	3	00	----	file > type	%s | %s | %s
+1002	3	22	----	file > description	%s
+1003	3	00	----	file > leading %s bytes (hex)	%s
+1004	3	00	----	file > leading %s bytes (text)	%s
+1008	3	01	----	file > sha256	%s
+1022	3	00	----	file > name	%s
+1051	3	00	----	file > located on a network drive	%s
+1052	2	00	----	file > located on removable media	%s
+1490	3	00	----	file > tooling signature	%s
+
+# dos-header, dos-stub, rich-header
+1062	1	07	----	dos-header > unusual e_lfanew	0x%08X
+1488	2	07	----	dos-header > unusual header fields	e_lfanew: 0x%08X
+1260	2	06	----	dos-stub > unknown message	%s
+1274	1	06	----	dos-stub > suspicious message	%s
+1489	2	06	----	dos-stub > unusual size	%i bytes
+1013	3	08	----	rich-header > md5	%s
+1019	3	08	----	rich-header > key	key: 0x%08X, offset: 0x%08X
+
+# file-header, optional-header
+1005	1	10	----	optional-header > unexpected size	%i bytes
+1006	1	09	----	file-header > section table beyond the headers	%i bytes
+1070	3	09	----	file-header > offset	0x%08X
+1321	3	09	----	file-header > compiler stamp	%s
+1007	2	10	----	optional-header > unusual section alignment	0x%08X
+1010	3	10	----	optional-header > file alignment	0x%08X
+1083	2	10	----	optional-header > invalid file alignment	0x%08X
+1014	3	10	----	optional-header > image base	0x%08X
+1036	2	10	----	optional-header > checksum mismatch	stored: 0x%08X
+1056	3	10	----	optional-header > mitigations	%s
+1081	2	10	----	optional-header > size of code is zero	%i
+1082	2	10	----	optional-header > base of code outside the sections	0x%08X
+1084	1	10	----	optional-header > size of image too small	0x%08X
+1085	2	10	----	optional-header > invalid size of headers	0x%08X
+
+# directories
+1210	3	11	----	directories > count	%i
+1211	2	11	----	directories > unusual count	%i
+1301	1	11	----	directories > outside the file	%s
+1302	2	11	----	directories > beyond the image	%s
+1306	2	11	----	directories > incomplete entries	%i of %i
+1320	2	11	----	directories > stamp differs from the compiler stamp	%s
+
+# entry-point
+1024	3	12	----	entry-point > leading %s bytes (hex)	%s
+1034	1	12	----	entry-point > unusual location	0x%08X
+1224	3	12	----	entry-point > location	0x%08X (%s)
+1045	2	15	----	entry-point > exported	%s
+
+# sections
+1027	1	12	----	sections > no executable section	%s
+1029	1	12	1027	sections > embedded file	%s, offset: 0x%08X, size: %i bytes
+1072	2	12	----	sections > virtual only (no raw data)	name: %s
+1215	3	12	----	sections > file ratio	%.02f%%
+1222	2	12	----	sections > several executable sections	%s
+1223	1	12	----	sections > writable code section	name: %s
+1245	2	12	----	sections > unusual name	name: %s
+1494	1	12	----	sections > not readable	name: %s
+1495	2	12	----	sections > shared	name: %s
+1496	1	12	----	sections > writable and executable	name: %s
+1497	2	12	----	sections > without a name	count: %i
+
+# libraries, imports
+1023	2	13	----	libraries > imported more than once	%s
+1026	3	13	----	libraries > bound	%s
+1269	2	13	----	libraries > flagged	%s (%s)
+1270	1	13	1036	libraries > spoofed name	%s
+1484	2	13	----	libraries > unknown	%s
+1262	3	14	----	imports > count	%i
+1264	2	14	----	imports > by ordinal	count: %i
+1266	1	14	----	imports > flagged	%s
+1268	2	14	----	imports > name and ordinal disagree	count: %i
+1271	3	01	----	imports > imphash	%s
+1272	2	14	----	imports > callbacks	count: %i
+1273	2	14	----	imports > anti-debug, undocumented or deprecated	%s
+1025	1	14	1055	imports > process injection	%s
+1492	3	02	----	imports > groups	%s
+
+# exports
+1250	2	15	----	exports > flagged	%s
+1251	3	15	----	exports > names	%s
+1252	2	15	----	exports > duplicated names	count: %i
+1253	3	15	----	exports > count	%i
+1254	2	15	1574	exports > forwarded	count: %i
+1256	2	15	----	exports > by ordinal only	count: %i
+1257	2	15	----	exports > gaps	count: %i
+1259	2	15	1036	exports > internal name differs from the file name	%s
+
+# exceptions, tls
+1061	3	16	----	exceptions > entries	%i
+1033	2	19	----	tls > callback	%s
+
+# certificate
+1011	3	17	----	certificate > present	size: %i bytes, offset: 0x%08X, file-ratio: %.02f%%
+1012	1	17	----	certificate > compiler stamp outside the validity	%s
+1037	1	17	----	certificate > data after the signature	%i bytes
+1038	3	17	----	certificate > serial number	%s
+1040	3	17	----	certificate > type	%s
+1042	3	17	----	certificate > valid from	%s
+1043	3	17	----	certificate > pkcs7 size	%i bytes
+1044	2	17	----	certificate > padding	%i bytes
+1046	1	17	1553	certificate > verification failed	%s
+1047	3	17	----	certificate > signer	%s
+1049	3	17	----	certificate > signing time	%s
+1050	3	17	----	certificate > valid until	%s
+1053	2	17	----	certificate > expired	%s
+1054	3	17	----	certificate > leading %s bytes (hex)	%s
+1055	3	17	----	certificate > issuer	%s
+
+# resources, version, manifest
+1020	3	21	----	resources > leading %s bytes (hex)	%s
+1021	3	21	----	resources > leading %s bytes (text)	%s
+1028	1	21	1027	resources > embedded file	%s, offset: 0x%08X, size: %i bytes
+1080	1	21	----	resources > suspicious content	%s
+1221	3	21	----	resources > summary	count: %i, size: %i bytes, file-ratio: %.02f%%
+1236	3	21	----	resources > languages	%s
+1234	3	20	----	resources > .NET manifest resources	%i
+1009	3	22	----	version > file version	%s
+1057	3	22	----	version > leading %s bytes (hex)	%s
+1058	3	22	----	version > leading %s bytes (text)	%s
+1424	3	22	----	version > internal name	%s
+1486	2	22	----	version > unusual size	%i bytes
+1487	1	22	1036	version > original file name differs	%s
+1400	1	25	1548	manifest > requires administrator	%s
+1401	2	25	1548	manifest > highest available privileges	%s
+1402	1	25	1548	manifest > elevation	%s
+1404	3	25	----	manifest > identity	name: %s, description: %s, level: %s
+
+# debug
+1059	3	23	----	debug > leading %s bytes (hex)	%s
+1060	3	23	----	debug > leading %s bytes (text)	%s
+1076	3	23	----	debug > entry	type: %s, size: %i bytes, file-ratio: %.02f%%, stamp: %s
+1071	3	23	----	debug > pdb path	%s
+1073	3	23	----	debug > guid	%s
+1074	2	23	----	debug > stamp differs from the compiler stamp	%s
+1075	3	23	----	debug > age	%i
+
+# overlay
+1015	3	26	----	overlay > leading %s bytes (hex)	%s
+1016	3	26	----	overlay > leading %s bytes (text)	%s
+1017	2	26	----	overlay > present	signature: %s, offset: 0x%08X, size: %i bytes, entropy: %.03f
+1035	1	26	1027	overlay > high entropy	%.03f
+1079	3	26	----	overlay > signature	%s
+
+# .NET
+1288	2	20	----	dotnet > missing metadata	%s
+1290	1	20	----	dotnet > invalid stream	index: %i
+1291	1	20	----	dotnet > unknown stream	%s
+1292	3	20	----	dotnet > module	%s
+1293	3	20	----	dotnet > strong name	%s
+1294	3	20	----	dotnet > methods	%i
+1296	2	13	1106	dotnet > p/invoke libraries	%s
+1297	1	20	1027	dotnet > obfuscated	%s
+1298	2	20	----	dotnet > flagged namespace	%s
+1300	3	20	----	dotnet > stream	%s
+1304	3	20	----	dotnet > typelib id	%s
+
+# strings
+1261	1	24	----	strings > blacklisted	%s
+1267	2	24	----	strings > very long	%i bytes
+1429	3	24	----	strings > whitelisted	%i
+1430	3	24	----	strings > flagged	%i
+1431	3	24	----	strings > summary	%s
+1434	2	24	1071	strings > url	%s
+1491	2	24	----	strings > %s	%s
+
+# mitre, score
+1068	2	04	----	mitre > technique	%s
+1069	3	04	----	mitre > tactic	%s
+1063	3	05	----	virustotal > no score	%s
+1064	1	05	----	virustotal > detected	%i/%i engines
+1065	3	05	----	virustotal > not detected	%s
+1066	3	05	----	virustotal > report	%s
+1067	3	05	----	virustotal > last analysis	%s

@@ -459,7 +459,9 @@ fn settings_model() {
     assert!(st.expand);
     assert_eq!(pelens_gui::parse_startup(&["-view:tls".into(), "-theme:dark".into()]).view, Some(ItemType::Tls));
     let mut app = pelens_gui::PeLensApp::new(State::new(pe_db::Knowledge::builtin()), Box::new(TestHost { open: None, save: None }));
-    pelens_gui::Startup { view: Some(ItemType::Imports), dark: Some(false), expand: true, lang: None }.apply(&mut app);
+    pelens_gui::Startup { view: Some(ItemType::Imports), dark: Some(false), expand: true, lang: None, hex: true }.apply(&mut app);
+    assert!(app.state.hex.open);
+    assert!(pelens_gui::parse_startup(&["-hex".into()]).hex && !pelens_gui::parse_startup(&["hex.exe".into()]).hex);
     assert_eq!(app.state.selected, ItemType::Imports);
     assert!(!app.state.dark_mode());
     assert!(app.expanded.contains("sections"));
@@ -547,4 +549,62 @@ fn virustotal_key_goes_to_the_key_store() {
     s2.knowledge.settings.set("score", "key", "MEM");
     s2.set_setting("score", "key", "MEM2");
     assert_eq!((s2.stored_key(), s2.knowledge.settings.get("score", "key")), ("MEM2".to_string(), Some("")));
+}
+
+#[test]
+fn hex_view() {
+    let (mut s, sample) = state("hex");
+    // nothing to show without a document
+    s.apply(Action::CopyHex(true));
+    assert!(s.effects.copied.is_empty());
+    assert_eq!(s.hex_address("0x10"), None);
+    s.apply(Action::Open(sample));
+    // lines: 16 bytes, '-' in the middle, dots for unprintable bytes
+    let d = &s.doc.as_ref().unwrap().data;
+    let (hex, text) = hex_line(d, 0);
+    assert!(hex.starts_with("4D 5A") && hex.chars().nth(23) == Some('-'), "{hex}");
+    assert_eq!(text.len(), HEX_WIDTH);
+    assert!(text.starts_with("MZ"));
+    let last = (d.len() - 1) / HEX_WIDTH;
+    assert!(hex_line(d, last).1.len() <= HEX_WIDTH);
+    assert_eq!(hex_line(d, last + 10), (String::new(), String::new()));
+    // show a range from a row's context menu
+    let tbl = s.visible_table();
+    assert!(tbl.is_some());
+    s.apply(Action::Select(ItemType::Sections));
+    let t = s.visible_table().unwrap();
+    let row = t.rows.iter().find(|r| r.dump.is_some()).unwrap().clone();
+    let (off, size) = row.dump.unwrap();
+    let acts = s.context_actions(ItemType::Sections, &row, &t.columns, "|");
+    let show = acts.iter().find(|(l, _)| l == "show in hex").map(|(_, a)| a.clone()).unwrap();
+    s.apply(show);
+    assert!(s.hex.open);
+    assert_eq!((s.hex.range, s.hex.scroll_to), (Some((off, size)), Some(off)));
+    // copy as hex / text (capped)
+    s.hex.range = Some((0, 2));
+    s.apply(Action::CopyHex(true));
+    s.apply(Action::CopyHex(false));
+    assert_eq!(s.effects.copied[s.effects.copied.len() - 2..], ["4D 5A".to_string(), "MZ".to_string()]);
+    // go to: file offsets and RVAs
+    s.hex.goto = "0x40".into();
+    s.apply(Action::HexGoto);
+    assert_eq!(s.hex.range, Some((0x40, 1)));
+    assert_eq!(s.hex_label(0x40), "00000040");
+    s.hex.rva = true;
+    let l = s.doc.as_ref().unwrap().analysis.pe.layout.clone().unwrap();
+    let text_sec = &l.sections[0];
+    s.hex.goto = format!("0x{:X}", text_sec.virtual_address);
+    s.apply(Action::HexGoto);
+    assert_eq!(s.hex.range, Some((text_sec.pointer_to_raw_data as u64, 1)));
+    assert_eq!(s.hex_label(text_sec.pointer_to_raw_data as u64), format!("{:08X}", text_sec.virtual_address));
+    assert_eq!(s.hex_label(u64::MAX), "--------", "offset outside any section");
+    s.hex.goto = "nonsense".into();
+    s.apply(Action::HexGoto);
+    assert!(s.status.contains("invalid address"));
+    s.hex.goto = "0xFFFFFFF".into();
+    s.hex.rva = false;
+    s.apply(Action::HexGoto);
+    assert!(s.status.contains("invalid address"), "beyond the end of the file");
+    s.apply(Action::ToggleHex);
+    assert!(!s.hex.open);
 }

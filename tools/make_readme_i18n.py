@@ -34,14 +34,15 @@ T = {
  dl='**下載**：到 [Releases](https://github.com/taida957789/PELens/releases/latest) 下載 `PELens-<版本>-windows-x64.zip`，解壓縮後執行 `pelens.exe`，不需安裝。附有 `.sha256` 可驗證檔案。從原始碼建置：',
  build_note='需要 Rust 1.88 以上（edition 2024），於 Windows 11 x64 開發與測試。',
  usage_note='CLI 預設在樣本旁輸出 `<input>.xml`，與 pestudio 相同。',
- kb='PELens 從你自己安裝的 pestudio 讀取其 XML 檔（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml`…）：用 `-xml:<dir>` 指定，或在執行檔旁放一個 `xml` 資料夾。**這些檔案不隨 PELens 散佈**，它們屬於 pestudio 的作者。沒有它們時，PELens 仍會以內建預設值運作。',
+ kb='PELens 內建自己的**開放知識庫**（`kb/`，CC0）：142 個指標定義、約 2,500 個 Windows API 函式、約 900 個可疑字串、約 100 個簽章，以及 MITRE ATT&CK 對應。它由 `tools/build_kb.py` 從 `kb/src` 產生，每一筆資料都來自公開資料（見 [kb/SOURCES.md](../../kb/SOURCES.md)），沒有複製 pestudio 的 XML。也可以用 `-xml:<dir>` 改用你自己安裝的 pestudio XML 檔；這些檔案屬於 pestudio 的作者，不隨 PELens 散佈。',
  vt='只送出**雜湊值**，從不上傳樣本。在設定對話框或 `VT_API_KEY` 環境變數中填入你自己的 API key。預設使用 API v3，也可選 v2。',
  roles=['PE 解析（邊界檢查、不會 panic）與修改', 'pestudio XML 知識庫，讀寫時保留原格式', '指標、簽章、字串、檢視、報告、動作', 'VirusTotal、搜尋連結、更新檢查', '命令列（相容 pestudiox）', 'eframe/egui 圖形介面'],
  docs='設計文件：[功能盤點](../FEATURE_INVENTORY.md)（212 項，每項附對照）· [開發計畫](../DEVELOPMENT_PLAN.md) · [Tasklist](../TASKLIST.md)。',
+ hex_feat='**十六進位檢視**（Ctrl+H）：只繪製可見的列，大檔案也流暢；各檢視中有位置資訊的項目可右鍵「在十六進位檢視中顯示」，並可前往位移或 RVA、複製為十六進位或文字。',
  h_lang='介面語言',
  lang_note='介面預設跟隨 Windows 的顯示語言；可在「檢視 > 語言」或設定對話框中切換，或用 `-lang:<代碼>` 啟動（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析結果（表格內容、指標、報告）維持英文，與報告及搜尋一致。翻譯檔位於 `crates/pelens-gui/i18n/`。',
  lang_caps=['繁體中文', '日本語'],
- q=['87 個測試', '約 97% 行覆蓋率', '與 pefile 交叉驗證'],
+ q=['102 個測試', '約 97% 行覆蓋率', '與 pefile 交叉驗證'],
  disc='PELens 是獨立專案，與 Winitor 及 pestudio 作者無關，也未獲其背書。請僅分析你有權限分析的檔案。',
  crate='crate', role='用途'),
 'zh-CN': dict(
@@ -62,14 +63,15 @@ T = {
  dl='**下载**：从 [Releases](https://github.com/taida957789/PELens/releases/latest) 下载 `PELens-<版本>-windows-x64.zip`，解压后运行 `pelens.exe`，无需安装。附带 `.sha256` 可校验文件。从源码构建：',
  build_note='需要 Rust 1.88 或更高版本（edition 2024），在 Windows 11 x64 上开发和测试。',
  usage_note='CLI 默认在样本旁输出 `<input>.xml`，与 pestudio 相同。',
- kb='PELens 从你自己安装的 pestudio 读取其 XML 文件（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml`…）：用 `-xml:<dir>` 指定，或在可执行文件旁放一个 `xml` 文件夹。**这些文件不随 PELens 分发**，它们属于 pestudio 的作者。没有它们时，PELens 仍会使用内置默认值运行。',
+ kb='PELens 内置自己的**开放知识库**（`kb/`，CC0）：142 个指标定义、约 2,500 个 Windows API 函数、约 900 个可疑字符串、约 100 个签名，以及 MITRE ATT&CK 映射。它由 `tools/build_kb.py` 从 `kb/src` 生成，每一条数据都来自公开资料（见 [kb/SOURCES.md](../../kb/SOURCES.md)），没有复制 pestudio 的 XML。也可以用 `-xml:<dir>` 改用你自己安装的 pestudio XML 文件；这些文件属于 pestudio 的作者，不随 PELens 分发。',
  vt='只发送**哈希值**，从不上传样本。在设置对话框或 `VT_API_KEY` 环境变量中填入你自己的 API key。默认使用 API v3，也可选 v2。',
  roles=['PE 解析（边界检查、不会 panic）与修改', 'pestudio XML 知识库，读写时保留原格式', '指标、签名、字符串、视图、报告、操作', 'VirusTotal、搜索链接、更新检查', '命令行（兼容 pestudiox）', 'eframe/egui 图形界面'],
  docs='设计文档：[功能清单](../FEATURE_INVENTORY.md)（212 项，每项附对照）· [开发计划](../DEVELOPMENT_PLAN.md) · [任务清单](../TASKLIST.md)。',
+ hex_feat='**十六进制视图**（Ctrl+H）：只绘制可见的行，大文件也流畅；各视图中带位置信息的项目可右键“在十六进制视图中显示”，并可转到偏移或 RVA、复制为十六进制或文本。',
  h_lang='界面语言',
  lang_note='界面默认跟随 Windows 的显示语言；可在“视图 > 语言”或设置对话框中切换，或用 `-lang:<代码>` 启动（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析结果（表格内容、指标、报告）保持英文，与报告及搜索一致。翻译文件位于 `crates/pelens-gui/i18n/`。',
  lang_caps=['繁體中文', '日本語'],
- q=['87 个测试', '约 97% 行覆盖率', '与 pefile 交叉验证'],
+ q=['102 个测试', '约 97% 行覆盖率', '与 pefile 交叉验证'],
  disc='PELens 是独立项目，与 Winitor 及 pestudio 作者无关，也未获其认可。请仅分析你有权分析的文件。',
  crate='crate', role='用途'),
 'ja': dict(
@@ -90,14 +92,15 @@ T = {
  dl='**ダウンロード**：[Releases](https://github.com/taida957789/PELens/releases/latest) から `PELens-<バージョン>-windows-x64.zip` を入手し、展開して `pelens.exe` を実行します（インストール不要）。検証用の `.sha256` も付いています。ソースからビルドする場合：',
  build_note='Rust 1.88 以降（edition 2024）が必要です。Windows 11 x64 で開発・テストしています。',
  usage_note='CLI は既定で、pestudio と同じくサンプルの隣に `<input>.xml` を書き出します。',
- kb='PELens は、お使いの pestudio に含まれる XML ファイル（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml` など）を読み込みます。`-xml:<dir>` で指定するか、実行ファイルの隣に `xml` フォルダーを置いてください。**これらのファイルは PELens には同梱されません**（pestudio の作者のものです）。ファイルがなくても、PELens は組み込みの既定値で動作します。',
+ kb='PELens は独自の**オープンナレッジベース**（`kb/`、CC0）を内蔵しています。142 のインジケーター定義、約 2,500 の Windows API 関数、約 900 の不審な文字列、約 100 のシグネチャ、MITRE ATT&CK の対応付けを含みます。`tools/build_kb.py` で `kb/src` から生成され、すべての項目は公開情報に基づいて書かれています（[kb/SOURCES.md](../../kb/SOURCES.md) を参照）。pestudio の XML はコピーしていません。`-xml:<dir>` でご自身の pestudio の XML ファイルを使うこともできます。これらは pestudio の作者のもので、PELens には同梱されません。',
  vt='送信するのは**ハッシュだけ**で、サンプルはアップロードしません。API キーは設定ダイアログか `VT_API_KEY` で指定してください。既定は API v3 で、v2 も選べます。',
  roles=['PE 解析（境界チェック済み、パニックしない）とパッチ', 'pestudio XML ナレッジベース（書式を保ったまま読み書き）', 'インジケーター、シグネチャ、文字列、ビュー、レポート、アクション', 'VirusTotal、検索リンク、更新チェック', 'コマンドライン（pestudiox 互換）', 'eframe/egui GUI'],
  docs='設計資料：[機能一覧](../FEATURE_INVENTORY.md)（212 項目、それぞれ実装箇所へのリンク付き）· [開発計画](../DEVELOPMENT_PLAN.md) · [タスクリスト](../TASKLIST.md)。',
+ hex_feat='**16 進ビュー**（Ctrl+H）：表示中の行だけを描画するので大きなファイルでも軽快です。位置情報のある項目は右クリックの「16 進ビューで表示」から開け、オフセットや RVA への移動、16 進またはテキストでのコピーができます。',
  h_lang='表示言語',
  lang_note='表示言語は既定で Windows の表示言語に従います。「表示 > 言語」または設定ダイアログで切り替えるか、`-lang:<コード>`（`en`・`zh-TW`・`zh-CN`・`ja`・`ko`・`es`・`de`・`fr`）で起動してください。解析結果（テーブルの内容、インジケーター、レポート）は、レポートや検索と一致するよう英語のままです。翻訳ファイルは `crates/pelens-gui/i18n/` にあります。',
  lang_caps=['繁體中文', '日本語'],
- q=['87 件のテスト', '約 97% の行カバレッジ', 'pefile とのクロスチェック'],
+ q=['102 件のテスト', '約 97% の行カバレッジ', 'pefile とのクロスチェック'],
  disc='PELens は独立したプロジェクトで、Winitor および pestudio の作者とは関係がなく、承認も受けていません。解析する権限のあるファイルにのみ使用してください。',
  crate='crate', role='役割'),
 'ko': dict(
@@ -118,14 +121,15 @@ T = {
  dl='**다운로드**: [Releases](https://github.com/taida957789/PELens/releases/latest)에서 `PELens-<버전>-windows-x64.zip`을 받아 압축을 풀고 `pelens.exe`를 실행하세요(설치 불필요). 검증용 `.sha256` 파일이 함께 제공됩니다. 소스에서 빌드하려면:',
  build_note='Rust 1.88 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·테스트했습니다.',
  usage_note='CLI는 기본적으로 pestudio처럼 샘플 옆에 `<input>.xml`을 씁니다.',
- kb='PELens는 사용자가 설치한 pestudio의 XML 파일(`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml` 등)을 읽습니다. `-xml:<dir>`로 지정하거나 실행 파일 옆에 `xml` 폴더를 두세요. **이 파일들은 PELens와 함께 배포되지 않습니다**. pestudio 작성자의 소유입니다. 파일이 없어도 PELens는 내장 기본값으로 동작합니다.',
+ kb='PELens에는 자체 **오픈 지식 베이스**(`kb/`, CC0)가 내장되어 있습니다. 지표 정의 142개, Windows API 함수 약 2,500개, 의심 문자열 약 900개, 시그니처 약 100개와 MITRE ATT&CK 매핑을 담고 있습니다. `tools/build_kb.py`로 `kb/src`에서 생성하며, 모든 항목은 공개 자료를 바탕으로 작성했습니다([kb/SOURCES.md](../../kb/SOURCES.md) 참고). pestudio의 XML은 복사하지 않았습니다. `-xml:<dir>`로 직접 설치한 pestudio의 XML 파일을 사용할 수도 있습니다. 이 파일은 pestudio 작성자의 것이므로 PELens와 함께 배포되지 않습니다.',
  vt='**해시만** 전송하며 샘플은 절대 업로드하지 않습니다. 설정 대화 상자나 `VT_API_KEY`에 본인의 API 키를 넣으세요. 기본은 API v3이며 v2도 선택할 수 있습니다.',
  roles=['PE 파싱(경계 검사, 패닉 없음)과 패치', 'pestudio XML 지식 베이스(서식을 유지한 채 읽기·쓰기)', '지표, 시그니처, 문자열, 뷰, 보고서, 동작', 'VirusTotal, 검색 링크, 업데이트 확인', '명령줄(pestudiox 호환)', 'eframe/egui GUI'],
  docs='설계 문서: [기능 목록](../FEATURE_INVENTORY.md)(212개 항목, 각 항목에 구현 위치 연결) · [개발 계획](../DEVELOPMENT_PLAN.md) · [작업 목록](../TASKLIST.md).',
+ hex_feat='**16진수 보기**(Ctrl+H): 보이는 행만 그려 큰 파일도 부드럽습니다. 위치 정보가 있는 항목은 오른쪽 클릭의 "16진수 보기에서 표시"로 열 수 있고, 오프셋이나 RVA로 이동하거나 16진수·텍스트로 복사할 수 있습니다.',
  h_lang='인터페이스 언어',
  lang_note='인터페이스는 기본적으로 Windows 표시 언어를 따릅니다. "보기 > 언어" 또는 설정 대화 상자에서 바꾸거나 `-lang:<코드>`(`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`)로 시작하세요. 분석 결과(테이블 내용, 지표, 보고서)는 보고서 및 검색과 일치하도록 영어로 유지됩니다. 번역 파일은 `crates/pelens-gui/i18n/`에 있습니다.',
  lang_caps=['繁體中文', '日本語'],
- q=['테스트 87개', '라인 커버리지 약 97%', 'pefile과 교차 검증'],
+ q=['테스트 102개', '라인 커버리지 약 97%', 'pefile과 교차 검증'],
  disc='PELens는 독립 프로젝트이며 Winitor 및 pestudio 작성자와 관련이 없고 보증을 받지 않았습니다. 분석 권한이 있는 파일에만 사용하세요.',
  crate='crate', role='역할'),
 'es': dict(
@@ -146,14 +150,15 @@ T = {
  dl='**Descarga**: obtenga `PELens-<versión>-windows-x64.zip` en [Releases](https://github.com/taida957789/PELens/releases/latest), descomprímalo y ejecute `pelens.exe` (sin instalación). Incluye un `.sha256` para verificarlo. Para compilar desde el código fuente:',
  build_note='Requiere Rust 1.88 o posterior (edition 2024). Desarrollado y probado en Windows 11 x64.',
  usage_note='Por defecto la CLI escribe `<input>.xml` junto a la muestra, igual que pestudio.',
- kb='PELens lee los archivos XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`, …) de tu propia instalación de pestudio. Indícalos con `-xml:<dir>` o coloca una carpeta `xml` junto al ejecutable. **Estos archivos no se distribuyen con PELens**: pertenecen al autor de pestudio. Sin ellos, PELens funciona con valores predeterminados integrados.',
+ kb='PELens incluye su propia **base de conocimiento abierta** (`kb/`, CC0): 142 definiciones de indicadores, unas 2.500 funciones de la API de Windows, unas 900 cadenas sospechosas, unas 100 firmas y la correspondencia con MITRE ATT&CK. Se genera desde `kb/src` con `tools/build_kb.py` y cada entrada se escribió a partir de fuentes públicas (ver [kb/SOURCES.md](../../kb/SOURCES.md)); no copia los XML de pestudio. También puede usar los archivos XML de su propia instalación de pestudio con `-xml:<dir>`; pertenecen al autor de pestudio y no se distribuyen con PELens.',
  vt='Solo se envía el **hash**; las muestras nunca se suben. Configura tu propia clave de API en el diálogo de ajustes o en `VT_API_KEY`. Se usa la API v3 por defecto; la v2 está disponible como opción.',
  roles=['análisis PE (con comprobación de límites, sin pánicos) y parcheo', 'base de conocimiento XML de pestudio, lectura y escritura sin reformatear', 'indicadores, firmas, cadenas, vistas, informes, acciones', 'VirusTotal, enlaces de búsqueda, comprobación de actualizaciones', 'línea de comandos (compatible con pestudiox)', 'GUI eframe/egui'],
  docs='Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (212 elementos, cada uno enlazado a su implementación) · [plan de desarrollo](../DEVELOPMENT_PLAN.md) · [lista de tareas](../TASKLIST.md).',
+ hex_feat='**Vista hexadecimal** (Ctrl+H): solo dibuja las filas visibles, también fluida con archivos grandes; los elementos con posición se abren con «mostrar en hexadecimal» del menú contextual, con salto a un desplazamiento o RVA y copia como hexadecimal o texto.',
  h_lang='Idiomas de la interfaz',
  lang_note='La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo en «ver > idioma» o en la configuración, o inicie con `-lang:<código>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Los resultados del análisis (contenido de las tablas, indicadores, informes) se mantienen en inglés para coincidir con los informes y las búsquedas. Las traducciones están en `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['87 pruebas', '≈ 97 % de cobertura de líneas', 'verificación cruzada con pefile'],
+ q=['102 pruebas', '≈ 97 % de cobertura de líneas', 'verificación cruzada con pefile'],
  disc='PELens es un proyecto independiente. No está afiliado a Winitor ni al autor de pestudio, ni cuenta con su respaldo. Úsalo solo con archivos que tengas autorización para analizar.',
  crate='crate', role='función'),
 'de': dict(
@@ -174,14 +179,15 @@ T = {
  dl='**Download**: Laden Sie `PELens-<Version>-windows-x64.zip` unter [Releases](https://github.com/taida957789/PELens/releases/latest) herunter, entpacken Sie es und starten Sie `pelens.exe` (keine Installation). Eine `.sha256`-Datei zur Prüfung liegt bei. Aus dem Quellcode bauen:',
  build_note='Benötigt Rust 1.88 oder neuer (Edition 2024). Entwickelt und getestet unter Windows 11 x64.',
  usage_note='Standardmäßig schreibt die CLI wie pestudio `<input>.xml` neben die Probe.',
- kb='PELens liest die XML-Dateien von pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`, …) aus deiner eigenen pestudio-Installation. Gib sie mit `-xml:<dir>` an oder lege einen Ordner `xml` neben die ausführbare Datei. **Diese Dateien werden nicht mit PELens verteilt**: Sie gehören dem Autor von pestudio. Ohne sie läuft PELens mit eingebauten Standardwerten.',
+ kb='PELens bringt eine eigene **offene Wissensbasis** mit (`kb/`, CC0): 142 Indikatordefinitionen, etwa 2.500 Windows-API-Funktionen, etwa 900 verdächtige Strings, etwa 100 Signaturen und die Zuordnung zu MITRE ATT&CK. Sie wird mit `tools/build_kb.py` aus `kb/src` erzeugt; jeder Eintrag stammt aus öffentlichen Quellen (siehe [kb/SOURCES.md](../../kb/SOURCES.md)), nichts ist aus den XML-Dateien von pestudio kopiert. Mit `-xml:<dir>` können Sie stattdessen die XML-Dateien Ihrer eigenen pestudio-Installation verwenden; sie gehören dem Autor von pestudio und werden nicht mit PELens verteilt.',
  vt='Es wird nur der **Hash** gesendet; Proben werden nie hochgeladen. Trage deinen eigenen API-Schlüssel im Einstellungsdialog oder in `VT_API_KEY` ein. Standard ist API v3; v2 ist optional verfügbar.',
  roles=['PE-Parsing (mit Grenzprüfungen, ohne Panics) und Patching', 'pestudio-XML-Wissensbasis, Lesen und Schreiben ohne Umformatierung', 'Indikatoren, Signaturen, Strings, Ansichten, Berichte, Aktionen', 'VirusTotal, Suchlinks, Update-Prüfung', 'Kommandozeile (pestudiox-kompatibel)', 'eframe/egui-GUI'],
  docs='Designdokumente: [Funktionsinventar](../FEATURE_INVENTORY.md) (212 Punkte, jeweils mit Verweis auf die Implementierung) · [Entwicklungsplan](../DEVELOPMENT_PLAN.md) · [Aufgabenliste](../TASKLIST.md).',
+ hex_feat='**Hex-Ansicht** (Strg+H): zeichnet nur sichtbare Zeilen und bleibt auch bei großen Dateien flüssig; Einträge mit Position öffnen sich über „in der Hex-Ansicht zeigen“ im Kontextmenü, mit Sprung zu Offset oder RVA und Kopieren als Hex oder Text.',
  h_lang='Sprachen der Oberfläche',
  lang_note='Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln Sie sie unter „Ansicht > Sprache“ oder in den Einstellungen, oder starten Sie mit `-lang:<Code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Analyseergebnisse (Tabelleninhalte, Indikatoren, Berichte) bleiben auf Englisch, damit sie mit Berichten und der Suche übereinstimmen. Die Übersetzungen liegen in `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['87 Tests', '≈ 97 % Zeilenabdeckung', 'Abgleich mit pefile'],
+ q=['102 Tests', '≈ 97 % Zeilenabdeckung', 'Abgleich mit pefile'],
  disc='PELens ist ein unabhängiges Projekt. Es steht in keiner Verbindung zu Winitor oder dem Autor von pestudio und wird von ihnen nicht unterstützt. Verwende es nur für Dateien, die du analysieren darfst.',
  crate='Crate', role='Aufgabe'),
 'fr': dict(
@@ -201,15 +207,16 @@ T = {
  dl='**Téléchargement** : récupérez `PELens-<version>-windows-x64.zip` sur [Releases](https://github.com/taida957789/PELens/releases/latest), décompressez-le et lancez `pelens.exe` (aucune installation). Un fichier `.sha256` permet de le vérifier. Pour compiler depuis les sources :',
  build_note='Nécessite Rust 1.88 ou plus récent (édition 2024). Développé et testé sous Windows 11 x64.',
  usage_note="Par défaut, la CLI écrit `<input>.xml` à côté de l'échantillon, comme pestudio.",
- kb="PELens lit les fichiers XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`…) depuis votre propre installation de pestudio. Indiquez-les avec `-xml:<dir>` ou placez un dossier `xml` à côté de l'exécutable. **Ces fichiers ne sont pas distribués avec PELens** : ils appartiennent à l'auteur de pestudio. Sans eux, PELens fonctionne avec des valeurs par défaut intégrées.",
+ kb='PELens embarque sa propre **base de connaissances ouverte** (`kb/`, CC0) : 142 définitions d’indicateurs, environ 2 500 fonctions de l’API Windows, environ 900 chaînes suspectes, environ 100 signatures et la correspondance avec MITRE ATT&CK. Elle est générée depuis `kb/src` par `tools/build_kb.py` ; chaque entrée provient de sources publiques (voir [kb/SOURCES.md](../../kb/SOURCES.md)) et rien n’est copié des XML de pestudio. Vous pouvez aussi utiliser les fichiers XML de votre propre installation de pestudio avec `-xml:<dir>` ; ils appartiennent à l’auteur de pestudio et ne sont pas distribués avec PELens.',
  vt="Seul le **hash** est envoyé ; les échantillons ne sont jamais téléversés. Saisissez votre propre clé d'API dans la boîte de dialogue des réglages ou dans `VT_API_KEY`. L'API v3 est utilisée par défaut ; la v2 est disponible en option.",
  roles=['analyse PE (bornes vérifiées, jamais de panique) et modification', 'base de connaissances XML de pestudio, lecture et écriture sans reformatage', 'indicateurs, signatures, chaînes, vues, rapports, actions', 'VirusTotal, liens de recherche, vérification des mises à jour', 'ligne de commande (compatible pestudiox)', 'interface eframe/egui',
   '**Interface en 8 langues** : English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch et Français ; par défaut, la langue d’affichage de Windows.'],
  docs='Documents de conception : [inventaire des fonctionnalités](../FEATURE_INVENTORY.md) (212 éléments, chacun relié à son implémentation) · [plan de développement](../DEVELOPMENT_PLAN.md) · [liste des tâches](../TASKLIST.md).',
+ hex_feat='**Vue hexadécimale** (Ctrl+H) : seules les lignes visibles sont dessinées, fluide même avec de gros fichiers ; les éléments ayant une position s’ouvrent via « afficher en hexadécimal » du menu contextuel, avec saut vers un offset ou une RVA et copie en hexadécimal ou en texte.',
  h_lang='Langues de l’interface',
  lang_note='Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la dans « affichage > langue » ou dans les paramètres, ou lancez PELens avec `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Les résultats d’analyse (contenu des tableaux, indicateurs, rapports) restent en anglais pour correspondre aux rapports et à la recherche. Les traductions se trouvent dans `crates/pelens-gui/i18n/`.',
  lang_caps=['繁體中文', '日本語'],
- q=['87 tests', '≈ 97 % de couverture des lignes', 'vérification croisée avec pefile'],
+ q=['102 tests', '≈ 97 % de couverture des lignes', 'vérification croisée avec pefile'],
  disc="PELens est un projet indépendant. Il n'est ni affilié à Winitor ni à l'auteur de pestudio, ni approuvé par eux. Ne l'utilisez que sur des fichiers que vous êtes autorisé à analyser.",
  crate='crate', role='rôle'),
 }
@@ -277,6 +284,7 @@ def render(code, t):
 ## {t["h_feat"]}
 
 {feats}
+- {t["hex_feat"]}
 
 ## {t["h_build"]}
 
@@ -293,7 +301,7 @@ cargo build --release
 ## {t["h_usage"]}
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 

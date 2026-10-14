@@ -309,14 +309,7 @@ impl<'k> Classifier<'k> {
         if let Some((_, ci, ii)) = self.contains.iter().find(|(v, _, _)| !v.is_empty() && key.contains(v.as_str())) {
             return Some((*ci, *ii));
         }
-        if let Some((stem, ext)) = lower.rsplit_once('.')
-            && !stem.is_empty()
-            && !ext.is_empty()
-            && ext.len() <= 8
-            && let Some(&x) = self.exts.get(ext)
-        {
-            return Some(x);
-        }
+        // a known tool ("vssadmin.exe", "cmd /c …") is more specific than its file extension
         if !self.utils.is_empty() {
             for w in lower.split(|ch: char| !ch.is_ascii_alphanumeric() && ch != '.' && ch != '_' && ch != '-') {
                 let w = w.strip_suffix(".exe").unwrap_or(w);
@@ -324,6 +317,14 @@ impl<'k> Classifier<'k> {
                     return Some(x);
                 }
             }
+        }
+        if let Some((stem, ext)) = lower.rsplit_once('.')
+            && !stem.is_empty()
+            && !ext.is_empty()
+            && ext.len() <= 8
+            && let Some(&x) = self.exts.get(ext)
+        {
+            return Some(x);
         }
         None
     }

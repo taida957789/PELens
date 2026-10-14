@@ -1,0 +1,11 @@
+The PELens open knowledge base (the files in this directory and in kb/src) is dedicated to the
+public domain under the Creative Commons CC0 1.0 Universal dedication:
+https://creativecommons.org/publicdomain/zero/1.0/
+
+To the extent possible under law, the authors have waived all copyright and related or
+neighboring rights to this work. You can copy, modify and distribute it, even for commercial
+purposes, without asking permission.
+
+Exception: the names and identifiers of MITRE ATT&CK tactics and techniques (mitre.xml,
+kb/src/mitre.tsv and the technique ids in the other files) remain © The MITRE Corporation and are
+used under the ATT&CK terms of use: https://attack.mitre.org/resources/legal-and-branding/terms-of-use/

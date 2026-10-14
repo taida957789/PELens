@@ -998,11 +998,46 @@ fn import_budget_is_global() {
     let dd = l.optional_header.data_directories_offset as usize + 8;
     data[dd..dd + 4].copy_from_slice(&(va + 16).to_le_bytes());
     data[dd + 4..dd + 8].copy_from_slice(&(11u32 * 20).to_le_bytes());
+    // ten descriptors share one 30,000-entry thunk array: each slot is listed once
+    let pe = PeFile::parse(&data);
+    assert_eq!(pe.imports.function_count(), 30_000);
+    assert!(pe.imports.truncated);
+    assert_eq!(pe.imports.libraries.len(), 10);
+    assert!(!PeFile::parse(&PeBuilder::new().build()).imports.truncated);
+
+    // distinct arrays: the total over all libraries is capped
+    let per = 65_000usize;
+    let n = imports::MAX_TOTAL_FUNCTIONS / per + 2;
+    let mut b = PeBuilder::new();
+    b.extra_sections = vec![ExtraSection {
+        name: ".imp".into(),
+        data: vec![0u8; 0x400 + n * (per + 1) * 4],
+        characteristics: 0x4000_0040,
+        virtual_size: None,
+    }];
+    let mut data = b.build();
+    let l = PeFile::parse(&data).layout.unwrap();
+    let s = l.sections.iter().find(|s| s.name == ".imp").unwrap().clone();
+    let (raw, va) = (s.pointer_to_raw_data as usize, s.virtual_address);
+    data[raw..raw + 6].copy_from_slice(b"a.dll ");
+    for k in 0..n {
+        let table = 0x400 + k * (per + 1) * 4;
+        for i in 0..per {
+            let o = raw + table + i * 4;
+            data[o..o + 4].copy_from_slice(&0x8000_0001u32.to_le_bytes());
+        }
+        let o = raw + 16 + k * 20;
+        data[o..o + 4].copy_from_slice(&(va + table as u32).to_le_bytes());
+        data[o + 12..o + 16].copy_from_slice(&va.to_le_bytes());
+        data[o + 16..o + 20].copy_from_slice(&(va + table as u32).to_le_bytes());
+    }
+    let dd = l.optional_header.data_directories_offset as usize + 8;
+    data[dd..dd + 4].copy_from_slice(&(va + 16).to_le_bytes());
+    data[dd + 4..dd + 8].copy_from_slice(&((n as u32 + 1) * 20).to_le_bytes());
     let pe = PeFile::parse(&data);
     assert_eq!(pe.imports.function_count(), imports::MAX_TOTAL_FUNCTIONS);
     assert!(pe.imports.truncated);
-    assert!(pe.imports.libraries.len() < 10, "parsing stops once the budget is spent");
-    assert!(!PeFile::parse(&PeBuilder::new().build()).imports.truncated);
+    assert!(pe.imports.libraries.len() < n, "parsing stops once the budget is spent");
 }
 
 /// Code review #5: rows declared for an unknown table do not hide the known tables.

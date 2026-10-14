@@ -444,3 +444,76 @@ fn write_back_with_escaped_attribute() {
     assert!(k.functions.function("x.dll", "").is_none());
     let _ = std::fs::remove_dir_all(&d);
 }
+
+/// The open knowledge base (kb/) compiled into pe-db.
+#[test]
+fn open_knowledge_base_is_complete() {
+    let k = Knowledge::builtin();
+    assert!(k.errors.is_empty(), "{:?}", k.errors);
+    assert_eq!(k.loaded.len(), 11, "{:?}", k.loaded);
+    assert!(k.dir.is_none());
+    // the same defaults as default_settings()
+    assert_eq!(k.settings.setting, pe_db::default_settings().setting);
+    assert!(k.settings.is_standard_section(".text") && !k.settings.is_standard_section(".upx0"));
+    assert!(k.settings.streams.iter().any(|s| s.name == "#~"));
+    // every part is populated
+    assert!(k.indicators.len() >= 140);
+    assert!(k.indicators.iter().all(|i| i.enable == 1 && (1..=3).contains(&i.severity)));
+    assert_eq!(k.thresholds.len(), 4);
+    assert!(k.functions.libs.len() >= 40 && k.functions.function_count() >= 500);
+    assert!(k.functions.function("kernel32.dll", "CreateRemoteThread").is_some_and(|f| f.flag));
+    assert!(k.strings.items("utils").len() >= 50 && k.strings.items("privs").iter().any(|p| p.value == "SeDebugPrivilege"));
+    assert!(k.signatures.len() >= 80 && k.signatures.iter().any(|s| s.name == "executable" && s.file));
+    assert!(k.mitre.techniques.len() >= 100 && k.mitre.tactics.len() == 14);
+    assert!(!k.namespaces.items.is_empty());
+    assert!(k.languages.language(0x0409).is_some());
+    assert_eq!(k.translations.group(10).map(|g| g.name.as_str()), Some("obfuscation"));
+    // every technique referenced by the other files is defined
+    let known: std::collections::HashSet<&str> = k.mitre.techniques.iter().map(|t| t.id.as_str()).collect();
+    let used = k
+        .indicators
+        .iter()
+        .filter_map(|i| i.ti.as_deref())
+        .chain(k.functions.libs.iter().flat_map(|l| l.functions.iter().filter_map(|f| f.ti.as_deref())))
+        .chain(k.strings.categories.iter().flat_map(|c| c.items.iter().filter_map(|i| i.ti.as_deref())));
+    for t in used {
+        assert!(known.contains(t), "technique {t} is not in mitre.xml");
+    }
+    // Visual Studio release from a toolset build: exact values and ranges
+    assert_eq!(k.rich.tooling(30729).as_deref(), Some("Visual Studio 2008 (9.0 SP1)"));
+    assert_eq!(k.rich.tooling(24215).as_deref(), Some("Visual Studio 2015 (14.0)"));
+    assert_eq!(k.rich.tooling(30159).as_deref(), Some("Visual Studio 2019 (14.2x)"));
+    assert_eq!(k.rich.tooling(1), None);
+    // every embedded file parses on its own, and the copy on disk is what is compiled in
+    let kb = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../kb");
+    assert_eq!(pe_db::open_kb::files().len(), 11);
+    for (name, src) in pe_db::open_kb::files() {
+        assert!(pe_db::dom::parse(src).is_ok(), "{name}");
+        assert_eq!(std::fs::read_to_string(kb.join(name)).unwrap().replace("\r\n", "\n"), src.replace("\r\n", "\n"));
+    }
+    assert!(pe_db::open_kb::file("nope.xml").is_none());
+    // kb/ is also a valid knowledge directory
+    let from_dir = Knowledge::load(&kb);
+    assert!(from_dir.errors.is_empty(), "{:?}", from_dir.errors);
+    assert_eq!(from_dir.indicators.len(), k.indicators.len());
+}
+
+/// A library listed twice (pestudio's functions.xml does this) keeps the functions of both entries.
+#[test]
+fn library_listed_twice() {
+    let doc = pe_db::dom::parse(
+        r#"<xml><libs>
+<lib name="k.dll" flag="0" gp="--"><fcts><fct flag="0">A</fct></fcts></lib>
+<lib name="other.dll" flag="0" gp="--"><fcts><fct flag="0">X</fct></fcts></lib>
+<lib name="K.DLL" flag="1" gp="--"><fcts><fct flag="0">B</fct><fct flag="1">C</fct><fct od="7" flag="0">D</fct></fcts></lib>
+</libs></xml>"#,
+    )
+    .unwrap();
+    let mut f = pe_db::model::Functions::from_dom(&doc);
+    assert_eq!(f.function("k.dll", "A").map(|x| x.name.as_str()), Some("A"));
+    assert_eq!(f.function("k.dll", "C").map(|x| x.flag), Some(true));
+    assert_eq!(f.function_by_ordinal("k.dll", 7).map(|x| x.name.as_str()), Some("D"));
+    assert!(f.set_function_flag("k.dll", "C", false));
+    assert_eq!(f.function("k.dll", "C").map(|x| x.flag), Some(false));
+    assert!(!f.library("k.dll").unwrap().flag, "the first entry describes the library");
+}

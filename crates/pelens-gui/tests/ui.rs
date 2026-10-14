@@ -416,3 +416,41 @@ fn interface_language_switch() {
     h.run();
     assert_eq!(h.state().state.language_setting(), None);
 }
+
+#[test]
+fn hex_panel() {
+    let (mut app, sample) = setup("hex");
+    app.state.apply(Action::Open(sample));
+    let mut h = harness(app);
+    h.run();
+    // view > hex view (Ctrl+H)
+    h.get_by_label("view").click();
+    h.run();
+    h.get_by_label("hex view\tCtrl+H").click();
+    h.run();
+    assert!(h.state().state.hex.open);
+    assert!(h.query_by_label_contains("4D 5A").is_some(), "first line of the file");
+    h.key_press_modifiers(egui::Modifiers::COMMAND, egui::Key::H);
+    h.run();
+    assert!(!h.state().state.hex.open);
+    // a range from the sections view, copied as hex and text
+    h.state_mut().state.apply(Action::ShowHex(0, 2));
+    h.run();
+    h.get_by_label("copy as hex").click();
+    h.run();
+    h.get_by_label("copy as text").click();
+    h.run();
+    assert!(h.query_by_label_contains("(2 bytes)").is_some());
+    // go to an offset with Enter, then show RVAs
+    h.state_mut().state.hex.goto = "0x40".into();
+    h.run();
+    h.get_by_label("RVA").click();
+    h.run();
+    h.state_mut().state.hex.rva = false;
+    h.state_mut().state.apply(Action::HexGoto);
+    h.run();
+    assert_eq!(h.state().state.hex.range, Some((0x40, 1)));
+    h.get_by_label("close").click();
+    h.run();
+    assert!(!h.state().state.hex.open);
+}

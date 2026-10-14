@@ -3,6 +3,7 @@
 use crate::headers::dir;
 use crate::layout::Layout;
 use crate::reader::Reader;
+use std::collections::HashSet;
 
 const MAX_LIBRARIES: usize = 4096;
 const MAX_FUNCTIONS: usize = 65536;
@@ -86,7 +87,8 @@ pub struct BoundImport {
 pub struct Imports {
     pub libraries: Vec<ImportedLibrary>,
     pub bound: Vec<BoundImport>,
-    /// The import tables exceeded `MAX_TOTAL_FUNCTIONS` and were cut short.
+    /// The import tables exceeded `MAX_TOTAL_FUNCTIONS`, or descriptors shared thunk arrays, and
+    /// the listing was cut short.
     pub truncated: bool,
 }
 
@@ -101,19 +103,27 @@ impl Imports {
 
     pub fn parse(r: &Reader, l: &Layout) -> Self {
         let mut out = Imports::default();
-        let mut budget = MAX_TOTAL_FUNCTIONS;
+        let mut budget = Budget { left: MAX_TOTAL_FUNCTIONS, slots: HashSet::new(), shared: false };
         if let Some(d) = l.optional_header.directory(dir::IMPORT) {
             parse_implicit(r, l, d.rva, &mut out.libraries, &mut budget);
         }
         if let Some(d) = l.optional_header.directory(dir::DELAY_IMPORT) {
             parse_delay(r, l, d.rva, &mut out.libraries, &mut budget);
         }
-        out.truncated = budget == 0;
+        out.truncated = budget.left == 0 || budget.shared;
         if let Some(d) = l.optional_header.directory(dir::BOUND_IMPORT) {
             out.bound = parse_bound(r, l, d.rva, d.size);
         }
         out
     }
+}
+
+/// Functions left to read, and the thunk slots (file offsets) already read: a slot yields one
+/// function at most, so descriptors sharing a thunk array cannot multiply the listing.
+struct Budget {
+    left: usize,
+    slots: HashSet<usize>,
+    shared: bool,
 }
 
 fn thunk_size(l: &Layout) -> usize {
@@ -145,7 +155,7 @@ fn decode_thunk(r: &Reader, l: &Layout, v: u64, f: &mut ImportedFunction, va_bas
     }
 }
 
-fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, iat_rva: u32, va_based: bool, budget: &mut usize) {
+fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, iat_rva: u32, va_based: bool, budget: &mut Budget) {
     let ts = thunk_size(l) as u32;
     let lookup = if int_rva != 0 && l.rva_to_offset(int_rva).is_some() {
         int_rva
@@ -154,9 +164,16 @@ fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, 
         iat_rva
     };
     let image_end = l.image_base() + l.optional_header.size_of_image as u64;
-    for i in 0..MAX_FUNCTIONS.min(*budget) as u32 {
-        let Some(v) = read_thunk(r, l, lookup.wrapping_add(i * ts)) else { break };
+    for i in 0..MAX_FUNCTIONS.min(budget.left) as u32 {
+        let slot = lookup.wrapping_add(i * ts);
+        let Some(v) = read_thunk(r, l, slot) else { break };
         if v == 0 {
+            break;
+        }
+        if let Some(off) = l.rva_to_offset(slot)
+            && !budget.slots.insert(off)
+        {
+            budget.shared = true;
             break;
         }
         let iat_slot = iat_rva.wrapping_add(i * ts);
@@ -171,13 +188,13 @@ fn walk_thunks(r: &Reader, l: &Layout, lib: &mut ImportedLibrary, int_rva: u32, 
             }
         }
         lib.functions.push(f);
-        *budget -= 1;
+        budget.left -= 1;
     }
 }
 
-fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut usize) {
+fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut Budget) {
     for i in 0..MAX_LIBRARIES as u32 {
-        if *budget == 0 {
+        if budget.left == 0 {
             break;
         }
         let drva = rva.wrapping_add(i * 20);
@@ -206,9 +223,9 @@ fn parse_implicit(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrar
     }
 }
 
-fn parse_delay(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut usize) {
+fn parse_delay(r: &Reader, l: &Layout, rva: u32, out: &mut Vec<ImportedLibrary>, budget: &mut Budget) {
     for i in 0..MAX_LIBRARIES as u32 {
-        if *budget == 0 {
+        if budget.left == 0 {
             break;
         }
         let drva = rva.wrapping_add(i * 32);

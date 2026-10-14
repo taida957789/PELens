@@ -76,6 +76,9 @@ match the reports and what the search box finds. The translations live in
 - **Reports** in XML, JSON or text, built from the same tables the GUI shows.
 - **GUI**: tree-view, dark and light themes, sortable and filterable tables, context menus,
   drag and drop, and shortcuts (Ctrl+O, S, E, R, X; Tab moves through the tree).
+- **Hex view** (Ctrl+H): draws only the visible lines, so it stays smooth on large files. Items
+  with a position open there from the context menu ("show in hex"); go to an offset or an RVA,
+  copy as hex or text.
 - **Interface in 8 languages**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch and
   Français; by default the Windows display language.
 
@@ -95,7 +98,7 @@ You need Rust 1.88 or newer (edition 2024). It is developed and tested on Window
 ## Usage
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -103,10 +106,14 @@ By default the CLI writes `<input>.xml` next to the sample, like pestudio does.
 
 ### Knowledge base
 
-PELens reads pestudio's XML files (`settings.xml`, `indicators.xml`, `functions.xml`,
-`signatures.xml`, …) from your own pestudio installation. Pass them with `-xml:<dir>` or put
-an `xml` folder next to the executable. **These files are not distributed with PELens**:
-they belong to pestudio's author. Without them PELens still works on built-in defaults.
+PELens ships its own **open knowledge base** (`kb/`, CC0): 142 indicator definitions, about 2,500
+Windows API functions, about 900 suspicious strings, about 100 signatures and the MITRE ATT&CK
+mapping. `tools/build_kb.py` builds it from `kb/src`; every entry was written from public sources
+(see [kb/SOURCES.md](kb/SOURCES.md)) and nothing is copied from pestudio's XML files.
+
+You can use the XML files of your own pestudio installation instead: pass `-xml:<dir>` or put an
+`xml` folder next to the executable. **These files are not distributed with PELens**: they
+belong to pestudio's author.
 
 ### VirusTotal
 
@@ -130,7 +137,7 @@ traceability link) · [development plan](docs/DEVELOPMENT_PLAN.md) · [task list
 ## Quality
 
 ```bash
-cargo test --workspace                       # 87 tests
+cargo test --workspace                       # 102 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % line coverage
 python tools/crossval.py 250                 # cross-check against pefile
 ```

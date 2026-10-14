@@ -165,7 +165,8 @@ Cancel	キャンセル
 Malware Initial Assessment (Rust remake of pestudio 9.61)	マルウェアの初期評価（pestudio 9.61 の Rust 版リメイク）
 This software is provided 'as-is', without any expressed or implied warranty.	本ソフトウェアは「現状のまま」提供され、明示または黙示を問わず一切の保証はありません。
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	ファイルのオンラインスコアを取得する際、ファイル自体は送信されず、ハッシュのみが送信されます。
-Knowledge base: pestudio XML files from your own installation	ナレッジベース: ご自身がインストールした pestudio の XML ファイル
+Knowledge base: XML files of a directory (e.g. your pestudio installation)	ナレッジベース: フォルダー内の XML ファイル（例: ご自身の pestudio）
+Knowledge base: the PELens open knowledge base (built in)	ナレッジベース: PELens オープンナレッジベース（内蔵）
 loaded: {0} | errors: {1}	読み込み: {0} | エラー: {1}
 fonts: {0}	フォント: {0}
 Check online for an update	オンラインで更新を確認
@@ -273,3 +274,12 @@ hint	ヒント
 map	マップ
 namespace	名前空間
 undocumented	非公開
+
+# hex view
+hex view	16 進ビュー
+show in hex	16 進ビューで表示
+go to offset	オフセットへ移動
+copy as hex	16 進でコピー
+copy as text	テキストでコピー
+close	閉じる
+{0} - {1} ({2} bytes)	{0} - {1}（{2} バイト）

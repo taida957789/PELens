@@ -8,46 +8,16 @@ use pe_parser::debug::{DebugInfo, format_guid};
 use pe_parser::headers::{DIRECTORY_NAMES, dir, dll_characteristics as dc};
 use pe_parser::reader::Reader;
 
-/// Built-in definitions used when indicators.xml is not available: (id, severity, type, name, detail).
-pub const BUILTIN: &[(u32, u8, &str, &str, &str)] = &[
-    (1000, 3, "00", "file > info", "size: %i bytes, entropy: %.03f"),
-    (1001, 3, "10", "file > type", "%s, %s, %s"),
-    (1002, 3, "08", "file > description", "%s"),
-    (1003, 3, "--", "file > first %s bytes (hex)", "%s"),
-    (1004, 3, "--", "file > first %s bytes (text)", "%s"),
-    (1005, 1, "10", "optional-header > size", "%i bytes"),
-    (1006, 1, "09", "file-header > size", "%i bytes"),
-    (1011, 3, "17", "certificate > info", "size: %i bytes, offset: 0x%08X, file-ratio: %.02f%%"),
-    (1012, 1, "17", "stamp-compiler > stamp-certificate", "%s"),
-    (1013, 3, "08", "rich-header > footprint", "%s"),
-    (1017, 1, "26", "overlay > info", "signature: %s, offset: 0x%08X, size: %i bytes, entropy: %.03f"),
-    (1019, 3, "08", "rich-header > checksum", "checksum: 0x%08X, offset: 0x%08X"),
-    (1022, 3, "00", "file > name", "%s"),
-    (1024, 3, "12", "entry-point > first %s bytes (hex)", "%s"),
-    (1025, 1, "13", "injection > technique", "%s"),
-    (1028, 1, "20", "resource > file", "signature: %s, offset: 0x%08X, size: %i bytes"),
-    (1029, 1, "20", "section > file", "signature: %s, offset: 0x%08X, size: %i bytes"),
-    (1033, 3, "19", "thread-local-storage > callback", "%s"),
-    (1034, 1, "12", "entry-point > invalid", "0x%08X"),
-    (1056, 3, "10", "security > protection", "%s"),
-    (1068, 2, "04", "mitre > technique", "%s"),
-    (1069, 3, "04", "mitre > tactic", "%s"),
-    (1266, 1, "14", "imports > flag", "%s"),
-    (1271, 3, "01", "imphash > md5", "%s"),
-    (1321, 3, "09", "stamp > compiler", "%s"),
-    (1490, 3, "--", "file > signature", "%s"),
-    (1496, 1, "12", "sections > self-modifying", "name: %s"),
-];
-
+/// Indicator definitions (name, detail format, severity) come from the knowledge base: the open
+/// knowledge base (kb/indicators.xml) or pestudio's indicators.xml.
 struct Ctx<'a> {
     k: &'a Knowledge,
     out: Vec<Indicator>,
-    builtin: Vec<IndicatorDef>,
 }
 
 impl Ctx<'_> {
     fn def(&self, id: u32) -> Option<&IndicatorDef> {
-        if self.k.indicators.is_empty() { self.builtin.iter().find(|d| d.id == id) } else { self.k.indicator(id) }
+        self.k.indicator(id)
     }
 
     fn emit_named(&mut self, id: u32, name_args: &[Arg], args: &[Arg]) {
@@ -97,19 +67,7 @@ const INJECTION_APIS: &[&str] = &[
 ];
 
 pub fn evaluate(a: &Analysis, k: &Knowledge, data: &[u8], o: &Options) -> Vec<Indicator> {
-    let builtin = BUILTIN
-        .iter()
-        .map(|(id, sev, t, n, d)| IndicatorDef {
-            id: *id,
-            enable: 1,
-            severity: *sev,
-            kind: t.to_string(),
-            ti: None,
-            detail: d.to_string(),
-            name: n.to_string(),
-        })
-        .collect();
-    let mut c = Ctx { k, out: Vec::new(), builtin };
+    let mut c = Ctx { k, out: Vec::new() };
     let nb = o.first_bytes;
     let r = Reader::new(data);
 
@@ -807,22 +765,7 @@ pub fn mitre_indicators(a: &mut Analysis, k: &Knowledge) {
     if !k.settings.get_bool("mitre", "enable", true) {
         return;
     }
-    let mut c = Ctx {
-        k,
-        out: Vec::new(),
-        builtin: BUILTIN
-            .iter()
-            .map(|(id, sev, t, n, d)| IndicatorDef {
-                id: *id,
-                enable: 1,
-                severity: *sev,
-                kind: t.to_string(),
-                ti: None,
-                detail: d.to_string(),
-                name: n.to_string(),
-            })
-            .collect(),
-    };
+    let mut c = Ctx { k, out: Vec::new() };
     let mut tactics: Vec<String> = Vec::new();
     for m in &a.mitre {
         c.emit(1068, &[s(format!("{} {}", m.technique, m.technique_name))]);
@@ -839,7 +782,7 @@ pub fn mitre_indicators(a: &mut Analysis, k: &Knowledge) {
 /// VirusTotal indicators (computed when a score is attached).
 pub fn score_indicators(a: &mut Analysis, k: &Knowledge) {
     let Some(sc) = a.score.clone() else { return };
-    let mut c = Ctx { k, out: Vec::new(), builtin: Vec::new() };
+    let mut c = Ctx { k, out: Vec::new() };
     a.indicators.retain(|i| !(1063..=1067).contains(&i.id));
     match sc.status.as_str() {
         "ok" => {

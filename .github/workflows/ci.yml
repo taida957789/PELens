@@ -18,6 +18,10 @@ jobs:
           components: clippy, rustfmt, llvm-tools-preview
       - uses: Swatinem/rust-cache@v2
       - uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Open knowledge base is up to date
+        run: python tools/build_kb.py --check
+        env:
+          PYTHONUTF8: "1"
       - name: Format
         run: cargo fmt --all --check
       - name: Clippy

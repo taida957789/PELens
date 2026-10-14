@@ -1,0 +1,957 @@
+# PELens open knowledge base: strings. Written for PELens from public documentation
+# (Microsoft Learn, MITRE ATT&CK, LOLBAS). Columns: category, value, group, technique, flag, blacklist
+
+# sids
+sids	S-1-0-0	15	----	0	0
+sids	S-1-1-0	15	----	0	0
+sids	S-1-2-0	15	----	0	0
+sids	S-1-2-1	15	----	0	0
+sids	S-1-3-0	15	----	0	0
+sids	S-1-3-1	15	----	0	0
+sids	S-1-3-4	15	----	0	0
+sids	S-1-5-1	15	----	0	0
+sids	S-1-5-2	15	----	0	0
+sids	S-1-5-3	15	----	0	0
+sids	S-1-5-4	15	----	0	0
+sids	S-1-5-6	15	----	0	0
+sids	S-1-5-7	15	----	0	0
+sids	S-1-5-9	15	----	0	0
+sids	S-1-5-10	15	----	0	0
+sids	S-1-5-11	15	----	0	0
+sids	S-1-5-12	15	----	0	0
+sids	S-1-5-13	15	----	0	0
+sids	S-1-5-14	15	----	0	0
+sids	S-1-5-15	15	----	0	0
+sids	S-1-5-17	15	----	0	0
+sids	S-1-5-18	15	----	1	0
+sids	S-1-5-19	15	----	1	0
+sids	S-1-5-20	15	----	1	0
+sids	S-1-5-32-544	15	----	1	0
+sids	S-1-5-32-545	15	----	0	0
+sids	S-1-5-32-546	15	----	0	0
+sids	S-1-5-32-547	15	----	0	0
+sids	S-1-5-32-548	15	----	0	0
+sids	S-1-5-32-549	15	----	0	0
+sids	S-1-5-32-550	15	----	0	0
+sids	S-1-5-32-551	15	----	1	0
+sids	S-1-5-32-552	15	----	0	0
+sids	S-1-5-32-554	15	----	0	0
+sids	S-1-5-32-555	15	----	1	0
+sids	S-1-5-32-556	15	----	0	0
+sids	S-1-5-32-558	15	----	0	0
+sids	S-1-5-32-559	15	----	0	0
+sids	S-1-5-32-562	15	----	0	0
+sids	S-1-5-32-568	15	----	0	0
+sids	S-1-5-32-573	15	----	0	0
+sids	S-1-5-32-578	15	----	0	0
+sids	S-1-5-32-580	15	----	0	0
+sids	S-1-5-64-10	15	----	0	0
+sids	S-1-5-64-14	15	----	0	0
+sids	S-1-5-64-21	15	----	0	0
+sids	S-1-5-80-0	15	----	0	0
+sids	S-1-5-113	15	----	0	0
+sids	S-1-5-114	15	----	0	0
+sids	S-1-15-2-1	15	----	0	0
+sids	S-1-15-2-2	15	----	0	0
+sids	S-1-16-0	15	----	0	0
+sids	S-1-16-4096	15	----	0	0
+sids	S-1-16-8192	15	----	0	0
+sids	S-1-16-8448	15	----	0	0
+sids	S-1-16-12288	15	----	1	0
+sids	S-1-16-16384	15	----	1	0
+sids	S-1-16-20480	15	----	1	0
+sids	S-1-16-28672	15	----	1	0
+
+# privs
+privs	SeAssignPrimaryTokenPrivilege	15	1134	1	0
+privs	SeAuditPrivilege	15	----	0	0
+privs	SeBackupPrivilege	15	1003	1	0
+privs	SeChangeNotifyPrivilege	15	----	0	0
+privs	SeCreateGlobalPrivilege	15	----	0	0
+privs	SeCreatePagefilePrivilege	15	----	0	0
+privs	SeCreatePermanentPrivilege	15	----	0	0
+privs	SeCreateSymbolicLinkPrivilege	15	----	0	0
+privs	SeCreateTokenPrivilege	15	1134	1	0
+privs	SeDebugPrivilege	15	1134	1	0
+privs	SeDelegateSessionUserImpersonatePrivilege	15	----	0	0
+privs	SeEnableDelegationPrivilege	15	----	1	0
+privs	SeImpersonatePrivilege	15	1134	1	0
+privs	SeIncreaseBasePriorityPrivilege	15	----	0	0
+privs	SeIncreaseQuotaPrivilege	15	----	0	0
+privs	SeIncreaseWorkingSetPrivilege	15	----	0	0
+privs	SeLoadDriverPrivilege	15	1543	1	0
+privs	SeLockMemoryPrivilege	15	----	0	0
+privs	SeMachineAccountPrivilege	15	----	0	0
+privs	SeManageVolumePrivilege	15	----	1	0
+privs	SeProfileSingleProcessPrivilege	15	----	0	0
+privs	SeRelabelPrivilege	15	----	0	0
+privs	SeRemoteShutdownPrivilege	15	1529	1	0
+privs	SeRestorePrivilege	15	----	1	0
+privs	SeSecurityPrivilege	15	----	1	0
+privs	SeShutdownPrivilege	15	1529	1	0
+privs	SeSyncAgentPrivilege	15	----	0	0
+privs	SeSystemEnvironmentPrivilege	15	1542	1	0
+privs	SeSystemProfilePrivilege	15	----	0	0
+privs	SeSystemtimePrivilege	15	----	0	0
+privs	SeTakeOwnershipPrivilege	15	1222	1	0
+privs	SeTcbPrivilege	15	1134	1	0
+privs	SeTimeZonePrivilege	15	----	0	0
+privs	SeTrustedCredManAccessPrivilege	15	1555	1	0
+privs	SeUndockPrivilege	15	----	0	0
+privs	SeUnsolicitedInputPrivilege	15	----	0	0
+privs	SeInteractiveLogonRight	15	----	0	0
+privs	SeNetworkLogonRight	15	----	0	0
+privs	SeBatchLogonRight	15	----	0	0
+privs	SeServiceLogonRight	15	----	0	0
+privs	SeRemoteInteractiveLogonRight	15	----	0	0
+privs	SeDenyInteractiveLogonRight	15	----	0	0
+privs	SeDenyNetworkLogonRight	15	----	0	0
+privs	SeDenyBatchLogonRight	15	----	0	0
+privs	SeDenyServiceLogonRight	15	----	0	0
+privs	SeDenyRemoteInteractiveLogonRight	15	----	0	0
+
+# agents
+agents	Mozilla/	03	1071	1	0
+agents	curl/	03	1071	1	0
+agents	Wget/	03	1071	1	0
+agents	python-requests	03	1071	1	0
+agents	Python-urllib	03	1071	1	0
+agents	aiohttp/	03	1071	1	0
+agents	WinHTTP	03	1071	1	0
+agents	WinHttp-Autoproxy-Service	03	1071	1	0
+agents	Microsoft-CryptoAPI/	03	1071	1	0
+agents	Microsoft BITS/	03	1197	1	0
+agents	Go-http-client	03	1071	1	0
+agents	Java/	03	1071	1	0
+agents	okhttp/	03	1071	1	0
+agents	Apache-HttpClient/	03	1071	1	0
+agents	libwww-perl	03	1071	1	0
+agents	WindowsPowerShell/	03	1071	1	0
+agents	Embarcadero URI Client	03	1071	1	0
+agents	Indy Library	03	1071	1	0
+agents	NSISDL/	03	1071	1	0
+agents	Nim httpclient	03	1071	1	0
+agents	node-fetch	03	1071	1	0
+agents	axios/	03	1071	1	0
+agents	HTTPie/	03	1071	1	0
+agents	Dalvik/	03	1071	1	0
+agents	AppleWebKit/	03	1071	1	0
+agents	Gecko/	03	1071	1	0
+agents	Trident/	03	1071	1	0
+agents	(compatible; MSIE	03	1071	1	0
+agents	Chrome/	03	1071	1	0
+agents	Firefox/	03	1071	1	0
+agents	Safari/	03	1071	1	0
+agents	Edg/	03	1071	1	0
+agents	Opera/	03	1071	1	0
+
+# exts
+exts	exe	06	----	1	0
+exts	dll	06	----	0	0
+exts	sys	06	----	1	0
+exts	drv	06	----	1	0
+exts	efi	06	----	1	0
+exts	scr	06	----	1	0
+exts	cpl	06	----	1	0
+exts	ocx	06	----	1	0
+exts	pif	06	----	1	0
+exts	bat	06	1059	1	0
+exts	cmd	06	1059	1	0
+exts	ps1	06	1059	1	0
+exts	psm1	06	1059	1	0
+exts	psd1	06	----	0	0
+exts	vbs	06	1059	1	0
+exts	vbe	06	1059	1	0
+exts	js	06	1059	1	0
+exts	jse	06	1059	1	0
+exts	wsf	06	1059	1	0
+exts	wsh	06	1059	1	0
+exts	hta	06	1218	1	0
+exts	sct	06	1218	1	0
+exts	lnk	06	----	1	0
+exts	url	06	----	1	0
+exts	scf	06	----	1	0
+exts	inf	06	----	1	0
+exts	reg	06	1112	1	0
+exts	msi	06	1218	1	0
+exts	msp	06	----	1	0
+exts	msc	06	----	1	0
+exts	appx	06	----	0	0
+exts	msix	06	----	0	0
+exts	appref-ms	06	----	1	0
+exts	gadget	06	----	1	0
+exts	jar	06	----	1	0
+exts	class	06	----	0	0
+exts	py	06	----	0	0
+exts	pyc	06	----	0	0
+exts	pl	06	----	0	0
+exts	rb	06	----	0	0
+exts	sh	06	----	0	0
+exts	chm	06	1218	1	0
+exts	xll	06	1137	1	0
+exts	wll	06	1137	1	0
+exts	iqy	06	----	1	0
+exts	slk	06	----	1	0
+exts	one	06	----	1	0
+exts	doc	06	----	0	0
+exts	docx	06	----	0	0
+exts	docm	06	----	1	0
+exts	dot	06	----	0	0
+exts	dotm	06	----	1	0
+exts	xls	06	----	0	0
+exts	xlsx	06	----	0	0
+exts	xlsm	06	----	1	0
+exts	xlsb	06	----	0	0
+exts	xltm	06	----	1	0
+exts	xlam	06	----	1	0
+exts	ppt	06	----	0	0
+exts	pptx	06	----	0	0
+exts	pptm	06	----	1	0
+exts	potm	06	----	1	0
+exts	ppam	06	----	1	0
+exts	ppsm	06	----	1	0
+exts	rtf	06	----	0	0
+exts	pdf	06	----	0	0
+exts	iso	06	1553	1	0
+exts	img	06	1553	1	0
+exts	vhd	06	1553	1	0
+exts	vhdx	06	1553	1	0
+exts	zip	06	----	0	0
+exts	rar	06	----	0	0
+exts	7z	06	----	0	0
+exts	cab	06	----	0	0
+exts	gz	06	----	0	0
+exts	tar	06	----	0	0
+exts	ace	06	----	0	0
+exts	arj	06	----	0	0
+exts	tmp	06	----	0	0
+exts	dat	06	----	0	0
+exts	log	06	----	0	0
+exts	txt	06	----	0	0
+exts	ini	06	----	0	0
+exts	cfg	06	----	0	0
+exts	xml	06	----	0	0
+exts	json	06	----	0	0
+exts	db	06	----	0	0
+exts	sqlite	06	----	0	0
+exts	bak	06	----	0	0
+exts	dmp	06	----	0	0
+exts	evtx	06	----	0	0
+exts	pfx	06	----	0	0
+exts	p12	06	----	0	0
+exts	pem	06	----	0	0
+exts	kdbx	06	1555	1	0
+exts	locked	06	1486	1	0
+exts	encrypted	06	1486	1	0
+exts	crypt	06	1486	1	0
+
+# regs
+regs	HKEY_LOCAL_MACHINE	01	----	0	0
+regs	HKEY_CURRENT_USER	01	----	0	0
+regs	HKEY_CLASSES_ROOT	01	----	0	0
+regs	HKEY_USERS	01	----	0	0
+regs	HKLM\	01	----	0	0
+regs	HKCU\	01	----	0	0
+regs	CurrentVersion\Run	01	1547	1	0
+regs	CurrentVersion\RunOnce	01	1547	1	0
+regs	CurrentVersion\RunOnceEx	01	1547	1	0
+regs	CurrentVersion\RunServices	01	1547	1	0
+regs	CurrentVersion\Policies\Explorer\Run	01	1547	1	0
+regs	Explorer\StartupApproved	01	1547	1	0
+regs	CurrentVersion\Windows\Load	01	1547	1	0
+regs	CurrentVersion\Windows\Run	01	1547	1	0
+regs	Winlogon\Shell	01	1547	1	0
+regs	Winlogon\Userinit	01	1547	1	0
+regs	Winlogon\Notify	01	1547	1	0
+regs	CurrentVersion\Winlogon	01	1547	1	0
+regs	Control\Session Manager\BootExecute	01	1547	1	0
+regs	Authentication Packages	01	1547	1	0
+regs	Security Packages	01	1547	1	0
+regs	Notification Packages	01	1556	1	0
+regs	Control\Print\Monitors	01	1547	1	0
+regs	ShellServiceObjectDelayLoad	01	1547	1	0
+regs	Active Setup\Installed Components	01	1547	1	0
+regs	Explorer\User Shell Folders	01	1547	1	0
+regs	Explorer\Shell Folders	01	----	0	0
+regs	Image File Execution Options	01	1546	1	0
+regs	SilentProcessExit	01	1546	1	0
+regs	AppInit_DLLs	01	1546	1	0
+regs	AppCertDlls	01	1546	1	0
+regs	Command Processor\AutoRun	01	1546	1	0
+regs	Software\Microsoft\Netsh	01	1546	1	0
+regs	Software\Classes\exefile\shell\open\command	01	1546	1	0
+regs	Software\Classes\ms-settings\shell\open\command	01	1548	1	0
+regs	Software\Classes\mscfile\shell\open\command	01	1548	1	0
+regs	Software\Classes\Folder\shell\open\command	01	1548	1	0
+regs	\shell\open\command	01	1546	1	0
+regs	InprocServer32	01	----	0	0
+regs	Explorer\Browser Helper Objects	01	1176	1	0
+regs	Environment\UserInitMprLogonScript	01	1037	1	0
+regs	Group Policy\Scripts	01	1037	1	0
+regs	Office test\Special\Perf	01	1137	1	0
+regs	CurrentControlSet\Services	01	1543	1	0
+regs	Control\Session Manager\KnownDLLs	01	1574	1	0
+regs	PendingFileRenameOperations	01	----	1	0
+regs	Authentication\Credential Providers	01	1556	1	0
+regs	NetworkProvider\Order	01	1556	1	0
+regs	Schedule\TaskCache	01	1053	1	0
+regs	Windows Defender\Exclusions	01	1562	1	0
+regs	Microsoft\Windows Defender	01	1562	1	0
+regs	DisableAntiSpyware	01	1562	1	0
+regs	DisableRealtimeMonitoring	01	1562	1	0
+regs	DisableBehaviorMonitoring	01	1562	1	0
+regs	Microsoft\Windows Script\Settings\AmsiEnable	01	1562	1	0
+regs	Control\WMI\Autologger	01	1562	1	0
+regs	WINEVT\Channels	01	1562	1	0
+regs	Services\EventLog	01	1562	1	0
+regs	Policies\Microsoft\Windows\WindowsUpdate	01	1562	1	0
+regs	SafeBoot	01	1562	1	0
+regs	RunAsPPL	01	1562	1	0
+regs	VBAWarnings	01	1562	1	0
+regs	AccessVBOM	01	1112	1	0
+regs	CurrentVersion\Policies\System	01	1548	1	0
+regs	EnableLUA	01	1548	1	0
+regs	ConsentPromptBehaviorAdmin	01	1548	1	0
+regs	LocalAccountTokenFilterPolicy	01	1112	1	0
+regs	DisableTaskMgr	01	1112	1	0
+regs	DisableRegistryTools	01	1112	1	0
+regs	DisableCMD	01	1112	1	0
+regs	Control\SecurityProviders\WDigest	01	1003	1	0
+regs	UseLogonCredential	01	1003	1	0
+regs	SAM\SAM\Domains\Account	01	1003	1	0
+regs	SECURITY\Policy\Secrets	01	1003	1	0
+regs	Control\Lsa	01	1112	1	0
+regs	Terminal Server	01	1021	1	0
+regs	fDenyTSConnections	01	1021	1	0
+regs	Software\SimonTatham\PuTTY\Sessions	01	1552	1	0
+regs	Software\Martin Prikryl\WinSCP 2\Sessions	01	1552	1	0
+regs	CurrentVersion\Uninstall	01	1518	1	0
+regs	Microsoft\Cryptography	01	1082	1	0
+regs	HARDWARE\DESCRIPTION\System	01	1082	1	0
+regs	SystemBiosVersion	01	1497	1	0
+regs	VideoBiosVersion	01	1497	1	0
+regs	HARDWARE\ACPI\DSDT\VBOX__	01	1497	1	0
+regs	HARDWARE\ACPI\FADT\VBOX__	01	1497	1	0
+regs	HARDWARE\ACPI\RSDT\VBOX__	01	1497	1	0
+regs	SOFTWARE\Oracle\VirtualBox Guest Additions	01	1497	1	0
+regs	SOFTWARE\VMware, Inc.\VMware Tools	01	1497	1	0
+regs	CurrentControlSet\Enum\IDE	01	1497	1	0
+regs	Services\Disk\Enum	01	1497	1	0
+regs	Software\Wine	01	1497	1	0
+regs	Internet Settings	01	----	0	0
+regs	Software\Microsoft\Office\	01	----	0	0
+regs	Explorer\RecentDocs	01	----	0	0
+regs	Control\Session Manager\Environment	01	----	0	0
+regs	CurrentVersion\App Paths	01	----	0	0
+regs	Windows NT\CurrentVersion	01	----	0	0
+regs	Wow6432Node	01	----	0	0
+
+# folders
+folders	%TEMP%	06	----	1	0
+folders	%TMP%	06	----	1	0
+folders	%APPDATA%	06	----	1	0
+folders	%LOCALAPPDATA%	06	----	1	0
+folders	%PROGRAMDATA%	06	----	1	0
+folders	%ALLUSERSPROFILE%	06	----	1	0
+folders	%USERPROFILE%	06	----	0	0
+folders	%PUBLIC%	06	----	1	0
+folders	%WINDIR%	06	----	0	0
+folders	%SystemRoot%	06	----	0	0
+folders	%SystemDrive%	06	----	0	0
+folders	%ProgramFiles%	06	----	0	0
+folders	%CommonProgramFiles%	06	----	0	0
+folders	%ComSpec%	02	1059	1	0
+folders	\AppData\Roaming\	06	----	1	0
+folders	\AppData\Local\Temp\	06	----	1	0
+folders	\AppData\LocalLow\	06	----	1	0
+folders	\AppData\Local\	06	----	0	0
+folders	\Start Menu\Programs\Startup	06	1547	1	0
+folders	\Startup\	06	1547	1	0
+folders	\ProgramData\	06	----	1	0
+folders	\Windows\Temp\	06	----	1	0
+folders	\Temp\	06	----	1	0
+folders	\Users\Public\	06	----	1	0
+folders	\System32\drivers\	06	----	1	0
+folders	\System32\Tasks\	06	1053	1	0
+folders	\System32\config\SAM	06	1003	1	0
+folders	\System32\config\SECURITY	06	1003	1	0
+folders	\System32\config\SYSTEM	06	1003	1	0
+folders	\NTDS\ntds.dit	06	1003	1	0
+folders	\Device\HarddiskVolumeShadowCopy	18	1003	1	0
+folders	\GLOBALROOT\Device\	18	----	1	0
+folders	\\.\PhysicalDrive	18	1561	1	0
+folders	\\.\pipe\	08	1559	1	0
+folders	\System32\	06	----	0	0
+folders	\SysWOW64\	06	----	0	0
+folders	\Microsoft.NET\Framework	06	----	0	0
+folders	\Program Files\	06	----	0	0
+folders	\Program Files (x86)\	06	----	0	0
+folders	$Recycle.Bin	06	----	1	0
+folders	\RECYCLER\	06	----	1	0
+folders	\Desktop\	06	----	0	0
+folders	\Documents\	06	----	0	0
+folders	\Downloads\	06	----	0	0
+folders	\Microsoft\Windows\Recent\	06	----	0	0
+folders	\inetpub\wwwroot\	06	1505	1	0
+folders	\Microsoft\Credentials\	06	1555	1	0
+folders	\Microsoft\Protect\	06	1555	1	0
+folders	\Microsoft\Vault\	06	1555	1	0
+folders	\Google\Chrome\User Data	06	1555	1	0
+folders	\Microsoft\Edge\User Data	06	1555	1	0
+folders	\BraveSoftware\Brave-Browser\User Data	06	1555	1	0
+folders	\Yandex\YandexBrowser\User Data	06	1555	1	0
+folders	\Opera Software\Opera Stable	06	1555	1	0
+folders	\Mozilla\Firefox\Profiles	06	1555	1	0
+folders	\Thunderbird\Profiles	06	1555	1	0
+folders	\Login Data	06	1555	1	0
+folders	\Local State	06	1555	1	0
+folders	\Web Data	06	1555	1	0
+folders	logins.json	06	1555	1	0
+folders	key4.db	06	1555	1	0
+folders	key3.db	06	1555	1	0
+folders	signons.sqlite	06	1555	1	0
+folders	cookies.sqlite	06	1539	1	0
+folders	\Network\Cookies	06	1539	1	0
+folders	\Telegram Desktop\tdata	06	1552	1	0
+folders	\discord\Local Storage\leveldb	06	1528	1	0
+folders	\FileZilla\recentservers.xml	06	1552	1	0
+folders	\FileZilla\sitemanager.xml	06	1552	1	0
+folders	\.ssh\	06	1552	1	0
+folders	\Electrum\wallets	06	1005	1	0
+folders	\Ethereum\keystore	06	1005	1	0
+folders	\Exodus\exodus.wallet	06	1005	1	0
+folders	\atomic\Local Storage	06	1005	1	0
+folders	\Bitcoin\wallets	06	1005	1	0
+folders	wallet.dat	06	1005	1	0
+
+# offices
+offices	AutoOpen	02	1059	1	0
+offices	Auto_Open	02	1059	1	0
+offices	AutoClose	02	1059	1	0
+offices	Auto_Close	02	1059	1	0
+offices	AutoExec	02	1059	1	0
+offices	AutoNew	02	1059	1	0
+offices	AutoExit	02	1059	1	0
+offices	Document_Open	02	1059	1	0
+offices	Document_Close	02	1059	1	0
+offices	Document_New	02	1059	1	0
+offices	Document_BeforeClose	02	1059	1	0
+offices	Workbook_Open	02	1059	1	0
+offices	Workbook_Activate	02	1059	1	0
+offices	Workbook_BeforeClose	02	1059	1	0
+offices	Presentation_Open	02	----	0	0
+offices	ExecuteExcel4Macro	02	1059	1	0
+offices	DDEAUTO	02	1559	1	0
+offices	Declare PtrSafe Function	09	1106	1	0
+offices	Lib "kernel32"	09	1106	1	0
+offices	Lib "user32"	09	1106	1	0
+offices	Lib "urlmon"	09	1105	1	0
+offices	CallByName	02	----	1	0
+offices	StrReverse	10	1027	1	0
+offices	CreateObject	21	1559	1	0
+offices	GetObject	21	1559	1	0
+offices	WScript.Shell	21	1059	1	0
+offices	WScript.Network	21	1016	1	0
+offices	Shell.Application	21	1059	1	0
+offices	Scripting.FileSystemObject	21	----	1	0
+offices	MSXML2.XMLHTTP	21	1105	1	0
+offices	MSXML2.ServerXMLHTTP	21	1105	1	0
+offices	Microsoft.XMLHTTP	21	1105	1	0
+offices	WinHttp.WinHttpRequest	21	1105	1	0
+offices	ADODB.Stream	21	1105	1	0
+offices	SaveToFile	06	1105	1	0
+offices	ResponseBody	03	1105	1	0
+offices	Msxml2.DOMDocument	21	----	0	0
+offices	InternetExplorer.Application	21	1071	1	0
+offices	Schedule.Service	21	1053	1	0
+offices	MMC20.Application	21	1021	1	0
+offices	Outlook.Application	21	1114	1	0
+offices	Excel.Application	21	----	0	0
+offices	Word.Application	21	----	0	0
+offices	PowerPoint.Application	21	----	0	0
+offices	winmgmts:	21	1047	1	0
+offices	ThisDocument	21	----	0	0
+offices	ThisWorkbook	21	----	0	0
+offices	Attribute VB_Name	21	----	0	0
+
+# utils
+utils	cmd	02	1059	1	0
+utils	powershell	02	1059	1	0
+utils	powershell_ise	02	1059	1	0
+utils	pwsh	02	1059	1	0
+utils	wscript	02	1059	1	0
+utils	cscript	02	1059	1	0
+utils	mshta	02	1218	1	0
+utils	rundll32	02	1218	1	0
+utils	regsvr32	02	1218	1	0
+utils	msiexec	02	1218	1	0
+utils	installutil	02	1218	1	0
+utils	regasm	02	1218	1	0
+utils	regsvcs	02	1218	1	0
+utils	cmstp	02	1218	1	0
+utils	odbcconf	02	1218	1	0
+utils	mavinject	02	1218	1	0
+utils	msdt	02	1218	1	0
+utils	presentationhost	02	1218	1	0
+utils	ieexec	02	1218	1	0
+utils	infdefaultinstall	02	1218	1	0
+utils	xwizard	02	1218	1	0
+utils	verclsid	02	1218	1	0
+utils	hh	02	1218	1	0
+utils	syncappvpublishingserver	02	1216	1	0
+utils	msxsl	02	1220	1	0
+utils	msbuild	02	1127	1	0
+utils	forfiles	02	1202	1	0
+utils	pcalua	02	1202	1	0
+utils	scriptrunner	02	1202	1	0
+utils	wsl	02	1202	1	0
+utils	autoit3	02	1059	1	0
+utils	nircmd	02	----	1	0
+utils	certutil	02	1105	1	0
+utils	bitsadmin	02	1197	1	0
+utils	curl	03	1105	1	0
+utils	wget	03	1105	1	0
+utils	tftp	03	1105	1	0
+utils	finger	03	1105	1	0
+utils	extrac32	06	1105	1	0
+utils	mpcmdrun	02	1105	1	0
+utils	vssadmin	18	1490	1	0
+utils	wbadmin	18	1490	1	0
+utils	bcdedit	18	1490	1	0
+utils	diskshadow	18	1003	1	0
+utils	wevtutil	16	1070	1	0
+utils	fsutil	18	1070	1	0
+utils	auditpol	15	1562	1	0
+utils	wmic	02	1047	1	0
+utils	schtasks	02	1053	1	0
+utils	sc	17	1543	1	0
+utils	net	07	1087	1	0
+utils	net1	07	1087	1	0
+utils	netsh	03	1562	1	0
+utils	reg	01	1112	1	0
+utils	regedit	01	1112	1	0
+utils	regini	01	1112	1	0
+utils	takeown	15	1222	1	0
+utils	icacls	15	1222	1	0
+utils	cacls	15	1222	1	0
+utils	attrib	06	1564	1	0
+utils	cipher	06	1485	1	0
+utils	sdelete	06	1485	1	0
+utils	taskkill	02	1489	1	0
+utils	shutdown	02	1529	1	0
+utils	tar	06	1560	1	0
+utils	makecab	06	1560	1	0
+utils	7z	06	1560	1	0
+utils	7za	06	1560	1	0
+utils	winrar	06	1560	1	0
+utils	rclone	03	1567	1	0
+utils	whoami	07	1033	1	0
+utils	quser	07	1033	1	0
+utils	qwinsta	07	1033	1	0
+utils	systeminfo	07	1082	1	0
+utils	hostname	07	1082	1	0
+utils	tasklist	07	1057	1	0
+utils	ipconfig	07	1016	1	0
+utils	arp	07	1016	1	0
+utils	nslookup	07	1016	1	0
+utils	netstat	07	1049	1	0
+utils	ping	07	1018	1	0
+utils	nltest	07	1482	1	0
+utils	dsquery	07	1087	1	0
+utils	adfind	07	1087	1	0
+utils	gpresult	07	1615	1	0
+utils	klist	15	1558	1	0
+utils	setspn	15	1558	1	0
+utils	cmdkey	15	1555	1	0
+utils	vaultcmd	15	1555	1	0
+utils	ntdsutil	15	1003	1	0
+utils	esentutl	06	1003	1	0
+utils	procdump	16	1003	1	0
+utils	lsass	15	1003	1	0
+utils	mimikatz	15	1003	1	1
+utils	rubeus	15	1558	1	1
+utils	lazagne	15	1555	1	1
+utils	sharphound	07	1087	1	1
+utils	bloodhound	07	1087	1	0
+utils	psexec	02	1569	1	0
+utils	psexesvc	02	1569	1	0
+utils	paexec	02	1569	1	0
+utils	winrm	02	1021	1	0
+utils	winrs	02	1021	1	0
+utils	ncat	03	1095	1	0
+utils	netcat	03	1095	1	0
+utils	plink	03	1572	1	0
+utils	ngrok	03	1572	1	0
+utils	anydesk	03	1219	1	0
+utils	teamviewer	03	1219	1	0
+utils	screenconnect	03	1219	1	0
+utils	fodhelper	02	1548	1	0
+utils	computerdefaults	02	1548	1	0
+utils	eventvwr	02	1548	1	0
+utils	sdclt	02	1548	1	0
+utils	slui	02	1548	1	0
+utils	sethc	02	1546	1	0
+utils	utilman	02	1546	1	0
+utils	osk	02	1546	1	0
+utils	magnify	02	1546	1	0
+utils	narrator	02	1546	1	0
+utils	displayswitch	02	1546	1	0
+utils	explorer	20	----	0	0
+
+# stubs
+stubs	!This program cannot be run in DOS mode.	--	----	0	0
+stubs	This program cannot be run in DOS mode.	--	----	0	0
+stubs	This program must be run under Win32	--	----	0	0
+stubs	This program requires Microsoft Windows.	--	----	0	0
+
+# strings
+strings	IsDebuggerPresent	16	1622	1	0
+strings	CheckRemoteDebuggerPresent	16	1622	1	0
+strings	NtQueryInformationProcess	16	1622	1	0
+strings	NtSetInformationThread	16	1622	1	0
+strings	ZwSetInformationThread	16	1622	1	0
+strings	OutputDebugStringA	16	1622	1	0
+strings	NtQuerySystemInformation	07	1082	1	0
+strings	DbgUiRemoteBreakin	16	1622	1	0
+strings	VirtualAlloc	05	----	1	0
+strings	VirtualProtect	05	----	1	0
+strings	VirtualAllocEx	05	1055	1	0
+strings	WriteProcessMemory	05	1055	1	0
+strings	CreateRemoteThread	02	1055	1	0
+strings	NtCreateThreadEx	02	1055	1	0
+strings	RtlCreateUserThread	02	1055	1	0
+strings	QueueUserAPC	02	1055	1	0
+strings	NtQueueApcThread	02	1055	1	0
+strings	SetThreadContext	02	1055	1	0
+strings	ResumeThread	02	1055	1	0
+strings	NtUnmapViewOfSection	05	1055	1	0
+strings	ZwUnmapViewOfSection	05	1055	1	0
+strings	NtMapViewOfSection	05	1055	1	0
+strings	NtWriteVirtualMemory	05	1055	1	0
+strings	NtAllocateVirtualMemory	05	1055	1	0
+strings	NtProtectVirtualMemory	05	1055	1	0
+strings	SetWindowsHookExA	14	1056	1	0
+strings	SetWindowsHookExW	14	1056	1	0
+strings	GetAsyncKeyState	13	1056	1	0
+strings	GetKeyboardState	13	1056	1	0
+strings	CreateToolhelp32Snapshot	07	1057	1	0
+strings	Process32First	07	1057	1	0
+strings	Process32Next	07	1057	1	0
+strings	LoadLibraryA	09	----	0	0
+strings	GetProcAddress	09	----	0	0
+strings	LdrLoadDll	09	1106	1	0
+strings	URLDownloadToFileA	03	1105	1	0
+strings	URLDownloadToFileW	03	1105	1	0
+strings	WinExec	02	1059	1	0
+strings	CreateProcessAsUserA	15	1134	1	0
+strings	CreateProcessAsUserW	15	1134	1	0
+strings	CreateProcessWithTokenW	15	1134	1	0
+strings	ImpersonateLoggedOnUser	15	1134	1	0
+strings	DuplicateTokenEx	15	1134	1	0
+strings	AdjustTokenPrivileges	15	1134	1	0
+strings	MiniDumpWriteDump	16	1003	1	0
+strings	CryptEncrypt	04	----	1	0
+strings	BCryptEncrypt	04	----	1	0
+strings	AmsiScanBuffer	15	1562	1	0
+strings	AmsiScanString	15	1562	1	0
+strings	AmsiInitialize	15	1562	1	0
+strings	AmsiOpenSession	15	1562	1	0
+strings	amsi.dll	15	1562	1	0
+strings	EtwEventWrite	15	1562	1	0
+strings	EtwEventWriteFull	15	1562	1	0
+strings	NtTraceEvent	15	1562	1	0
+strings	SbieDll.dll	16	1497	1	0
+strings	api_log.dll	16	1497	1	0
+strings	dir_watch.dll	16	1497	1	0
+strings	pstorec.dll	16	1497	1	0
+strings	vmcheck.dll	16	1497	1	0
+strings	wpespy.dll	16	1497	1	0
+strings	cmdvrt32.dll	16	1497	1	0
+strings	cmdvrt64.dll	16	1497	1	0
+strings	SxIn.dll	16	1497	1	0
+strings	cuckoomon.dll	16	1497	1	0
+strings	avghookx.dll	16	1497	1	0
+strings	avghooka.dll	16	1497	1	0
+strings	snxhk.dll	16	1497	1	0
+strings	VBoxService.exe	16	1497	1	0
+strings	VBoxTray.exe	16	1497	1	0
+strings	VBoxControl.exe	16	1497	1	0
+strings	VBoxHook.dll	16	1497	1	0
+strings	VBoxMouse.sys	16	1497	1	0
+strings	VBoxGuest.sys	16	1497	1	0
+strings	VBoxSF.sys	16	1497	1	0
+strings	VBoxVideo.sys	16	1497	1	0
+strings	\\.\VBoxGuest	16	1497	1	0
+strings	\\.\VBoxMiniRdrDN	16	1497	1	0
+strings	\\.\VBoxTrayIPC	16	1497	1	0
+strings	vmtoolsd.exe	16	1497	1	0
+strings	vmwaretray.exe	16	1497	1	0
+strings	vmwareuser.exe	16	1497	1	0
+strings	VGAuthService.exe	16	1497	1	0
+strings	vmacthlp.exe	16	1497	1	0
+strings	vmmouse.sys	16	1497	1	0
+strings	vmhgfs.sys	16	1497	1	0
+strings	vm3dmp.sys	16	1497	1	0
+strings	\\.\HGFS	16	1497	1	0
+strings	\\.\vmci	16	1497	1	0
+strings	vmsrvc.exe	16	1497	1	0
+strings	vmusrvc.exe	16	1497	1	0
+strings	prl_cc.exe	16	1497	1	0
+strings	prl_tools.exe	16	1497	1	0
+strings	xenservice.exe	16	1497	1	0
+strings	qemu-ga.exe	16	1497	1	0
+strings	VMware	16	1497	1	0
+strings	VMware Virtual Platform	16	1497	1	0
+strings	VMware, Inc.	16	1497	1	0
+strings	VMwareVMware	16	1497	1	0
+strings	VBOX	16	1497	1	0
+strings	VBoxVBoxVBox	16	1497	1	0
+strings	VirtualBox	16	1497	1	0
+strings	innotek GmbH	16	1497	1	0
+strings	QEMU	16	1497	1	0
+strings	QEMU HARDDISK	16	1497	1	0
+strings	BOCHS	16	1497	1	0
+strings	KVMKVMKVM	16	1497	1	0
+strings	XenVMMXenVMM	16	1497	1	0
+strings	Microsoft Hv	16	1497	1	0
+strings	SandboxieRpcSs.exe	16	1497	1	0
+strings	SandboxieDcomLaunch.exe	16	1497	1	0
+strings	joeboxserver.exe	16	1497	1	0
+strings	joeboxcontrol.exe	16	1497	1	0
+strings	SANDBOX	16	1497	1	0
+strings	wireshark.exe	16	1497	1	0
+strings	dumpcap.exe	16	1497	1	0
+strings	procmon.exe	16	1497	1	0
+strings	procmon64.exe	16	1497	1	0
+strings	procexp.exe	16	1497	1	0
+strings	procexp64.exe	16	1497	1	0
+strings	ProcessHacker.exe	16	1497	1	0
+strings	tcpview.exe	16	1497	1	0
+strings	autoruns.exe	16	1497	1	0
+strings	autorunsc.exe	16	1497	1	0
+strings	filemon.exe	16	1497	1	0
+strings	regmon.exe	16	1497	1	0
+strings	Sysmon.exe	16	1518	1	0
+strings	Sysmon64.exe	16	1518	1	0
+strings	fiddler.exe	16	1497	1	0
+strings	HTTPDebuggerUI.exe	16	1497	1	0
+strings	idaq.exe	16	1622	1	0
+strings	idaq64.exe	16	1622	1	0
+strings	ida.exe	16	1622	1	0
+strings	ida64.exe	16	1622	1	0
+strings	ollydbg.exe	16	1622	1	0
+strings	x32dbg.exe	16	1622	1	0
+strings	x64dbg.exe	16	1622	1	0
+strings	windbg.exe	16	1622	1	0
+strings	ImmunityDebugger.exe	16	1622	1	0
+strings	dnSpy.exe	16	1622	1	0
+strings	de4dot.exe	16	1622	1	0
+strings	ILSpy.exe	16	1622	1	0
+strings	PEiD.exe	16	1622	1	0
+strings	LordPE.exe	16	1622	1	0
+strings	ImportREC.exe	16	1622	1	0
+strings	pestudio.exe	16	1622	1	0
+strings	x64dbg	16	1622	1	0
+strings	x32dbg	16	1622	1	0
+strings	ollydbg	16	1622	1	0
+strings	IDA	16	1622	1	0
+strings	WinDbgFrameClass	16	1622	1	0
+strings	\\.\SICE	16	1622	1	0
+strings	\\.\NTICE	16	1622	1	0
+strings	\\.\SIWVID	16	1622	1	0
+strings	SELECT * FROM Win32_Process	07	1047	1	0
+strings	SELECT * FROM Win32_OperatingSystem	07	1082	1	0
+strings	SELECT * FROM Win32_ComputerSystem	07	1082	1	0
+strings	SELECT * FROM Win32_ComputerSystemProduct	07	1082	1	0
+strings	SELECT * FROM Win32_Processor	07	1082	1	0
+strings	SELECT * FROM Win32_PhysicalMemory	07	1082	1	0
+strings	SELECT * FROM Win32_LogicalDisk	07	1082	1	0
+strings	SELECT * FROM Win32_BIOS	07	1497	1	0
+strings	SELECT * FROM Win32_BaseBoard	07	1497	1	0
+strings	SELECT * FROM Win32_DiskDrive	07	1497	1	0
+strings	SELECT * FROM Win32_VideoController	07	1497	1	0
+strings	SELECT * FROM Win32_PnPEntity	07	1120	1	0
+strings	SELECT * FROM Win32_NetworkAdapterConfiguration	07	1016	1	0
+strings	SELECT * FROM Win32_Product	07	1518	1	0
+strings	SELECT * FROM Win32_UserAccount	07	1087	1	0
+strings	SELECT * FROM Win32_Service	07	1007	1	0
+strings	SELECT * FROM Win32_ShadowCopy	18	1490	1	0
+strings	SELECT * FROM AntiVirusProduct	07	1518	1	0
+strings	SELECT * FROM AntiSpywareProduct	07	1518	1	0
+strings	SELECT * FROM FirewallProduct	07	1518	1	0
+strings	Win32_Process	07	1047	1	0
+strings	Win32_ComputerSystem	07	1082	1	0
+strings	Win32_OperatingSystem	07	1082	1	0
+strings	Win32_BIOS	07	1082	1	0
+strings	Win32_Service	07	1007	1	0
+strings	Win32_ShadowCopy	18	1490	1	0
+strings	AntiVirusProduct	07	1518	1	0
+strings	root\SecurityCenter	07	1518	1	0
+strings	root\SecurityCenter2	07	1518	1	0
+strings	root\cimv2	07	1047	1	0
+strings	root\subscription	07	1546	1	0
+strings	winmgmts:\\.\root\cimv2	07	1047	1	0
+strings	__EventFilter	02	1546	1	0
+strings	__FilterToConsumerBinding	02	1546	1	0
+strings	CommandLineEventConsumer	02	1546	1	0
+strings	ActiveScriptEventConsumer	02	1546	1	0
+strings	vssadmin delete shadows	18	1490	1	1
+strings	vssadmin delete shadows /all /quiet	18	1490	1	1
+strings	vssadmin.exe delete shadows /all /quiet	18	1490	1	1
+strings	vssadmin resize shadowstorage	18	1490	1	1
+strings	wmic shadowcopy delete	18	1490	1	1
+strings	bcdedit /set {default} recoveryenabled no	18	1490	1	1
+strings	bcdedit /set {default} bootstatuspolicy ignoreallfailures	18	1490	1	1
+strings	wbadmin delete catalog -quiet	18	1490	1	1
+strings	wbadmin delete systemstatebackup	18	1490	1	1
+strings	wevtutil cl	16	1070	1	0
+strings	wevtutil cl System	16	1070	1	0
+strings	wevtutil cl Security	16	1070	1	0
+strings	wevtutil cl Application	16	1070	1	0
+strings	fsutil usn deletejournal	16	1070	1	0
+strings	netsh advfirewall set allprofiles state off	15	1562	1	0
+strings	netsh firewall set opmode disable	15	1562	1	0
+strings	Set-MpPreference	15	1562	1	0
+strings	Add-MpPreference	15	1562	1	0
+strings	-DisableRealtimeMonitoring	15	1562	1	0
+strings	-ExclusionPath	15	1562	1	0
+strings	-EncodedCommand	02	1059	1	0
+strings	-ExecutionPolicy Bypass	02	1059	1	0
+strings	-ep bypass	02	1059	1	0
+strings	-WindowStyle Hidden	02	1564	1	0
+strings	-w hidden	02	1564	1	0
+strings	-NoProfile	02	1059	1	0
+strings	-NonInteractive	02	1059	1	0
+strings	FromBase64String	10	1140	1	0
+strings	ToBase64String	10	1132	1	0
+strings	Invoke-Expression	02	1059	1	0
+strings	IEX	02	1059	1	0
+strings	DownloadString	03	1105	1	0
+strings	DownloadFile	03	1105	1	0
+strings	DownloadData	03	1105	1	0
+strings	Net.WebClient	03	1105	1	0
+strings	System.Net.WebClient	03	1105	1	0
+strings	Invoke-WebRequest	03	1105	1	0
+strings	Invoke-RestMethod	03	1071	1	0
+strings	Start-BitsTransfer	03	1197	1	0
+strings	Start-Process	02	1059	1	0
+strings	Add-Type	02	1027	1	0
+strings	[System.Reflection.Assembly]::Load	02	1620	1	0
+strings	Reflection.Assembly	02	1620	1	0
+strings	Invoke-Shellcode	02	1055	1	1
+strings	Invoke-Mimikatz	15	1003	1	1
+strings	Invoke-ReflectivePEInjection	02	1620	1	1
+strings	Invoke-DllInjection	02	1055	1	1
+strings	PowerSploit	02	1059	1	1
+strings	ReflectiveLoader	02	1620	1	1
+strings	cmd.exe /c	02	1059	1	0
+strings	cmd /c	02	1059	1	0
+strings	cmd.exe /k	02	1059	1	0
+strings	powershell.exe	02	1059	1	0
+strings	rundll32.exe	02	1218	1	0
+strings	regsvr32.exe	02	1218	1	0
+strings	mshta.exe	02	1218	1	0
+strings	schtasks /create	02	1053	1	0
+strings	/sc onlogon	02	1053	1	0
+strings	/ru SYSTEM	02	1053	1	0
+strings	sc create	17	1543	1	0
+strings	sc config	17	1543	1	0
+strings	sc stop	17	1489	1	0
+strings	net stop	17	1489	1	0
+strings	taskkill /f /im	02	1489	1	0
+strings	net user /add	15	1136	1	0
+strings	net localgroup administrators	07	1069	1	0
+strings	net group "Domain Admins" /domain	07	1069	1	0
+strings	net view	07	1135	1	0
+strings	net share	07	1135	1	0
+strings	net use	03	1021	1	0
+strings	reg add	01	1112	1	0
+strings	reg delete	01	1112	1	0
+strings	reg save hklm\sam	15	1003	1	1
+strings	reg save hklm\system	15	1003	1	1
+strings	reg save hklm\security	15	1003	1	1
+strings	attrib +h	06	1564	1	0
+strings	attrib +s +h	06	1564	1	0
+strings	takeown /f	15	1222	1	0
+strings	icacls . /grant Everyone:F /T /C /Q	15	1222	1	0
+strings	cipher /w	06	1485	1	0
+strings	rundll32.exe javascript:	02	1218	1	0
+strings	comsvcs.dll	15	1003	1	0
+strings	MiniDump	15	1003	1	0
+strings	lsass.exe	15	1003	1	0
+strings	Elevation:Administrator!new:	15	1548	1	0
+strings	sekurlsa::logonpasswords	15	1003	1	1
+strings	privilege::debug	15	1134	1	1
+strings	lsadump::sam	15	1003	1	1
+strings	lsadump::dcsync	15	1003	1	1
+strings	lsadump::secrets	15	1003	1	1
+strings	kerberos::golden	15	1558	1	1
+strings	kerberos::ptt	15	1550	1	1
+strings	gentilkiwi	15	1003	1	1
+strings	mimikatz	15	1003	1	1
+strings	mimilib.dll	15	1003	1	1
+strings	mimidrv.sys	15	1003	1	1
+strings	metsrv.dll	02	1059	1	1
+strings	beacon.dll	03	1071	1	1
+strings	beacon.x64.dll	03	1071	1	1
+strings	Your files have been encrypted	06	1486	1	1
+strings	All your files have been encrypted	06	1486	1	1
+strings	Your files are encrypted	06	1486	1	1
+strings	decrypt your files	06	1486	1	1
+strings	HOW_TO_DECRYPT.txt	06	1486	1	0
+strings	HOW_TO_RECOVER_FILES.txt	06	1486	1	0
+strings	README_TO_DECRYPT.txt	06	1486	1	0
+strings	DECRYPT_INSTRUCTIONS.txt	06	1486	1	0
+strings	RESTORE_FILES.txt	06	1486	1	0
+strings	Tor Browser	03	1090	1	0
+strings	torproject.org	03	1090	1	0
+strings	.onion	03	1090	1	0
+strings	bitcoin	--	----	1	0
+strings	wallet	--	----	1	0
+strings	monero	--	1496	1	0
+strings	xmrig	--	1496	1	1
+strings	stratum+tcp://	03	1496	1	1
+strings	cryptonight	--	1496	1	0
+strings	--donate-level	--	1496	1	1
+strings	keylog	13	1056	1	0
+strings	keylogger	13	1056	1	0
+strings	[ENTER]	13	1056	1	0
+strings	[BACKSPACE]	13	1056	1	0
+strings	[CAPSLOCK]	13	1056	1	0
+strings	password	15	----	1	0
+strings	passwd	15	----	1	0
+strings	credential	15	----	1	0
+strings	smtp.gmail.com	03	1048	1	0
+strings	api.telegram.org	03	1102	1	0
+strings	discord.com/api/webhooks	03	1102	1	0
+strings	discordapp.com/api/webhooks	03	1102	1	0
+strings	pastebin.com	03	1102	1	0
+strings	raw.githubusercontent.com	03	1102	1	0
+strings	ngrok.io	03	1572	1	0
+strings	transfer.sh	03	1567	1	0
+strings	api.ipify.org	07	1016	1	0
+strings	ipinfo.io	07	1016	1	0
+strings	checkip.dyndns.org	07	1016	1	0
+strings	icanhazip.com	07	1016	1	0
+strings	ip-api.com	07	1016	1	0
+strings	wtfismyip.com	07	1016	1	0
+strings	\\.\PhysicalDrive0	18	1561	1	0
+strings	\\.\C:	18	1006	1	0
+strings	\Device\HarddiskVolume	18	----	0	0
+strings	\Device\PhysicalMemory	18	----	1	0
+strings	ConfusedByAttribute	10	1027	1	0
+strings	DotfuscatorAttribute	10	1027	1	0
+strings	SmartAssembly.Attributes.PoweredByAttribute	10	1027	1	0
+strings	BabelObfuscatorAttribute	10	1027	1	0
+strings	BabelAttribute	10	1027	1	0
+strings	YanoAttribute	10	1027	1	0
+strings	CryptoObfuscator	10	1027	1	0
+strings	ObfuscatedByGoliath	10	1027	1	0
+strings	NETSpider.Attribute	10	1027	1	0
+strings	Xenocode.Client.Attributes.AssemblyAttributes.ProcessedByXenocode	10	1027	1	0
+strings	SecureTeam.Attributes.ObfuscatedByAgileDotNetAttribute	10	1027	1	0
+strings	SecureTeam.Attributes.ObfuscatedByCliSecureAttribute	10	1027	1	0
+strings	ZYXDNGuarder	10	1027	1	0
+strings	dotNetProtector	10	1027	1	0
+strings	EMyPID_8234_	10	1027	1	0
+strings	Costura.AssemblyLoader	10	1027	1	0

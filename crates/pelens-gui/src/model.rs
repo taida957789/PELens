@@ -70,6 +70,40 @@ pub enum Dialog {
     Message(String),
 }
 
+/// Bytes per line of the hex view.
+pub const HEX_WIDTH: usize = 16;
+/// Largest range copied from the hex view to the clipboard.
+pub const HEX_COPY_MAX: u64 = 1 << 20;
+
+/// The hex view below the list-view (read only).
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct HexView {
+    pub open: bool,
+    /// Highlighted range: (file offset, size).
+    pub range: Option<(u64, u64)>,
+    /// Line the view should scroll to (consumed by the UI).
+    pub scroll_to: Option<u64>,
+    /// Text of the "go to" box (file offset or RVA, decimal or 0x hex).
+    pub goto: String,
+    /// Show and enter addresses as RVAs instead of file offsets.
+    pub rva: bool,
+}
+
+/// One line of the hex view: hex bytes and their printable text.
+pub fn hex_line(data: &[u8], line: usize) -> (String, String) {
+    let start = (line * HEX_WIDTH).min(data.len());
+    let bytes = &data[start..(start + HEX_WIDTH).min(data.len())];
+    let mut hex = String::with_capacity(HEX_WIDTH * 3);
+    for (i, b) in bytes.iter().enumerate() {
+        if i > 0 {
+            hex.push(if i == 8 { '-' } else { ' ' });
+        }
+        hex.push_str(&format!("{b:02X}"));
+    }
+    let text = bytes.iter().map(|&b| if (0x20..0x7f).contains(&b) { b as char } else { '.' }).collect();
+    (hex, text)
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Pending {
     Open(PathBuf),
@@ -120,6 +154,13 @@ pub enum Action {
     SetSignatureSeverity(String, u8),
     ToggleNamespaceFlag(String),
     QueryScore,
+    /// Open the hex view on a range (file offset, size).
+    ShowHex(u64, u64),
+    ToggleHex,
+    /// Go to the address typed in the hex view.
+    HexGoto,
+    /// Copy the highlighted range: as hex bytes (true) or as text (false).
+    CopyHex(bool),
     /// VirusTotal score of an item (overlay, resource, URL): (label, hash or url, is_url).
     QueryItemScore(String, String, bool),
     /// Save text (e.g. dump of indicators) through the save dialog.
@@ -168,6 +209,7 @@ pub struct State {
     pub synchronous: bool,
     /// Visible (filtered/sorted) table of the selected view, reused across frames.
     view_cache: Option<(ViewKey, Arc<Table>)>,
+    pub hex: HexView,
     /// Where the VirusTotal key is kept: in memory by default (tests), the Windows Credential
     /// Manager in the application (see main.rs).
     pub key_store: Arc<dyn pe_online::secret::KeyStore>,
@@ -225,6 +267,7 @@ impl State {
             http: default_http(),
             synchronous: false,
             view_cache: None,
+            hex: HexView::default(),
             key_store: Arc::new(pe_online::secret::MemoryStore::default()),
             lang: Lang::En,
             system_lang: Lang::En,
@@ -445,6 +488,8 @@ impl State {
                     self.doc = Some(Document::new(p, d, a));
                     self.view_cache = None;
                     self.selected_row = None;
+                    self.hex.range = None;
+                    self.hex.scroll_to = Some(0);
                     self.effects.title = Some(self.title());
                     if self.knowledge.settings.get_bool("score", "enable", false) {
                         self.apply(Action::QueryScore);
@@ -717,6 +762,33 @@ impl State {
                 self.update_rx = Some(rx);
                 self.poll();
             }
+            Action::ShowHex(off, size) => {
+                self.hex.open = true;
+                self.hex.range = Some((off, size));
+                self.hex.scroll_to = Some(off);
+            }
+            Action::ToggleHex => self.hex.open = !self.hex.open,
+            Action::HexGoto => match self.hex_address(&self.hex.goto.clone()) {
+                Some(off) => {
+                    self.hex.open = true;
+                    self.hex.range = Some((off, 1));
+                    self.hex.scroll_to = Some(off);
+                }
+                None => self.status = self.tf("invalid address: {0}", &[&self.hex.goto]),
+            },
+            Action::CopyHex(as_hex) => {
+                let Some(d) = &self.doc else { return };
+                let Some((off, size)) = self.hex.range else { return };
+                let s = (off as usize).min(d.data.len());
+                let e = (off.saturating_add(size.min(HEX_COPY_MAX)) as usize).min(d.data.len());
+                let b = &d.data[s..e];
+                let text = if as_hex {
+                    b.iter().map(|x| format!("{x:02X}")).collect::<Vec<_>>().join(" ")
+                } else {
+                    b.iter().map(|&x| if (0x20..0x7f).contains(&x) { x as char } else { '.' }).collect()
+                };
+                self.apply(Action::CopyText(text));
+            }
             Action::ShowDialog(d) => self.dialog = d,
             Action::Confirm => {
                 let dlg = std::mem::replace(&mut self.dialog, Dialog::None);
@@ -796,6 +868,24 @@ impl State {
         }
     }
 
+    /// File offset of an address typed in the hex view (an RVA when the view shows RVAs).
+    pub fn hex_address(&self, text: &str) -> Option<u64> {
+        let d = self.doc.as_ref()?;
+        let v = actions::parse_address(text)?;
+        let off = if self.hex.rva { d.analysis.pe.layout.as_ref()?.rva_to_offset(v)? as u64 } else { v as u64 };
+        (off < d.data.len() as u64).then_some(off)
+    }
+
+    /// Address of a file offset as the hex view shows it (file offset, or RVA when it maps).
+    pub fn hex_label(&self, off: u64) -> String {
+        let rva = self.hex.rva.then(|| self.doc.as_ref()?.analysis.pe.layout.as_ref()?.offset_to_rva(off)).flatten();
+        match rva {
+            Some(r) => format!("{r:08X}"),
+            None if self.hex.rva => "--------".into(),
+            None => format!("{off:08X}"),
+        }
+    }
+
     /// The VirusTotal key as stored (not `VT_API_KEY`): the key store, else a legacy plaintext setting.
     pub fn stored_key(&self) -> String {
         self.key_store.get().or_else(|| self.knowledge.settings.get("score", "key").map(str::to_string)).unwrap_or_default()
@@ -867,6 +957,7 @@ impl State {
             v.push((t(614, "attack.mitre.org"), Action::OpenUrl(pe_online::mitre_technique(ti))));
         }
         if let Some((off, size)) = row.dump {
+            v.push((self.t("show in hex").into(), Action::ShowHex(off, size)));
             let label = if item == ItemType::DotNet { t(586, "dump stream") } else { t(233, "dump to file") };
             v.push((
                 label,

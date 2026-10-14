@@ -58,6 +58,7 @@ La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo 
 - **Informes** en XML, JSON o texto, generados a partir de las mismas tablas que muestra la GUI.
 - **GUI**: vista de árbol, temas oscuro y claro, tablas ordenables y filtrables, menús contextuales, arrastrar y soltar, y atajos (Ctrl+O, S, E, R, X; Tab recorre el árbol).
 - **Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.
+- **Vista hexadecimal** (Ctrl+H): solo dibuja las filas visibles, también fluida con archivos grandes; los elementos con posición se abren con «mostrar en hexadecimal» del menú contextual, con salto a un desplazamiento o RVA y copia como hexadecimal o texto.
 
 ## Instalación / compilación
 
@@ -74,7 +75,7 @@ Requiere Rust 1.88 o posterior (edition 2024). Desarrollado y probado en Windows
 ## Uso
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -82,7 +83,7 @@ Por defecto la CLI escribe `<input>.xml` junto a la muestra, igual que pestudio.
 
 ### Base de conocimiento
 
-PELens lee los archivos XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`, …) de tu propia instalación de pestudio. Indícalos con `-xml:<dir>` o coloca una carpeta `xml` junto al ejecutable. **Estos archivos no se distribuyen con PELens**: pertenecen al autor de pestudio. Sin ellos, PELens funciona con valores predeterminados integrados.
+PELens incluye su propia **base de conocimiento abierta** (`kb/`, CC0): 142 definiciones de indicadores, unas 2.500 funciones de la API de Windows, unas 900 cadenas sospechosas, unas 100 firmas y la correspondencia con MITRE ATT&CK. Se genera desde `kb/src` con `tools/build_kb.py` y cada entrada se escribió a partir de fuentes públicas (ver [kb/SOURCES.md](../../kb/SOURCES.md)); no copia los XML de pestudio. También puede usar los archivos XML de su propia instalación de pestudio con `-xml:<dir>`; pertenecen al autor de pestudio y no se distribuyen con PELens.
 
 ### VirusTotal
 
@@ -104,7 +105,7 @@ Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (2
 ## Calidad
 
 ```bash
-cargo test --workspace                       # 87 pruebas
+cargo test --workspace                       # 102 pruebas
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de cobertura de líneas
 python tools/crossval.py 250                 # verificación cruzada con pefile
 ```

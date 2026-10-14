@@ -1,0 +1,144 @@
+# PELens signatures: written from public file-format documentation and tool layouts.
+# name	kind	severity	where	pattern	description	url
+executable	file	1	start	4D 5A	MZ executable (DOS/Windows PE image)	-
+ELF	file	1	start	7F 45 4C 46	ELF executable or shared object (Linux/Unix)	-
+Mach-O	file	1	start	FE ED FA CE	Mach-O executable (macOS/iOS), 32/64-bit, either byte order	-
+Mach-O	file	1	start	CE FA ED FE	Mach-O executable (macOS/iOS), 32/64-bit, either byte order	-
+Mach-O	file	1	start	FE ED FA CF	Mach-O executable (macOS/iOS), 32/64-bit, either byte order	-
+Mach-O	file	1	start	CF FA ED FE	Mach-O executable (macOS/iOS), 32/64-bit, either byte order	-
+Java class / Mach-O universal	file	1	start	CA FE BA BE	CA FE BA BE magic, shared by Java class files and Mach-O universal (fat) binaries	-
+Dalvik DEX	file	1	start	64 65 78 0A 30 33 xx 00	Android Dalvik executable (dex 03x)	https://source.android.com/docs/core/runtime/dex-format
+WebAssembly	file	1	start	00 61 73 6D 01 00 00 00	WebAssembly binary module	https://webassembly.github.io/spec/
+Lua bytecode	file	1	start	1B 4C 75 61	Precompiled Lua chunk	https://www.lua.org/
+LNK	file	1	start	4C 00 00 00 01 14 02 00 00 00 00 00 C0 00 00 00 00 00 00 46	Windows shell link (shortcut) with the ShellLink CLSID header	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-shllink/
+CHM	file	1	start	49 54 53 46 03 00 00 00	Compiled HTML Help (ITSF), can run script	-
+SWF	file	1	start	46 57 53	Adobe Flash movie (uncompressed, zlib or LZMA)	-
+SWF	file	1	start	43 57 53	Adobe Flash movie (uncompressed, zlib or LZMA)	-
+SWF	file	1	start	5A 57 53	Adobe Flash movie (uncompressed, zlib or LZMA)	-
+OneNote	file	1	start	E4 52 5C 7B 8C D8 A7 4D AE B1 53 78 D0 29 96 D3	Microsoft OneNote section file, abused to deliver embedded payloads	https://learn.microsoft.com/en-us/openspecs/office_file_formats/ms-onestore/
+VBScript encoded	file	1	start	23 40 7E 5E	Script encoded with the Windows Script Encoder (#@~^ marker)	-
+ZIP	file	2	start	50 4B 03 04	ZIP archive (also JAR, APK, Office OOXML, etc.)	https://pkware.com/appnote
+ZIP	file	2	start	50 4B 05 06	ZIP archive (also JAR, APK, Office OOXML, etc.)	https://pkware.com/appnote
+RAR	file	2	start	52 61 72 21 1A 07 00	RAR archive (version 4 or 5)	https://www.rarlab.com/technote.htm
+RAR	file	2	start	52 61 72 21 1A 07 01 00	RAR archive (version 4 or 5)	https://www.rarlab.com/technote.htm
+7-Zip	file	2	start	37 7A BC AF 27 1C	7z archive	https://www.7-zip.org/
+GZIP	file	2	start	1F 8B 08	gzip compressed data (deflate)	https://www.rfc-editor.org/rfc/rfc1952
+BZIP2	file	2	start	42 5A 68 3x	bzip2 compressed data	-
+XZ	file	2	start	FD 37 7A 58 5A 00	XZ compressed data	https://tukaani.org/xz/
+Zstandard	file	2	start	28 B5 2F FD	Zstandard compressed frame	https://www.rfc-editor.org/rfc/rfc8878
+LZ4	file	2	start	04 22 4D 18	LZ4 compressed frame	https://github.com/lz4/lz4
+CAB	file	2	start	4D 53 43 46 00 00 00 00	Microsoft Cabinet archive	-
+MS-Compress	file	2	start	53 5A 44 44 88 F0 27 33	Microsoft compress.exe (SZDD) compressed file	-
+MS-CFB	file	2	start	D0 CF 11 E0 A1 B1 1A E1	OLE compound file (MSI, MSP, legacy Office documents)	https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-cfb/
+WIM	file	2	start	4D 53 57 49 4D 00 00 00	Windows Imaging Format image	-
+VHD	file	2	start	63 6F 6E 65 63 74 69 78	Virtual Hard Disk (dynamic, footer copy at start)	-
+VHDX	file	2	start	76 68 64 78 66 69 6C 65	Virtual Hard Disk v2	-
+CRX	file	2	start	43 72 32 34	Chrome browser extension package	-
+PDF	file	2	start	25 50 44 46 2D	Portable Document Format	-
+RTF	file	2	start	7B 5C 72 74 66	Rich Text Format document	-
+PostScript	file	2	start	25 21 50 53	PostScript document	-
+WinHelp	file	2	start	3F 5F 03 00	Windows Help file (.hlp)	-
+Registry hive	file	2	start	72 65 67 66	Windows registry hive (regf)	-
+SQLite	file	3	start	53 51 4C 69 74 65 20 66 6F 72 6D 61 74 20 33 00	SQLite 3 database	https://www.sqlite.org/fileformat.html
+EVTX	file	3	start	45 6C 66 46 69 6C 65 00	Windows XML event log	-
+EVT	file	3	start	30 00 00 00 4C 66 4C 65	Legacy Windows event log	-
+Minidump	file	3	start	4D 44 4D 50 93 A7	Windows user-mode minidump	-
+Crash dump	file	3	start	50 41 47 45 44 55 4D 50	Windows kernel crash dump	-
+Crash dump	file	3	start	50 41 47 45 44 55 36 34	Windows kernel crash dump	-
+Prefetch	file	3	start	xx xx xx xx 53 43 43 41	Windows prefetch file (plain or MAM compressed)	-
+Prefetch	file	3	start	4D 41 4D 04	Windows prefetch file (plain or MAM compressed)	-
+.NET resources	file	3	start	CE CA EF BE	.NET resources file (ResourceManager header)	-
+Java serialized	file	3	start	AC ED 00 05	Java serialized object stream	-
+Torrent	file	3	start	64 38 3A 61 6E 6E 6F 75 6E 63 65	BitTorrent metainfo file	-
+PEM	file	3	start	2D 2D 2D 2D 2D 42 45 47 49 4E 20	PEM encoded key or certificate	-
+ANI	file	3	start	52 49 46 46 xx xx xx xx 41 43 4F 4E	Windows animated cursor (RIFF ACON)	-
+PNG	file	4	start	89 50 4E 47 0D 0A 1A 0A	PNG image	https://www.w3.org/TR/png/
+JPEG	file	4	start	FF D8 FF	JPEG image	-
+GIF	file	4	start	47 49 46 38 37 61	GIF image	-
+GIF	file	4	start	47 49 46 38 39 61	GIF image	-
+TIFF	file	4	start	49 49 2A 00	TIFF image (either byte order)	-
+TIFF	file	4	start	4D 4D 00 2A	TIFF image (either byte order)	-
+WEBP	file	4	start	52 49 46 46 xx xx xx xx 57 45 42 50	WebP image (RIFF)	-
+WAV	file	4	start	52 49 46 46 xx xx xx xx 57 41 56 45	WAVE audio (RIFF)	-
+AVI	file	4	start	52 49 46 46 xx xx xx xx 41 56 49 20	AVI video (RIFF)	-
+MP4	file	4	start	xx xx xx xx 66 74 79 70	ISO base media file (MP4, MOV, 3GP)	-
+OGG	file	4	start	4F 67 67 53 00	Ogg container	-
+FLAC	file	4	start	66 4C 61 43	FLAC audio	-
+MIDI	file	4	start	4D 54 68 64	Standard MIDI file	-
+MP3	file	4	start	49 44 33	MP3 audio with ID3v2 tag	-
+X509 certificate	file	3	start	30 82 xx xx 30 82	DER encoded ASN.1 sequence, typically an X.509 certificate	-
+BMP	file	4	start	42 4D	Bitmap image (weak 2-byte magic)	-
+UPX	tool	2	text	UPX0	UPX executable packer	https://upx.github.io/
+UPX	tool	2	text	UPX1	UPX executable packer	https://upx.github.io/
+UPX	tool	2	text	UPX2	UPX executable packer	https://upx.github.io/
+UPX	tool	2	text	UPX!	UPX executable packer	https://upx.github.io/
+UPX	tool	2	ep	60 BE xx xx xx xx 8D BE xx xx xx xx	UPX executable packer	https://upx.github.io/
+UPX	tool	2	ep	53 56 57 55 48 8D 35 xx xx xx xx 48 8D BE xx xx xx xx	UPX executable packer	https://upx.github.io/
+UPX	tool	2	ep	80 7C 24 08 01 0F 85	UPX executable packer	https://upx.github.io/
+ASPack	tool	2	text	.aspack	ASPack executable packer	http://www.aspack.com/
+ASPack	tool	2	text	.adata	ASPack executable packer	http://www.aspack.com/
+ASPack	tool	2	ep	60 E8 03 00 00 00 E9 EB 04 5D 45 55 C3 E8 01	ASPack executable packer	http://www.aspack.com/
+MPRESS	tool	2	text	.MPRESS1	MPRESS executable packer	-
+MPRESS	tool	2	text	.MPRESS2	MPRESS executable packer	-
+PECompact	tool	2	text	PECompact2	PECompact executable packer	https://bitsum.com/portfolio/pecompact/
+PECompact	tool	2	ep	B8 xx xx xx xx 50 64 FF 35 00 00 00 00 64 89 25 00 00 00 00 33 C0 89 08	PECompact executable packer	https://bitsum.com/portfolio/pecompact/
+Petite	tool	2	text	.petite	Petite executable packer	https://www.un4seen.com/petite/
+NsPack	tool	2	text	.nsp0	NsPack (North Star) executable packer	-
+NsPack	tool	2	text	.nsp1	NsPack (North Star) executable packer	-
+NsPack	tool	2	text	.nsp2	NsPack (North Star) executable packer	-
+RLPack	tool	2	text	.RLPack	RLPack executable packer	-
+kkrunchy	tool	2	text	kkrunchy	kkrunchy executable packer (demoscene)	https://www.farbrausch.de/~fg/kkrunchy/
+Themida/WinLicense	tool	1	text	.themida	Oreans Themida / WinLicense software protector (code virtualization, anti-debug)	https://www.oreans.com/
+Themida/WinLicense	tool	1	text	.winlice	Oreans Themida / WinLicense software protector (code virtualization, anti-debug)	https://www.oreans.com/
+VMProtect	tool	1	text	.vmp0	VMProtect software protector (code virtualization)	https://vmpsoft.com/
+VMProtect	tool	1	text	.vmp1	VMProtect software protector (code virtualization)	https://vmpsoft.com/
+VMProtect	tool	1	text	.vmp2	VMProtect software protector (code virtualization)	https://vmpsoft.com/
+Enigma Protector	tool	1	text	.enigma1	Enigma Protector software protector	https://enigmaprotector.com/
+Enigma Protector	tool	1	text	.enigma2	Enigma Protector software protector	https://enigmaprotector.com/
+ConfuserEx	tool	1	text	ConfusedByAttribute	.NET obfuscator ConfuserEx	https://github.com/mkaring/ConfuserEx
+Dotfuscator	tool	1	text	DotfuscatorAttribute	.NET obfuscator Dotfuscator	https://www.preemptive.com/
+SmartAssembly	tool	1	text	SmartAssembly.Attributes	.NET obfuscator SmartAssembly	https://www.red-gate.com/products/smartassembly/
+Agile.NET	tool	1	text	ObfuscatedByAgileDotNetAttribute	.NET obfuscator Agile.NET (CliSecure)	https://secureteam.net/
+Costura	tool	3	text	Costura.AssemblyLoader	Fody Costura, embeds referenced .NET assemblies as resources	https://github.com/Fody/Costura
+NSIS	tool	3	text	Nullsoft Install System	Nullsoft Scriptable Install System installer	https://nsis.sourceforge.io/
+NSIS	tool	3	text	NullsoftInst	Nullsoft Scriptable Install System installer	https://nsis.sourceforge.io/
+Inno Setup	tool	3	text	Inno Setup Setup Data	Inno Setup installer	https://jrsoftware.org/isinfo.php
+Inno Setup	tool	3	text	Inno Setup Messages	Inno Setup installer	https://jrsoftware.org/isinfo.php
+InstallShield	tool	3	text	InstallShield	InstallShield installer	https://www.revenera.com/install/products/installshield
+WiX Burn	tool	3	text	.wixburn	WiX Toolset Burn bootstrapper bundle	https://wixtoolset.org/
+7-Zip SFX	tool	3	text	;!@Install@!UTF-8!	7-Zip self-extracting installer (SFX configuration block)	https://www.7-zip.org/
+WinRAR SFX	tool	3	text	WinRAR SFX	WinRAR self-extracting archive	https://www.win-rar.com/
+PyInstaller	tool	2	text	_MEIPASS	Python script bundled into an executable by PyInstaller	https://pyinstaller.org/
+PyInstaller	tool	2	text	pyi-runtime-tmpdir	Python script bundled into an executable by PyInstaller	https://pyinstaller.org/
+PyInstaller	tool	2	text	PyInstaller	Python script bundled into an executable by PyInstaller	https://pyinstaller.org/
+py2exe	tool	2	text	PYTHONSCRIPT	Python script bundled into an executable by py2exe	https://github.com/py2exe/py2exe
+py2exe	tool	2	text	py2exe	Python script bundled into an executable by py2exe	https://github.com/py2exe/py2exe
+cx_Freeze	tool	2	text	cx_Freeze	Python script frozen into an executable by cx_Freeze	https://cx-freeze.readthedocs.io/
+Nuitka	tool	2	text	NUITKA_ONEFILE_PARENT	Python program compiled by Nuitka	https://nuitka.net/
+Nuitka	tool	2	text	nuitka	Python program compiled by Nuitka	https://nuitka.net/
+AutoIt	tool	2	text	AU3!EA06	Compiled AutoIt v3 script	https://www.autoitscript.com/
+AutoIt	tool	2	text	AU3!EA05	Compiled AutoIt v3 script	https://www.autoitscript.com/
+AutoIt	tool	2	text	>>>AUTOIT SCRIPT<<<	Compiled AutoIt v3 script	https://www.autoitscript.com/
+AutoHotkey	tool	2	text	>AUTOHOTKEY SCRIPT<	Compiled AutoHotkey script	https://www.autohotkey.com/
+Go	tool	4	text	Go build ID:	Compiled with the Go toolchain	https://go.dev/
+Go	tool	4	text	runtime.morestack	Compiled with the Go toolchain	https://go.dev/
+Rust	tool	4	text	/rustc/	Compiled with the Rust toolchain	https://www.rust-lang.org/
+Rust	tool	4	text	rust_panic	Compiled with the Rust toolchain	https://www.rust-lang.org/
+Nim	tool	4	text	fatal.nim	Compiled with the Nim compiler	https://nim-lang.org/
+Nim	tool	4	text	SIGSEGV: Illegal storage access.	Compiled with the Nim compiler	https://nim-lang.org/
+Delphi	tool	4	text	This program must be run under Win32	Compiled with Borland/Embarcadero Delphi or C++Builder	https://www.embarcadero.com/products/delphi
+Delphi	tool	4	text	Software\Borland\Delphi\RTL	Compiled with Borland/Embarcadero Delphi or C++Builder	https://www.embarcadero.com/products/delphi
+Borland C++	tool	4	text	Borland C++ - Copyright	Compiled with Borland/Embarcadero C++	-
+Watcom	tool	4	text	WATCOM C/C++	Compiled with Watcom / Open Watcom C/C++	https://github.com/open-watcom/open-watcom-v2
+MinGW	tool	4	text	Mingw-w64 runtime failure	Compiled with GCC for Windows (MinGW / MinGW-w64)	https://www.mingw-w64.org/
+MinGW	tool	4	text	Mingw runtime failure	Compiled with GCC for Windows (MinGW / MinGW-w64)	https://www.mingw-w64.org/
+MinGW	tool	4	text	GCC: (GNU)	Compiled with GCC for Windows (MinGW / MinGW-w64)	https://www.mingw-w64.org/
+Cygwin	tool	4	text	cygwin1.dll	Linked against the Cygwin POSIX runtime	https://www.cygwin.com/
+MSYS2	tool	4	text	msys-2.0.dll	Linked against the MSYS2 POSIX runtime	https://www.msys2.org/
+Visual Basic	tool	4	text	MSVBVM60.DLL	Visual Basic 5/6 program (VB runtime and VB header)	-
+Visual Basic	tool	4	text	MSVBVM50.DLL	Visual Basic 5/6 program (VB runtime and VB header)	-
+Visual Basic	tool	4	text	VB5!	Visual Basic 5/6 program (VB runtime and VB header)	-
+.NET	tool	4	text	_CorExeMain	.NET (CLR) managed executable	https://dotnet.microsoft.com/
+.NET	tool	4	text	_CorDllMain	.NET (CLR) managed executable	https://dotnet.microsoft.com/
+Free Pascal	tool	4	text	FPC 2.	Compiled with Free Pascal	https://www.freepascal.org/
+Free Pascal	tool	4	text	FPC 3.	Compiled with Free Pascal	https://www.freepascal.org/

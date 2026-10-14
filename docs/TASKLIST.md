@@ -202,6 +202,7 @@
 - 修正：fuzzing 與變異測試找到兩個放大問題
   - exports：損毀的 NumberOfFunctions 讓 17 KB 輸入產生 100 萬列、40 MB 報告 → 依檔案中實際容得下的陣列大小限制，並在檢視中註明 truncated
   - resources：重疊的目錄讓 118 KB 輸入產生 64,048 列 → 目錄項目不得重疊（每 8 位元組最多一項），重疊資料的雜湊另設位元組預算
+  - imports：多個描述元共用同一個 thunk 陣列讓 89 KB 輸入產生 118,729 列 → 每個 thunk 位置只讀一次
   - imports 截斷也會在檢視中註明
 
 ## M15 大檔效能
@@ -225,15 +226,25 @@
 - [ ] T16.4 發佈 v0.2.0
 
 ## M17 開放知識庫
-- [ ] T17.1 `kb/` 目錄、授權與 `kb/SOURCES.md`（每筆資料可追溯來源）
-- [ ] T17.2 `functions.xml`：API 分類、可疑旗標、MITRE 技術
-- [ ] T17.3 `indicators.xml`：150 個指標的說明與嚴重度
-- [ ] T17.4 `strings.xml`：可疑字串
-- [ ] T17.5 `signatures.xml`：加殼與安裝程式特徵
-- [ ] T17.6 `mitre.xml`、`rich.xml`、`languages.xml`
-- [ ] T17.7 `tools/build_kb.py` 可重現產生
-- [ ] T17.8 內嵌為內建知識庫；指定 `-xml:` 時以使用者 XML 為準
-- [ ] T17.9 本機比較與 pestudio XML 的指標命中數（目標 high 指標 ≥ 80%），記錄結果
+- [x] T17.1 `kb/` 目錄、授權（CC0；MITRE 名稱依其使用條款）與 `kb/SOURCES.md`
+- [x] T17.2 `functions.xml`：74 個函式庫、2,515 個函式（774 個標為可疑）、MITRE 技術
+- [x] T17.3 `indicators.xml`：引擎實際評估的 142 個指標，名稱、說明、嚴重度與技術皆自行撰寫
+- [x] T17.4 `strings.xml`：935 筆（SID、權限、user agent、副檔名、registry、資料夾、Office、LOLBins、DOS stub、可疑字串、.NET 混淆器）
+- [x] T17.5 `signatures.xml`：97 個（56 種檔案格式、加殼／保護器、安裝程式、編譯器）
+- [x] T17.6 `mitre.xml`（14 戰術、125 技術）、`rich.xml`（Visual Studio 版本，新增 min/max 範圍語法）、`languages.xml`（427 個 LCID）、`namespaces.xml`（134 個）
+- [x] T17.7 `tools/build_kb.py` 驗證來源（群組、技術、函式庫必須存在）並產生 XML；CI 以 `--check` 確認同步
+- [x] T17.8 內嵌為內建知識庫（壓縮後內嵌：明文的勒索訊息等字串曾讓 Defender 把 PELens 誤判為 Ransom:MSIL/Cryptolocker）；指定 `-xml:` 時以使用者 XML 為準；移除引擎內建的 27 項指標表與 testkit 中與 pestudio 相同的指標文字
+- [x] T17.9 本機比較（4,577 個檔案：System32、Git 工具、demo 樣本；`examples/kb_compare.rs`）
+
+  | 項目 | 開放知識庫／pestudio XML |
+  |---|---|
+  | high 指標 | 110%（目標 ≥ 80%） |
+  | 有 high 指標的檔案 | 94% |
+  | 全部指標 | 137% |
+  | 簽章命中 | 157% |
+  | 標為可疑的匯入 | 43%（pestudio 標記的 API 較多） |
+
+- 修正：比較時發現 pestudio 的 functions.xml 有重複的函式庫名稱，會讓函式查詢索引越界而崩潰（v0.1.0 即有的錯誤），已修正並加測試
 
 ## M18 YARA 掃描
 - [ ] T18.1 加入 `yara-x`（feature `yara`）；量測編譯時間與執行檔大小
@@ -244,10 +255,10 @@
 - [ ] T18.6 tree-view、`-view:`、翻譯檔同步更新
 
 ## M19 Hex 檢視器
-- [ ] T19.1 hex 面板（位移 / hex / ASCII，只繪製可見列）
-- [ ] T19.2 前往位移、選取與複製（hex / 文字）、檔案位移與 RVA 切換
-- [ ] T19.3 標示選取結構的範圍
-- [ ] T19.4 各檢視右鍵「在 Hex 中顯示」
+- [x] T19.1 hex 面板（位移 / hex / ASCII，只繪製可見列；Ctrl+H、檢視選單、`-hex`）
+- [x] T19.2 前往位移（十進位或 0x）、複製為 hex／文字（上限 1 MB）、檔案位移與 RVA 切換
+- [x] T19.3 以位元組為單位標示選取範圍
+- [x] T19.4 有位置資訊的列（sections、resources、directories、debug、.NET streams、strings、overlay、certificate…）右鍵「在十六進位檢視中顯示」
 
 ## M20 進入點反組譯
 - [ ] T20.1 加入 `iced-x86`；x86 / x64，其他架構顯示不支援

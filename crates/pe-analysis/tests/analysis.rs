@@ -350,14 +350,26 @@ fn file_types_and_non_pe() {
     assert!(analyze_file(std::path::Path::new("Z:/definitely/not/here.exe"), &k, &o).is_err());
 }
 
+/// Without pestudio's XML files the open knowledge base (kb/) drives the analysis.
 #[test]
-fn builtin_knowledge_still_works() {
+fn open_knowledge_base_drives_the_analysis() {
     let k = Knowledge::builtin();
     let data = testkit::suspicious_sample();
     let a = analyze(&data, "x.exe", &k, &Options::default());
-    assert!(a.has_indicator(1000) && a.has_indicator(1496) && a.has_indicator(1271));
-    assert!(!a.has_indicator(1245), "builtin indicator table does not contain 1245");
-    assert!(a.sections.iter().all(|s| s.standard_name), "no section list → all standard");
+    for id in [1000, 1025, 1245, 1266, 1271, 1496] {
+        assert!(a.has_indicator(id), "indicator {id}");
+    }
+    assert!(a.indicators.iter().filter(|i| i.severity == 1).count() >= 10);
+    assert!(a.sections.iter().any(|s| s.name == ".text" && s.standard_name));
+    assert!(a.sections.iter().any(|s| s.name == ".upx0" && !s.standard_name));
+    // UPX names its sections UPX0 / UPX1
+    let mut b = PeBuilder::new();
+    b.extra_sections.push(ExtraSection { name: "UPX0".into(), data: vec![0; 0x200], characteristics: 0xE000_0080, virtual_size: None });
+    let upx = b.build();
+    let u = analyze(&upx, "u.exe", &k, &Options::default());
+    assert!(u.signatures.iter().any(|s| s.name == "UPX"), "{:?}", u.signatures);
+    assert!(a.imports.iter().any(|i| i.name == "CreateRemoteThread" && i.flag && i.ti.as_deref() == Some("1055")));
+    assert!(a.mitre.iter().any(|m| m.technique.contains("1055")), "{:?}", a.mitre);
     let t = view::table(&a, &k, &data, ItemType::Indicators, &ViewOptions::default());
     assert!(!t.is_empty());
 }

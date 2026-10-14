@@ -216,6 +216,9 @@ impl PeLensApp {
             if i.consume_key(Modifiers::COMMAND, Key::R) {
                 acts.push(Action::CreateReport);
             }
+            if i.consume_key(Modifiers::COMMAND, Key::H) {
+                acts.push(Action::ToggleHex);
+            }
             if i.consume_key(Modifiers::COMMAND, Key::X) && !typing {
                 acts.push(Action::Exit);
             }
@@ -261,6 +264,11 @@ impl PeLensApp {
                 let dark = self.state.dark_mode();
                 if ui.button(self.state.t(if dark { "light mode" } else { "dark mode" })).clicked() {
                     self.push(Action::ToggleDarkMode);
+                    ui.close();
+                }
+                let mut hex = self.state.hex.open;
+                if ui.checkbox(&mut hex, format!("{}\tCtrl+H", self.state.t("hex view"))).clicked() {
+                    self.push(Action::ToggleHex);
                     ui.close();
                 }
                 if ui.button(self.state.t("expand all")).clicked() {
@@ -592,6 +600,13 @@ impl PeLensApp {
             });
         });
         ui.add_space(4.0);
+        if self.state.hex.open && self.state.doc.is_some() {
+            egui::Panel::bottom("hex")
+                .resizable(true)
+                .default_size(260.0)
+                .frame(egui::Frame::new().fill(p.panel).inner_margin(egui::Margin::same(6)))
+                .show(ui, |ui| self.hex_panel(ui));
+        }
         if item == ItemType::Strings
             && let Some(map) = self.location_map()
         {
@@ -637,6 +652,84 @@ impl PeLensApp {
                 });
             }
         }
+    }
+
+    /// Hex view of the file: address, 16 bytes, text; the highlighted range is drawn byte by byte.
+    fn hex_panel(&mut self, ui: &mut egui::Ui) {
+        let p = self.palette;
+        let mut acts = Vec::new();
+        ui.horizontal(|ui| {
+            ui.label(RichText::new(self.state.t("hex view")).strong());
+            let hint = self.state.t("go to offset");
+            let r = ui.add(egui::TextEdit::singleline(&mut self.state.hex.goto).hint_text(hint).desired_width(130.0));
+            if r.lost_focus() && ui.input(|i| i.key_pressed(Key::Enter)) {
+                acts.push(Action::HexGoto);
+            }
+            ui.checkbox(&mut self.state.hex.rva, "RVA");
+            if let Some((off, size)) = self.state.hex.range {
+                let end = off.saturating_add(size.max(1) - 1);
+                let label = self.state.tf("{0} - {1} ({2} bytes)", &[&self.state.hex_label(off), &self.state.hex_label(end), &size]);
+                ui.label(RichText::new(label).monospace().color(p.muted));
+                if ui.small_button(self.state.t("copy as hex")).clicked() {
+                    acts.push(Action::CopyHex(true));
+                }
+                if ui.small_button(self.state.t("copy as text")).clicked() {
+                    acts.push(Action::CopyHex(false));
+                }
+            }
+            ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
+                if ui.small_button(self.state.t("close")).clicked() {
+                    acts.push(Action::ToggleHex);
+                }
+            });
+        });
+        self.pending.extend(acts);
+        let Some(d) = self.state.doc.as_ref() else { return };
+        let lines = d.data.len().div_ceil(HEX_WIDTH);
+        let font = FontId::monospace(12.5);
+        let row_h = ui.fonts_mut(|f| f.row_height(&font)) + 2.0;
+        let mut area = egui::ScrollArea::both().id_salt("hexview").auto_shrink([false, false]);
+        if let Some(off) = self.state.hex.scroll_to.take() {
+            let line = (off as usize / HEX_WIDTH).saturating_sub(2);
+            area = area.vertical_scroll_offset(line as f32 * row_h);
+        }
+        let range = self.state.hex.range;
+        let in_range = |o: usize| range.is_some_and(|(s, n)| (o as u64) >= s && (o as u64) < s.saturating_add(n.max(1)));
+        let (text, muted, hl) = (p.text, p.muted, p.selection);
+        area.show_rows(ui, row_h, lines, |ui, rows| {
+            for line in rows {
+                let start = line * HEX_WIDTH;
+                let mut job = egui::text::LayoutJob::default();
+                let fmt = |color: Color32, bg: bool| egui::TextFormat {
+                    font_id: font.clone(),
+                    color,
+                    background: if bg { hl } else { Color32::TRANSPARENT },
+                    ..Default::default()
+                };
+                job.append(&format!("{}  ", self.state.hex_label(start as u64)), 0.0, fmt(muted, false));
+                let (_, chars) = hex_line(&d.data, line);
+                let bytes = &d.data[start..(start + HEX_WIDTH).min(d.data.len())];
+                for i in 0..HEX_WIDTH {
+                    let sep = if i == 0 {
+                        ""
+                    } else if i == 8 {
+                        "-"
+                    } else {
+                        " "
+                    };
+                    job.append(sep, 0.0, fmt(muted, in_range(start + i) && in_range(start + i - usize::from(i > 0))));
+                    match bytes.get(i) {
+                        Some(b) => job.append(&format!("{b:02X}"), 0.0, fmt(text, in_range(start + i))),
+                        None => job.append("  ", 0.0, fmt(text, false)),
+                    }
+                }
+                job.append("  ", 0.0, fmt(text, false));
+                for (i, ch) in chars.chars().enumerate() {
+                    job.append(&ch.to_string(), 0.0, fmt(text, in_range(start + i)));
+                }
+                ui.add(egui::Label::new(job).selectable(false).wrap_mode(egui::TextWrapMode::Extend));
+            }
+        });
     }
 
     fn table(&mut self, ui: &mut egui::Ui, item: ItemType, table: &Table) {
@@ -843,9 +936,14 @@ impl PeLensApp {
             ui.small(t("This software is provided 'as-is', without any expressed or implied warranty."));
             ui.small(t("When retrieving the online score of a file, the file itself is not submitted, only its hash is sent."));
             ui.separator();
-            ui.label(t("Knowledge base: pestudio XML files from your own installation"));
-            if let Some(d) = &self.state.knowledge.dir {
-                ui.label(RichText::new(format!("xml: {}", d.display())).monospace());
+            match &self.state.knowledge.dir {
+                Some(d) => {
+                    ui.label(t("Knowledge base: XML files of a directory (e.g. your pestudio installation)"));
+                    ui.label(RichText::new(format!("xml: {}", d.display())).monospace());
+                }
+                None => {
+                    ui.label(t("Knowledge base: the PELens open knowledge base (built in)"));
+                }
             }
             let k = &self.state.knowledge;
             ui.label(self.state.tf("loaded: {0} | errors: {1}", &[&k.loaded.len(), &k.errors.len()]));

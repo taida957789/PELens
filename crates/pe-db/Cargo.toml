@@ -6,3 +6,9 @@ rust-version.workspace = true
 
 [dependencies]
 quick-xml = { workspace = true }
+# The open knowledge base is stored compressed: its suspicious strings (ransom notes, attack
+# commands) must not appear as plain text in the binaries, or antivirus engines flag PELens itself.
+miniz_oxide = "0.8"
+
+[build-dependencies]
+miniz_oxide = "0.8"

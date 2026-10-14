@@ -1,0 +1,26 @@
+# id	name	level	r	g	b
+# level 1: shown with its color in the views; level 2: listed only.
+01	registry	1	214	120	0
+02	execution	1	230	60	60
+03	network	1	235	80	160
+04	cryptography	1	150	90	220
+05	memory	1	60	140	230
+06	file	2	120	150	90
+07	reconnaissance	1	200	170	40
+08	synchronization	2	140	140	140
+09	dynamic-library	2	90	160	170
+10	obfuscation	1	180	60	200
+11	windowing	2	130	130	170
+12	exception	2	170	110	90
+13	input	1	240	150	40
+14	hooking	1	200	40	90
+15	security	1	210	90	40
+16	diagnostic	2	150	150	150
+17	services	1	60	170	120
+18	storage	2	100	130	150
+19	data-exchange	2	110	170	210
+20	shell	2	160	120	60
+21	com	2	120	110	190
+22	console	2	110	110	110
+23	resource	2	150	140	100
+24	time	2	120	140	110

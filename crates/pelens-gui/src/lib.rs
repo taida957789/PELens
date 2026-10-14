@@ -15,7 +15,7 @@ impl eframe::App for ui::PeLensApp {
 }
 
 const VALUE_OPTIONS: [&str; 6] = ["xml", "file", "renderer", "view", "theme", "lang"];
-const FLAG_OPTIONS: [&str; 1] = ["expand"];
+const FLAG_OPTIONS: [&str; 2] = ["expand", "hex"];
 
 /// The option text of an argument (`-name:value`, `--name=value`, `/name:value`), or None when the
 /// argument is a file name. A leading `/` only counts for a known option, so absolute Unix paths
@@ -57,13 +57,15 @@ pub fn app_icon() -> egui::IconData {
     eframe::icon_data::from_png_bytes(include_bytes!("../../../assets/pelens.png")).unwrap_or_default()
 }
 
-/// Optional start-up state: `-view:<name>`, `-theme:dark|light`, `-expand`, `-lang:<code>`.
+/// Optional start-up state: `-view:<name>`, `-theme:dark|light`, `-expand`, `-lang:<code>`, `-hex`.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Startup {
     pub view: Option<pe_analysis::model::ItemType>,
     pub dark: Option<bool>,
     pub expand: bool,
     pub lang: Option<i18n::Lang>,
+    /// `-hex`: open the hex view.
+    pub hex: bool,
 }
 
 pub fn parse_startup(args: &[String]) -> Startup {
@@ -86,6 +88,8 @@ pub fn parse_startup(args: &[String]) -> Startup {
             s.lang = i18n::Lang::from_code(v);
         } else if t == "expand" {
             s.expand = true;
+        } else if t == "hex" {
+            s.hex = true;
         }
     }
     s
@@ -111,6 +115,9 @@ impl Startup {
         }
         if self.expand {
             app.expand_all(true);
+        }
+        if self.hex {
+            app.state.hex.open = true;
         }
     }
 }

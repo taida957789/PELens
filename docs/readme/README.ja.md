@@ -58,6 +58,7 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 - **レポート**：XML・JSON・テキスト。GUI と同じテーブルから生成します。
 - **GUI**：ツリービュー、ダーク／ライトテーマ、並べ替え・絞り込みできるテーブル、右クリックメニュー、ドラッグ＆ドロップ、ショートカット（Ctrl+O・S・E・R・X、Tab でツリーを移動）。
 - **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。
+- **16 進ビュー**（Ctrl+H）：表示中の行だけを描画するので大きなファイルでも軽快です。位置情報のある項目は右クリックの「16 進ビューで表示」から開け、オフセットや RVA への移動、16 進またはテキストでのコピーができます。
 
 ## インストール／ビルド
 
@@ -74,7 +75,7 @@ Rust 1.88 以降（edition 2024）が必要です。Windows 11 x64 で開発・�
 ## 使い方
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -82,7 +83,7 @@ CLI は既定で、pestudio と同じくサンプルの隣に `<input>.xml` を�
 
 ### ナレッジベース
 
-PELens は、お使いの pestudio に含まれる XML ファイル（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml` など）を読み込みます。`-xml:<dir>` で指定するか、実行ファイルの隣に `xml` フォルダーを置いてください。**これらのファイルは PELens には同梱されません**（pestudio の作者のものです）。ファイルがなくても、PELens は組み込みの既定値で動作します。
+PELens は独自の**オープンナレッジベース**（`kb/`、CC0）を内蔵しています。142 のインジケーター定義、約 2,500 の Windows API 関数、約 900 の不審な文字列、約 100 のシグネチャ、MITRE ATT&CK の対応付けを含みます。`tools/build_kb.py` で `kb/src` から生成され、すべての項目は公開情報に基づいて書かれています（[kb/SOURCES.md](../../kb/SOURCES.md) を参照）。pestudio の XML はコピーしていません。`-xml:<dir>` でご自身の pestudio の XML ファイルを使うこともできます。これらは pestudio の作者のもので、PELens には同梱されません。
 
 ### VirusTotal
 
@@ -104,7 +105,7 @@ PELens は、お使いの pestudio に含まれる XML ファイル（`settings.
 ## 品質
 
 ```bash
-cargo test --workspace                       # 87 件のテスト
+cargo test --workspace                       # 102 件のテスト
 cargo llvm-cov --workspace --summary-only    # 約 97% の行カバレッジ
 python tools/crossval.py 250                 # pefile とのクロスチェック
 ```

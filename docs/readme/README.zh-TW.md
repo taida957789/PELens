@@ -58,6 +58,7 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 - **報告**：XML、JSON、純文字，內容與 GUI 顯示的表格相同。
 - **GUI**：tree-view、暗色／亮色主題、可排序與篩選的表格、右鍵選單、拖放、快捷鍵（Ctrl+O、S、E、R、X；Tab 在樹狀中移動）。
 - **8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨 Windows 顯示語言。
+- **十六進位檢視**（Ctrl+H）：只繪製可見的列，大檔案也流暢；各檢視中有位置資訊的項目可右鍵「在十六進位檢視中顯示」，並可前往位移或 RVA、複製為十六進位或文字。
 
 ## 安裝／建置
 
@@ -74,7 +75,7 @@ cargo build --release
 ## 使用方式
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-hex] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -82,7 +83,7 @@ CLI 預設在樣本旁輸出 `<input>.xml`，與 pestudio 相同。
 
 ### 知識庫
 
-PELens 從你自己安裝的 pestudio 讀取其 XML 檔（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml`…）：用 `-xml:<dir>` 指定，或在執行檔旁放一個 `xml` 資料夾。**這些檔案不隨 PELens 散佈**，它們屬於 pestudio 的作者。沒有它們時，PELens 仍會以內建預設值運作。
+PELens 內建自己的**開放知識庫**（`kb/`，CC0）：142 個指標定義、約 2,500 個 Windows API 函式、約 900 個可疑字串、約 100 個簽章，以及 MITRE ATT&CK 對應。它由 `tools/build_kb.py` 從 `kb/src` 產生，每一筆資料都來自公開資料（見 [kb/SOURCES.md](../../kb/SOURCES.md)），沒有複製 pestudio 的 XML。也可以用 `-xml:<dir>` 改用你自己安裝的 pestudio XML 檔；這些檔案屬於 pestudio 的作者，不隨 PELens 散佈。
 
 ### VirusTotal
 
@@ -104,7 +105,7 @@ PELens 從你自己安裝的 pestudio 讀取其 XML 檔（`settings.xml`、`indi
 ## 品質
 
 ```bash
-cargo test --workspace                       # 87 個測試
+cargo test --workspace                       # 102 個測試
 cargo llvm-cov --workspace --summary-only    # 約 97% 行覆蓋率
 python tools/crossval.py 250                 # 與 pefile 交叉驗證
 ```

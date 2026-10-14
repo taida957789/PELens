@@ -73,16 +73,70 @@ impl From<std::io::Error> for DbError {
     }
 }
 
-impl Knowledge {
-    /// Defaults used when no XML directory is available.
-    pub fn builtin() -> Self {
-        Knowledge { settings: default_settings(), ..Default::default() }
+/// The PELens open knowledge base (`kb/`, CC0), compiled into the program. It is used when no
+/// pestudio XML directory is given. Built by `tools/build_kb.py` from `kb/src`, stored deflated
+/// (see build.rs) and inflated on first use.
+pub mod open_kb {
+    use std::sync::OnceLock;
+
+    macro_rules! packed {
+        ($($name:literal),*) => {
+            [$(($name, include_bytes!(concat!(env!("OUT_DIR"), "/kb/", $name, ".deflate")) as &[u8])),*]
+        };
     }
 
+    const PACKED: [(&str, &[u8]); 11] = packed!(
+        "settings.xml",
+        "thresholds.xml",
+        "indicators.xml",
+        "strings.xml",
+        "functions.xml",
+        "languages.xml",
+        "translations.xml",
+        "signatures.xml",
+        "rich.xml",
+        "mitre.xml",
+        "namespaces.xml"
+    );
+
+    /// (file name, XML text) of every file of the open knowledge base.
+    pub fn files() -> &'static [(&'static str, String)] {
+        static FILES: OnceLock<Vec<(&'static str, String)>> = OnceLock::new();
+        FILES.get_or_init(|| {
+            PACKED
+                .iter()
+                .map(|(name, packed)| {
+                    let xml = miniz_oxide::inflate::decompress_to_vec(packed).expect("open knowledge base (build.rs output)");
+                    (*name, String::from_utf8(xml).expect("UTF-8 knowledge base"))
+                })
+                .collect()
+        })
+    }
+
+    pub fn file(name: &str) -> Option<&'static str> {
+        files().iter().find(|(n, _)| *n == name).map(|(_, c)| c.as_str())
+    }
+}
+
+impl Knowledge {
+    /// The open knowledge base shipped with PELens (no directory: settings are kept in memory).
+    pub fn builtin() -> Self {
+        Self::load_with(None, |name| match open_kb::file(name) {
+            Some(src) => dom::parse(src).map_err(DbError::Xml),
+            None => Err(DbError::NotFound(name.to_string())),
+        })
+    }
+
+    /// The knowledge base of a directory (pestudio's XML files or a copy of `kb/`).
     pub fn load(dir: impl AsRef<Path>) -> Self {
         let dir = dir.as_ref().to_path_buf();
-        let mut k = Knowledge { dir: Some(dir.clone()), ..Default::default() };
-        match read_dom(&dir.join("settings.xml")) {
+        let d = dir.clone();
+        Self::load_with(Some(dir), move |name| read_dom(&d.join(name)))
+    }
+
+    fn load_with(dir: Option<PathBuf>, read: impl Fn(&str) -> Result<dom::Element, DbError>) -> Self {
+        let mut k = Knowledge { dir, ..Default::default() };
+        match read("settings.xml") {
             Ok(d) => {
                 k.settings = Settings::from_dom(&d);
                 k.loaded.push("settings.xml".into());
@@ -94,8 +148,7 @@ impl Knowledge {
         }
         for (key, def) in FILES {
             let name = k.settings.files.get(key).cloned().unwrap_or_else(|| def.to_string());
-            let path = dir.join(&name);
-            let doc = match read_dom(&path) {
+            let doc = match read(&name) {
                 Ok(d) => d,
                 Err(e) => {
                     k.errors.push((name, e.to_string()));
