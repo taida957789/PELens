@@ -1,5 +1,6 @@
 //! egui rendering of the pestudio main window: toolbar, tree-view, list-view, dialogs.
 
+use crate::i18n::{self, Lang};
 use crate::model::*;
 use crate::theme::{self, Palette};
 use egui::{Align, Color32, FontId, Key, Layout, Modifiers, RichText, Sense, Stroke, TextStyle};
@@ -9,32 +10,43 @@ use pe_analysis::view::Table;
 use std::collections::HashSet;
 use std::sync::Arc;
 
-pub struct RfdHost;
+#[derive(Default)]
+pub struct RfdHost {
+    pub lang: Lang,
+}
 
 impl Host for RfdHost {
     fn pick_open(&mut self) -> Option<std::path::PathBuf> {
+        let t = |k| i18n::translate(self.lang, k);
         rfd::FileDialog::new()
-            .set_title("Select file to open")
-            .add_filter("Exe files (*.exe)", &["exe"])
-            .add_filter("Dll files (*.dll)", &["dll"])
-            .add_filter("Sys files (*.sys)", &["sys"])
-            .add_filter("All Files (*.*)", &["*"])
+            .set_title(t("Select file to open"))
+            .add_filter(t("Exe files (*.exe)"), &["exe"])
+            .add_filter(t("Dll files (*.dll)"), &["dll"])
+            .add_filter(t("Sys files (*.sys)"), &["sys"])
+            .add_filter(t("All Files (*.*)"), &["*"])
             .pick_file()
     }
 
     fn pick_save(&mut self, default_name: &str, filter: (&str, &[&str])) -> Option<std::path::PathBuf> {
+        let t = |k| i18n::translate(self.lang, k);
         rfd::FileDialog::new()
-            .set_title("save to file")
+            .set_title(t("save to file"))
             .set_file_name(default_name)
             .add_filter(filter.0, filter.1)
-            .add_filter("All Files (*.*)", &["*"])
+            .add_filter(t("All Files (*.*)"), &["*"])
             .save_file()
+    }
+
+    fn set_lang(&mut self, lang: Lang) {
+        self.lang = lang;
     }
 }
 
 const TREE_ROW: f32 = 21.0;
 const TREE_INDENT: f32 = 16.0;
 const ROW_H: f32 = 20.0;
+/// Settings with more choices than this use a drop-down list.
+const COMBO_CHOICES: usize = 6;
 
 type LocationMap = Vec<(String, usize, (u8, u8, u8))>;
 
@@ -53,6 +65,8 @@ pub struct PeLensApp {
     /// Load Segoe UI / Consolas / CJK fonts from the Windows font folder on the first frame.
     pub load_system_fonts: bool,
     pub fonts_loaded: Vec<String>,
+    /// Language the fonts were installed for (the CJK fallback order depends on it).
+    fonts_lang: Option<Lang>,
     /// Expanded tree nodes ("root" and view names).
     pub expanded: HashSet<String>,
     loc_cache: Option<(std::path::PathBuf, u64, Arc<LocationMap>)>,
@@ -81,6 +95,7 @@ impl PeLensApp {
             applied_dark: None,
             load_system_fonts: true,
             fonts_loaded: Vec::new(),
+            fonts_lang: None,
             expanded,
             loc_cache: None,
             res_cache: None,
@@ -102,11 +117,13 @@ impl PeLensApp {
     }
 
     fn sync_theme(&mut self, ctx: &egui::Context) {
-        if self.load_system_fonts && self.fonts_loaded.is_empty() {
-            self.fonts_loaded = theme::install_fonts(ctx);
+        let lang = self.state.lang;
+        if self.load_system_fonts && self.fonts_lang != Some(lang) {
+            self.fonts_loaded = theme::install_fonts(ctx, lang);
             if self.fonts_loaded.is_empty() {
                 self.fonts_loaded.push("egui-default".into());
             }
+            self.fonts_lang = Some(lang);
         }
         let dark = self.state.dark_mode();
         if self.applied_dark != Some(dark) {
@@ -120,6 +137,7 @@ impl PeLensApp {
     pub fn draw(&mut self, ui: &mut egui::Ui) {
         let ctx = ui.ctx().clone();
         self.sync_theme(&ctx);
+        self.host.set_lang(self.state.lang);
         // background jobs
         if self.state.poll() {
             ctx.request_repaint();
@@ -215,13 +233,13 @@ impl PeLensApp {
 
     fn menu(&mut self, ui: &mut egui::Ui) {
         egui::MenuBar::new().ui(ui, |ui| {
-            ui.menu_button("file", |ui| {
+            ui.menu_button(self.state.t("file"), |ui| {
                 let has = self.state.doc.is_some();
-                if ui.button("open file\tCtrl+O").clicked() {
+                if ui.button(format!("{}\tCtrl+O", self.state.t("open file"))).clicked() {
                     self.push(Action::OpenDialog);
                     ui.close();
                 }
-                if ui.add_enabled(has, egui::Button::new("save file\tCtrl+S")).clicked() {
+                if ui.add_enabled(has, egui::Button::new(format!("{}\tCtrl+S", self.state.t("save file")))).clicked() {
                     self.push(Action::Save);
                     ui.close();
                 }
@@ -229,35 +247,49 @@ impl PeLensApp {
                     self.push(Action::Close);
                     ui.close();
                 }
-                if ui.add_enabled(has, egui::Button::new("create report\tCtrl+R")).clicked() {
+                if ui.add_enabled(has, egui::Button::new(format!("{}\tCtrl+R", self.state.t("create report")))).clicked() {
                     self.push(Action::CreateReport);
                     ui.close();
                 }
                 ui.separator();
-                if ui.button("exit pestudio\tCtrl+X").clicked() {
+                if ui.button(format!("{}\tCtrl+X", self.state.t("exit PELens"))).clicked() {
                     self.push(Action::Exit);
                     ui.close();
                 }
             });
-            ui.menu_button("view", |ui| {
+            ui.menu_button(self.state.t("view"), |ui| {
                 let dark = self.state.dark_mode();
-                if ui.button(if dark { "light mode" } else { "dark mode" }).clicked() {
+                if ui.button(self.state.t(if dark { "light mode" } else { "dark mode" })).clicked() {
                     self.push(Action::ToggleDarkMode);
                     ui.close();
                 }
-                if ui.button("expand all").clicked() {
+                if ui.button(self.state.t("expand all")).clicked() {
                     self.expand_all(true);
                     ui.close();
                 }
-                if ui.button("collapse all").clicked() {
+                if ui.button(self.state.t("collapse all")).clicked() {
                     self.expand_all(false);
                     ui.close();
                 }
+                ui.separator();
+                ui.menu_button(self.state.t("language"), |ui| {
+                    let cur = self.state.language_setting();
+                    if ui.radio(cur.is_none(), self.state.t("auto (system)")).clicked() {
+                        self.push(Action::SetLanguage(None));
+                        ui.close();
+                    }
+                    for l in Lang::ALL {
+                        if ui.radio(cur == Some(l), l.native_name()).clicked() {
+                            self.push(Action::SetLanguage(Some(l)));
+                            ui.close();
+                        }
+                    }
+                });
             });
             if ui.button(self.state.tr(232, "settings")).clicked() {
                 self.push(Action::ShowDialog(Dialog::Settings));
             }
-            if ui.button("about").clicked() {
+            if ui.button(self.state.t("about")).clicked() {
                 self.push(Action::ShowDialog(Dialog::About));
             }
         });
@@ -275,32 +307,45 @@ impl PeLensApp {
 
     fn toolbar(&mut self, ui: &mut egui::Ui) {
         let has = self.state.doc.is_some();
+        let dark = self.state.dark_mode();
+        let tip = |k: &str, keys: &str| {
+            let s = self.state.t(k);
+            if keys.is_empty() { s.to_string() } else { format!("{s} ({keys})") }
+        };
+        let tips = [
+            tip("open file", "Ctrl+O"),
+            tip("save file", "Ctrl+S"),
+            tip("close file", "Ctrl+E"),
+            tip("create report", "Ctrl+R"),
+            tip("query Virustotal score", ""),
+            tip("settings", ""),
+            tip(if dark { "light mode" } else { "dark mode" }, ""),
+        ];
         ui.horizontal(|ui| {
             let b = |ui: &mut egui::Ui, icon: &str, tip: &str, enabled: bool| -> bool {
                 ui.add_enabled(enabled, egui::Button::new(RichText::new(icon).size(15.0)).frame(false)).on_hover_text(tip).clicked()
             };
-            if b(ui, "📂", "open file (Ctrl+O)", true) {
+            if b(ui, "📂", &tips[0], true) {
                 self.push(Action::OpenDialog);
             }
-            if b(ui, "💾", "save file (Ctrl+S)", has) {
+            if b(ui, "💾", &tips[1], has) {
                 self.push(Action::Save);
             }
-            if b(ui, "✖", "close file (Ctrl+E)", has) {
+            if b(ui, "✖", &tips[2], has) {
                 self.push(Action::Close);
             }
-            if b(ui, "📝", "create report (Ctrl+R)", has) {
+            if b(ui, "📝", &tips[3], has) {
                 self.push(Action::CreateReport);
             }
             ui.separator();
-            if b(ui, "🛡", "query Virustotal score", has) {
+            if b(ui, "🛡", &tips[4], has) {
                 self.push(Action::QueryScore);
             }
             ui.separator();
-            if b(ui, "⚙", "settings", true) {
+            if b(ui, "⚙", &tips[5], true) {
                 self.push(Action::ShowDialog(Dialog::Settings));
             }
-            let dark = self.state.dark_mode();
-            if b(ui, if dark { "☀" } else { "🌙" }, if dark { "light mode" } else { "dark mode" }, true) {
+            if b(ui, if dark { "☀" } else { "🌙" }, &tips[6], true) {
                 self.push(Action::ToggleDarkMode);
             }
         });
@@ -324,7 +369,7 @@ impl PeLensApp {
                     );
                     if d.dirty {
                         ui.separator();
-                        ui.label(RichText::new("modified").small().color(self.flag_color()));
+                        ui.label(RichText::new(self.state.t("modified")).small().color(self.flag_color()));
                     }
                 }
             });
@@ -408,7 +453,7 @@ impl PeLensApp {
     fn tree(&mut self, ui: &mut egui::Ui) {
         if self.state.doc.is_none() {
             ui.add_space(8.0);
-            ui.label(RichText::new("drag-and-drop a file to analyse...").color(self.palette.muted));
+            ui.label(RichText::new(self.state.t(IDLE)).color(self.palette.muted));
             return;
         }
         let flag_color = self.flag_color();
@@ -434,7 +479,8 @@ impl PeLensApp {
                 let children = self.state.tree_children(t);
                 let open = self.expanded.contains(t.name());
                 let flagged = counts[i];
-                let label = if flagged > 0 { format!("{} ({flagged})", t.name()) } else { t.name().to_string() };
+                let name = self.state.t(t.name());
+                let label = if flagged > 0 { format!("{name} ({flagged})") } else { name.to_string() };
                 let color = if flagged > 0 { flag_color } else { text };
                 let selected = self.state.selected == t && self.state.filter.is_empty();
                 let (r, exp) =
@@ -508,7 +554,7 @@ impl PeLensApp {
     fn central(&mut self, ui: &mut egui::Ui) {
         let Some(table) = self.state.visible_table() else {
             ui.centered_and_justified(|ui| {
-                ui.label(RichText::new("drag-and-drop a file to analyse...").size(18.0).color(self.palette.muted))
+                ui.label(RichText::new(self.state.t(IDLE)).size(18.0).color(self.palette.muted))
             });
             return;
         };
@@ -517,27 +563,31 @@ impl PeLensApp {
         let file = self.state.doc.as_ref().map(|d| d.file_name()).unwrap_or_default();
         ui.horizontal(|ui| {
             ui.label(RichText::new(theme::icon(item)).size(18.0));
-            ui.label(RichText::new(item.name()).heading().strong());
-            ui.label(RichText::new(format!("{file}  ›  {}  ·  {} items", item.name(), table.rows.len())).color(p.muted));
+            let name = self.state.t(item.name());
+            ui.label(RichText::new(name).heading().strong());
+            let count = self.state.tf("{0} items", &[&table.rows.len()]);
+            ui.label(RichText::new(format!("{file}  ›  {name}  ·  {count}")).color(p.muted));
             ui.with_layout(Layout::right_to_left(Align::Center), |ui| {
                 if ui.button(self.state.tr(590, "save to file")).clicked() {
                     let sep = self.state.knowledge.settings.get("indicators", "separator").unwrap_or("|").to_string();
                     self.pending
                         .push(Action::SaveText { name: item.name().to_string(), text: pe_analysis::view::table_text(&table, &sep) });
                 }
-                ui.menu_button("column", |ui| {
+                ui.menu_button(self.state.t("column"), |ui| {
                     for (i, c) in table.columns.iter().enumerate() {
                         let mut vis = self.state.column_visible(item, i);
-                        if ui.checkbox(&mut vis, c).changed() {
+                        if ui.checkbox(&mut vis, self.state.t(c)).changed() {
                             self.state.toggle_column(item, i, table.columns.len());
                         }
                     }
                 });
-                ui.checkbox(&mut self.state.show_duplicates, "show duplicates");
-                if !self.state.filter.is_empty() && ui.small_button("⌫").on_hover_text("clear search").clicked() {
+                let (dups, clear, search) =
+                    (self.state.t("show duplicates"), self.state.t("clear search"), format!("🔍 {}", self.state.t("search")));
+                ui.checkbox(&mut self.state.show_duplicates, dups);
+                if !self.state.filter.is_empty() && ui.small_button("⌫").on_hover_text(clear).clicked() {
                     self.state.filter.clear();
                 }
-                ui.add(egui::TextEdit::singleline(&mut self.state.filter).hint_text("🔍 search").desired_width(220.0));
+                ui.add(egui::TextEdit::singleline(&mut self.state.filter).hint_text(search).desired_width(220.0));
             });
         });
         ui.add_space(4.0);
@@ -551,7 +601,7 @@ impl PeLensApp {
                         let width = (w * *n as f32 / total as f32).max(2.0);
                         let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 8.0), Sense::hover());
                         ui.painter().rect_filled(rect, 1.0, rgb(*c));
-                        resp.on_hover_text(format!("{name}: {n} strings"));
+                        resp.on_hover_text(self.state.tf("{0}: {1} strings", &[name, n]));
                     }
                 });
                 ui.add_space(4.0);
@@ -594,7 +644,9 @@ impl PeLensApp {
             return;
         }
         let p = self.palette;
-        let k = &self.state.knowledge;
+        let st = &self.state;
+        let k = &st.knowledge;
+        let headers: Vec<&str> = table.columns.iter().map(|c| st.t(c)).collect();
         let groups_color = k.settings.get_bool("groups", "color", true) && k.settings.get_bool("groups", "enable", true);
         let tooltips = k.settings.get_bool("tooltips", "enable", true);
         let flag_color = self.flag_color();
@@ -613,7 +665,7 @@ impl PeLensApp {
                 Column::remainder().at_least(60.0).clip(true)
             } else {
                 let w = theme::estimate_width(
-                    &table.columns[c],
+                    headers[c],
                     table.rows.iter().map(|r| r.cells.get(c).map(|x| x.chars().count()).unwrap_or(0)),
                     mono[c],
                 );
@@ -634,7 +686,7 @@ impl PeLensApp {
                         Some((sc, false)) if sc == c => " ▼",
                         _ => "",
                     };
-                    let r = ui.add(egui::Button::new(RichText::new(format!("{}{marker}", table.columns[c])).strong()).frame(false));
+                    let r = ui.add(egui::Button::new(RichText::new(format!("{}{marker}", headers[c])).strong()).frame(false));
                     if r.clicked() {
                         clicked_sort = Some(c);
                     }
@@ -672,19 +724,19 @@ impl PeLensApp {
                         if tooltips && resp.hovered() {
                             let mut tip = Vec::new();
                             if r.flag {
-                                tip.push("flag".to_string());
+                                tip.push(st.t("flag").to_string());
                             }
                             if let Some(g) = r.group {
-                                tip.push(format!("group: {}", k.group_name(g)));
+                                tip.push(st.tf("group: {0}", &[&k.group_name(g)]));
                             }
                             if let Some(ti) = &r.ti {
-                                tip.push(format!("technique: T{}", ti.trim_start_matches('T')));
+                                tip.push(st.tf("technique: {0}", &[&format!("T{}", ti.trim_start_matches('T'))]));
                             }
                             if let Some(u) = &r.url {
-                                tip.push(format!("url: {u}"));
+                                tip.push(st.tf("url: {0}", &[u]));
                             }
                             if let Some(j) = r.jump {
-                                tip.push(format!("double click > {}", j.name()));
+                                tip.push(st.tf("double click > {0}", &[&st.t(j.name())]));
                             }
                             if !tip.is_empty() {
                                 resp.on_hover_text(tip.join("\n"));
@@ -704,7 +756,7 @@ impl PeLensApp {
                     }
                 }
                 resp.context_menu(|ui| {
-                    for (label, a) in self.state.context_actions(item, r, &table.columns, &sep) {
+                    for (label, a) in st.context_actions(item, r, &table.columns, &sep) {
                         if ui.button(label).clicked() {
                             actions.push(a);
                             ui.close();
@@ -729,30 +781,33 @@ impl PeLensApp {
             Dialog::None => {}
             Dialog::Settings => self.settings_window(ctx),
             Dialog::About => self.about_window(ctx),
-            Dialog::ConfirmDiscard(_) => self.confirm(ctx, "save changes ?", "discard the modifications and proceed?"),
-            Dialog::ConfirmOverwrite(p) => self.confirm(ctx, "overwrite the file?", &p.display().to_string()),
+            Dialog::ConfirmDiscard(_) => {
+                let (title, text) = (self.state.t("save changes ?"), self.state.t("discard the modifications and proceed?"));
+                self.confirm(ctx, title, text)
+            }
+            Dialog::ConfirmOverwrite(p) => self.confirm(ctx, self.state.t("overwrite the file?"), &p.display().to_string()),
             Dialog::Message(m) => {
                 egui::Modal::new(egui::Id::new("message")).show(ctx, |ui| {
                     ui.set_max_width(520.0);
                     ui.label(m);
                     ui.add_space(6.0);
-                    if ui.button("OK").clicked() {
+                    if ui.button(self.state.t("OK")).clicked() {
                         self.push(Action::Cancel);
                     }
                 });
             }
             Dialog::EntryPoint(mut s) => {
                 egui::Modal::new(egui::Id::new("ep")).show(ctx, |ui| {
-                    ui.label(RichText::new("set entry-point").strong());
-                    ui.label("RVA, e.g. 0x1000");
+                    ui.label(RichText::new(self.state.tr(603, "set entry-point")).strong());
+                    ui.label(self.state.t("RVA, e.g. 0x1000"));
                     if ui.text_edit_singleline(&mut s).changed() {
                         self.state.dialog = Dialog::EntryPoint(s.clone());
                     }
                     ui.horizontal(|ui| {
-                        if ui.button("proceed").clicked() {
+                        if ui.button(self.state.t("proceed")).clicked() {
                             self.push(Action::Confirm);
                         }
-                        if ui.button("Cancel").clicked() {
+                        if ui.button(self.state.t("Cancel")).clicked() {
                             self.push(Action::Cancel);
                         }
                     });
@@ -767,10 +822,10 @@ impl PeLensApp {
             ui.label(text);
             ui.add_space(6.0);
             ui.horizontal(|ui| {
-                if ui.button("proceed").clicked() {
+                if ui.button(self.state.t("proceed")).clicked() {
                     self.push(Action::Confirm);
                 }
-                if ui.button("Cancel").clicked() {
+                if ui.button(self.state.t("Cancel")).clicked() {
                     self.push(Action::Cancel);
                 }
             });
@@ -779,22 +834,25 @@ impl PeLensApp {
 
     fn about_window(&mut self, ctx: &egui::Context) {
         let mut open = true;
-        egui::Window::new("PELens | about").open(&mut open).collapsible(false).resizable(false).show(ctx, |ui| {
+        let title = format!("PELens | {}", self.state.t("about"));
+        egui::Window::new(title).id(egui::Id::new("about")).open(&mut open).collapsible(false).resizable(false).show(ctx, |ui| {
+            let t = |k| self.state.t(k);
             ui.heading(format!("PELens {VERSION}"));
-            ui.label("Malware Initial Assessment (Rust remake of pestudio 9.61)");
-            ui.small("This software is provided 'as-is', without any expressed or implied warranty.");
-            ui.small("When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.");
+            ui.label(t("Malware Initial Assessment (Rust remake of pestudio 9.61)"));
+            ui.small(t("This software is provided 'as-is', without any expressed or implied warranty."));
+            ui.small(t("When retrieving the online score of a file, the file itself is not submitted, only its hash is sent."));
             ui.separator();
-            ui.label("Knowledge base: pestudio XML files from your own installation");
+            ui.label(t("Knowledge base: pestudio XML files from your own installation"));
             if let Some(d) = &self.state.knowledge.dir {
                 ui.label(RichText::new(format!("xml: {}", d.display())).monospace());
             }
-            ui.label(format!("loaded: {} | errors: {}", self.state.knowledge.loaded.len(), self.state.knowledge.errors.len()));
+            let k = &self.state.knowledge;
+            ui.label(self.state.tf("loaded: {0} | errors: {1}", &[&k.loaded.len(), &k.errors.len()]));
             if !self.fonts_loaded.is_empty() {
-                ui.small(format!("fonts: {}", self.fonts_loaded.join(", ")));
+                ui.small(self.state.tf("fonts: {0}", &[&self.fonts_loaded.join(", ")]));
             }
             ui.separator();
-            if ui.button("Check online for an update").clicked() {
+            if ui.button(self.state.t("Check online for an update")).clicked() {
                 self.push(Action::CheckUpdate);
             }
             if self.state.update_rx.is_some() {
@@ -811,10 +869,11 @@ impl PeLensApp {
 
     fn settings_window(&mut self, ctx: &egui::Context) {
         let mut open = true;
-        egui::Window::new("PELens > settings").open(&mut open).collapsible(false).default_width(460.0).show(ctx, |ui| {
+        let title = format!("PELens > {}", self.state.t("settings"));
+        egui::Window::new(title).id(egui::Id::new("settings")).open(&mut open).collapsible(false).default_width(460.0).show(ctx, |ui| {
             ui.horizontal(|ui| {
                 for t in setting_tabs() {
-                    if ui.selectable_label(self.settings_tab == t, t).clicked() {
+                    if ui.selectable_label(self.settings_tab == t, self.state.t(t)).clicked() {
                         self.settings_tab = t;
                     }
                 }
@@ -824,14 +883,15 @@ impl PeLensApp {
             egui::Grid::new("settings-grid").num_columns(2).spacing([12.0, 6.0]).show(ui, |ui| {
                 for f in SETTING_FIELDS.iter().filter(|f| f.tab == self.settings_tab) {
                     let cur = self.state.knowledge.settings.get(f.elem, f.attr).unwrap_or(setting_default(f)).to_string();
+                    let label = self.state.t(f.label);
                     if f.choices.is_empty() {
                         let mut b = cur != "0";
-                        if ui.checkbox(&mut b, f.label).changed() {
+                        if ui.checkbox(&mut b, label).changed() {
                             changes.push((f.elem, f.attr, if b { "1".into() } else { "0".into() }));
                         }
                         ui.label("");
                     } else if f.choices[0].0 == "*" {
-                        ui.label(f.label);
+                        ui.label(label);
                         let mut v = if f.attr == "key" { self.key_buffer.clone() } else { cur.clone() };
                         let r = if f.attr == "key" {
                             ui.add(egui::TextEdit::singleline(&mut v).password(true))
@@ -840,16 +900,26 @@ impl PeLensApp {
                         };
                         if f.attr == "key" {
                             self.key_buffer = v.clone();
-                            r.clone().on_hover_text("Your own Virustotal key used to perform queries.");
+                            r.clone().on_hover_text(self.state.t("Your own Virustotal key used to perform queries."));
                         }
                         if r.lost_focus() && v != cur {
                             changes.push((f.elem, f.attr, v));
                         }
+                    } else if f.choices.len() > COMBO_CHOICES {
+                        ui.label(label);
+                        let shown = f.choices.iter().find(|c| c.0.eq_ignore_ascii_case(&cur)).map_or(cur.as_str(), |c| c.1);
+                        egui::ComboBox::from_id_salt(f.label).selected_text(self.state.t(shown)).show_ui(ui, |ui| {
+                            for (val, lab) in f.choices {
+                                if ui.selectable_label(cur.eq_ignore_ascii_case(val), self.state.t(lab)).clicked() && cur != *val {
+                                    changes.push((f.elem, f.attr, val.to_string()));
+                                }
+                            }
+                        });
                     } else {
-                        ui.label(f.label);
+                        ui.label(label);
                         ui.horizontal(|ui| {
                             for (val, lab) in f.choices {
-                                if ui.selectable_label(cur == *val, *lab).clicked() && cur != *val {
+                                if ui.selectable_label(cur == *val, self.state.t(lab)).clicked() && cur != *val {
                                     changes.push((f.elem, f.attr, val.to_string()));
                                 }
                             }

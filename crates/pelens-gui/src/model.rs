@@ -1,5 +1,6 @@
 //! GUI state and actions, independent from the rendering code (fully unit-testable).
 
+use crate::i18n::{self, Lang};
 use pe_analysis::actions::{self, Modification};
 use pe_analysis::model::{Analysis, ItemType};
 use pe_analysis::report::{self, Format};
@@ -14,6 +15,8 @@ use std::sync::mpsc::{Receiver, channel};
 pub trait Host {
     fn pick_open(&mut self) -> Option<PathBuf>;
     fn pick_save(&mut self, default_name: &str, filter: (&str, &[&str])) -> Option<PathBuf>;
+    /// Language of the dialog titles and filter names.
+    fn set_lang(&mut self, _lang: Lang) {}
 }
 
 pub struct Document {
@@ -89,6 +92,8 @@ pub enum Action {
     /// Select a view and filter it (tree sub-items).
     SelectFiltered(ItemType, String),
     ToggleDarkMode,
+    /// Change the interface language (None = follow the system).
+    SetLanguage(Option<Lang>),
     SelectNext,
     SelectPrevious,
     CopyText(String),
@@ -163,6 +168,9 @@ pub struct State {
     pub synchronous: bool,
     /// Visible (filtered/sorted) table of the selected view, reused across frames.
     view_cache: Option<(ViewKey, Arc<Table>)>,
+    /// Interface language (settings.xml `<language code>`, else `system_lang`).
+    pub lang: Lang,
+    pub system_lang: Lang,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -177,6 +185,9 @@ struct ViewKey {
 
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
+/// Status shown while no file is loaded.
+pub const IDLE: &str = "drag-and-drop a file to analyse...";
+
 fn default_http() -> std::sync::Arc<dyn Fn(&Knowledge) -> Box<dyn pe_online::HttpClient + Send> + Send + Sync> {
     std::sync::Arc::new(|k: &Knowledge| {
         Box::new(pe_online::UreqClient::new(&pe_online::net_config(k))) as Box<dyn pe_online::HttpClient + Send>
@@ -186,7 +197,7 @@ fn default_http() -> std::sync::Arc<dyn Fn(&Knowledge) -> Box<dyn pe_online::Htt
 impl State {
     pub fn new(knowledge: Knowledge) -> Self {
         let view = ViewOptions::from_settings(&knowledge);
-        State {
+        let mut s = State {
             knowledge,
             view,
             doc: None,
@@ -196,7 +207,7 @@ impl State {
             sort: None,
             show_duplicates: true,
             hidden_columns: HashMap::new(),
-            status: "drag-and-drop a file to analyse...".into(),
+            status: IDLE.into(),
             dialog: Dialog::None,
             effects: Effects::default(),
             busy: None,
@@ -207,7 +218,11 @@ impl State {
             http: default_http(),
             synchronous: false,
             view_cache: None,
-        }
+            lang: Lang::En,
+            system_lang: Lang::En,
+        };
+        s.refresh_lang();
+        s
     }
 
     pub fn title(&self) -> String {
@@ -219,12 +234,44 @@ impl State {
         }
     }
 
-    /// UI text from translations.xml (pestudio's localisation file) with a built-in fallback.
+    /// Interface text in the current language (the English text is the key).
+    pub fn t<'a>(&self, key: &'a str) -> &'a str {
+        i18n::translate(self.lang, key)
+    }
+
+    /// Translated template with `{0}`, `{1}`, … replaced.
+    pub fn tf(&self, key: &str, args: &[&dyn std::fmt::Display]) -> String {
+        i18n::fill(self.t(key), args)
+    }
+
+    /// UI text of a pestudio translation id. In English, translations.xml (pestudio's localisation
+    /// file) wins; in other languages the built-in catalog does.
     pub fn tr(&self, id: u32, default: &str) -> String {
+        if self.lang != Lang::En {
+            return self.t(default).to_string();
+        }
         match self.knowledge.translations.text.get(&id).map(|s| s.trim()) {
             Some(t) if !t.is_empty() => t.to_string(),
             _ => default.to_string(),
         }
+    }
+
+    /// The language chosen in the settings (`None` = follow the system).
+    pub fn language_setting(&self) -> Option<Lang> {
+        self.knowledge.settings.get("language", "code").and_then(Lang::from_code)
+    }
+
+    /// Recompute `lang` after the setting or the system language changed.
+    pub fn refresh_lang(&mut self) {
+        self.lang = self.language_setting().unwrap_or(self.system_lang);
+        if self.doc.is_none() && self.busy.is_none() {
+            self.status = self.t(IDLE).into();
+        }
+    }
+
+    pub fn set_system_lang(&mut self, lang: Lang) {
+        self.system_lang = lang;
+        self.refresh_lang();
     }
 
     /// Dark mode is the default; `<theme dark="0"/>` selects the light palette.
@@ -242,7 +289,7 @@ impl State {
                 .iter()
                 .map(|s| {
                     let n = if s.nameless { "(nameless)".to_string() } else { s.name.clone() };
-                    (n.clone(), n, !s.standard_name || s.self_modifying)
+                    (self.t(&n).to_string(), n, !s.standard_name || s.self_modifying)
                 })
                 .collect(),
             ItemType::Libraries => a.libraries.iter().map(|l| (l.name.clone(), l.name.clone(), l.flag || l.spoofed)).collect(),
@@ -264,7 +311,7 @@ impl State {
                 .iter()
                 .filter_map(|(sev, name)| {
                     let n = a.indicators.iter().filter(|i| i.severity == *sev).count();
-                    (n > 0).then(|| (format!("{name} ({n})"), name.to_string(), *sev == 1))
+                    (n > 0).then(|| (format!("{} ({n})", self.t(name)), name.to_string(), *sev == 1))
                 })
                 .collect(),
             _ => Vec::new(),
@@ -358,7 +405,7 @@ impl State {
     }
 
     fn start_open(&mut self, path: PathBuf) {
-        self.status = "please wait while analyzing the file...".into();
+        self.status = self.t("please wait while analyzing the file...").into();
         let k = self.knowledge.clone();
         let job = move || -> Result<(PathBuf, Vec<u8>, Analysis), String> {
             let opts = pe_analysis::Options::from_settings(&k);
@@ -386,7 +433,7 @@ impl State {
             changed = true;
             match r {
                 Ok((p, d, a)) => {
-                    self.status = format!("{} | {} bytes | indicators: {}", a.file_type, a.size, a.indicators.len());
+                    self.status = self.tf("{0} | {1} bytes | indicators: {2}", &[&a.file_type, &a.size, &a.indicators.len()]);
                     self.doc = Some(Document::new(p, d, a));
                     self.view_cache = None;
                     self.selected_row = None;
@@ -405,7 +452,7 @@ impl State {
                     }
                 }
                 Err(e) => {
-                    self.status = format!("Image not found ({e})");
+                    self.status = self.tf("Image not found ({0})", &[&e]);
                     self.dialog = Dialog::Message(e);
                 }
             }
@@ -427,9 +474,9 @@ impl State {
             self.update_rx = None;
             changed = true;
             self.update_result = Some(match r {
-                Ok(v) if pe_online::is_newer(&v, "9.61") => format!("The newest version of pestudio is: {v}"),
-                Ok(v) => format!("pestudio {v} (reference knowledge base) | up to date"),
-                Err(e) => format!("internet connection failed ({e})"),
+                Ok(v) if pe_online::is_newer(&v, "9.61") => self.tf("The newest version of pestudio is: {0}", &[&v]),
+                Ok(v) => self.tf("pestudio {0} (reference knowledge base) | up to date", &[&v]),
+                Err(e) => self.tf("internet connection failed ({0})", &[&e]),
             });
         }
         changed
@@ -463,14 +510,14 @@ impl State {
                 let Some(d) = &self.doc else { return };
                 let fmt = Format::from_setting(self.knowledge.settings.get_int("report", "type", 0));
                 let name = format!("{}.{}", d.file_name(), fmt.extension());
-                if let Some(p) = host.pick_save(&name, ("report", &[fmt.extension()])) {
+                if let Some(p) = host.pick_save(&name, (self.t("report"), &[fmt.extension()])) {
                     self.apply(Action::CreateReportAt(p, fmt));
                 }
             }
             Action::Dump { offset, size, name } => {
                 let Some(d) = &self.doc else { return };
                 let n = actions::dump_name(&d.file_name(), &name);
-                if let Some(p) = host.pick_save(&n, ("dump", &["dump"])) {
+                if let Some(p) = host.pick_save(&n, (self.t("dump"), &["dump"])) {
                     self.apply(Action::DumpTo { offset, size, path: p });
                 }
             }
@@ -479,7 +526,7 @@ impl State {
                     Some(d) => format!("{}.{name}.txt", d.file_name()),
                     None => format!("{name}.txt"),
                 };
-                if let Some(p) = host.pick_save(&n, ("text", &["txt"])) {
+                if let Some(p) = host.pick_save(&n, (self.t("text"), &["txt"])) {
                     self.apply(Action::SaveTextTo { path: p, text });
                 }
             }
@@ -487,7 +534,7 @@ impl State {
                 let Some(d) = &self.doc else { return };
                 if self.read_only() {
                     let n = d.file_name();
-                    if let Some(p) = host.pick_save(&n, ("executable", &["exe", "dll", "sys"])) {
+                    if let Some(p) = host.pick_save(&n, (self.t("executable"), &["exe", "dll", "sys"])) {
                         self.apply(Action::SaveAs(p));
                     }
                 } else {
@@ -509,7 +556,7 @@ impl State {
             Action::Close => {
                 if self.guard_discard(Pending::Close) {
                     self.doc = None;
-                    self.status = "close file".into();
+                    self.status = self.tr(607, "close file");
                     self.effects.title = Some(self.title());
                 }
             }
@@ -523,8 +570,8 @@ impl State {
                 let Some(d) = &self.doc else { return };
                 let text = report::render(&d.analysis, &self.knowledge, &d.data, fmt);
                 self.status = match std::fs::write(&p, text) {
-                    Ok(()) => format!("report: {}", p.display()),
-                    Err(e) => format!("Cannot create Report file! ({e})"),
+                    Ok(()) => self.tf("report: {0}", &[&p.display()]),
+                    Err(e) => self.tf("Cannot create Report file! ({0})", &[&e]),
                 };
             }
             Action::Select(t) => {
@@ -541,6 +588,7 @@ impl State {
                 let dark = self.dark_mode();
                 self.set_setting("theme", "dark", if dark { "0" } else { "1" });
             }
+            Action::SetLanguage(l) => self.set_setting("language", "code", l.map(Lang::code).unwrap_or("auto")),
             Action::SelectNext | Action::SelectPrevious => {
                 let nodes = self.nodes();
                 let i = nodes.iter().position(|&n| n == self.selected).unwrap_or(0);
@@ -548,15 +596,15 @@ impl State {
                 self.apply(Action::Select(nodes[j]));
             }
             Action::CopyText(t) => {
-                self.status = "copy to clipboard".into();
+                self.status = self.t("copy to clipboard").into();
                 self.effects.copied.push(t);
             }
             Action::OpenUrl(u) => self.effects.urls.push(u),
             Action::DumpTo { offset, size, path } => {
                 let Some(d) = &self.doc else { return };
                 self.status = match actions::dump(&d.data, offset, size, &path) {
-                    Ok(n) => format!("dump to file: {} ({n} bytes)", path.display()),
-                    Err(e) => format!("dump failed: {e}"),
+                    Ok(n) => self.tf("dump to file: {0} ({1} bytes)", &[&path.display(), &n]),
+                    Err(e) => self.tf("dump failed: {0}", &[&e]),
                 };
             }
             Action::OpenEmbedded { offset, size } => {
@@ -636,17 +684,17 @@ impl State {
                     pe_online::vt_file_report(client.as_ref(), api, &key, &q.to_ascii_lowercase())
                 };
                 let msg = if r.status == "ok" {
-                    format!("virustotal > {label}: {}/{} ({})", r.positives, r.total, r.permalink)
+                    format!("virustotal > {}: {}/{} ({})", self.t(&label), r.positives, r.total, r.permalink)
                 } else {
-                    format!("virustotal > {label}: {}", r.status)
+                    format!("virustotal > {}: {}", self.t(&label), r.status)
                 };
                 self.status = msg.clone();
                 self.dialog = Dialog::Message(msg);
             }
             Action::SaveTextTo { path, text } => {
                 self.status = match std::fs::write(&path, text) {
-                    Ok(()) => format!("save to file: {}", path.display()),
-                    Err(e) => format!("save failed: {e}"),
+                    Ok(()) => self.tf("save to file: {0}", &[&path.display()]),
+                    Err(e) => self.tf("save failed: {0}", &[&e]),
                 };
             }
             Action::CheckUpdate => {
@@ -681,7 +729,7 @@ impl State {
                     Dialog::ConfirmOverwrite(p) => self.save_to(&p),
                     Dialog::EntryPoint(s) => match actions::parse_address(&s) {
                         Some(v) => self.apply(Action::Modify(Modification::SetEntryPoint(v))),
-                        None => self.dialog = Dialog::Message(format!("invalid address: {s}")),
+                        None => self.dialog = Dialog::Message(self.tf("invalid address: {0}", &[&s])),
                     },
                     _ => {}
                 }
@@ -697,10 +745,10 @@ impl State {
             Ok(()) => {
                 d.dirty = false;
                 d.path = p.to_path_buf();
-                self.status = format!("save file: {}", p.display());
+                self.status = self.tf("save file: {0}", &[&p.display()]);
                 self.effects.title = Some(self.title());
             }
-            Err(e) => self.dialog = Dialog::Message(format!("save failed: {e}")),
+            Err(e) => self.dialog = Dialog::Message(self.tf("save failed: {0}", &[&e])),
         }
     }
 
@@ -711,7 +759,7 @@ impl State {
                     let (p, data, dirty) = (d.path.clone(), d.data.clone(), d.dirty);
                     self.reanalyze(p, data, dirty);
                 }
-                self.status = "settings saved".into();
+                self.status = self.t("settings saved").into();
             }
             Err(e) => self.dialog = Dialog::Message(e.to_string()),
         }
@@ -728,7 +776,10 @@ impl State {
         if let Err(e) = r {
             // the element may be missing in settings.xml: keep the value in memory
             self.knowledge.settings.set(elem, attr, value);
-            self.status = format!("setting kept in memory ({e})");
+            self.status = self.tf("setting kept in memory ({0})", &[&e]);
+        }
+        if elem == "language" {
+            self.refresh_lang();
         }
         self.view = ViewOptions::from_settings(&self.knowledge);
         if let Some(d) = self.doc.as_mut() {
@@ -768,15 +819,15 @@ impl State {
         }) {
             let q = if item == ItemType::Strings { row.cells.last().cloned().unwrap_or_default() } else { first.clone() };
             v.push((t(585, "search Virustotal"), Action::OpenUrl(pe_online::vt_search_content(&q))));
-            v.push(("search Google".into(), Action::OpenUrl(pe_online::google_search(&q))));
+            v.push((self.t("search Google").into(), Action::OpenUrl(pe_online::google_search(&q))));
             if item == ItemType::Strings && row.cells.get(4).is_some_and(|h| h == "url-pattern") {
-                v.push(("score > Virustotal (url)".into(), Action::QueryItemScore("url".into(), q.clone(), true)));
+                v.push((self.t("score > Virustotal (url)").into(), Action::QueryItemScore("url".into(), q.clone(), true)));
             }
         }
         if let Some(h) = row.key.strip_prefix("hash:") {
             v.push((t(585, "search Virustotal"), Action::OpenUrl(pe_online::vt_search_hash(h))));
             v.push((
-                "score > Virustotal".into(),
+                self.t("score > Virustotal").into(),
                 Action::QueryItemScore(row.cells.first().cloned().unwrap_or_default(), h.to_string(), false),
             ));
         }
@@ -798,7 +849,7 @@ impl State {
             if item == ItemType::Indicators {
                 let tbl = pe_analysis::view::table(&d.analysis, &self.knowledge, &d.data, ItemType::Indicators, &self.view);
                 v.push((
-                    "dump indicators to file".into(),
+                    self.t("dump indicators to file").into(),
                     Action::SaveText { name: "indicators".into(), text: pe_analysis::view::table_text(&tbl, sep) },
                 ));
             }
@@ -808,31 +859,31 @@ impl State {
         }
         if let Some(id) = row.key.strip_prefix("indicator:").and_then(|s| s.parse::<u32>().ok()) {
             for (l, s) in [("severity +++", 1u8), ("severity ++", 2), ("severity +", 3)] {
-                v.push((l.into(), Action::SetIndicatorSeverity(id, s)));
+                v.push((self.t(l).into(), Action::SetIndicatorSeverity(id, s)));
             }
         }
         if let Some(l) = row.key.strip_prefix("lib:") {
-            v.push(("toggle flag".into(), Action::ToggleLibraryFlag(l.to_string())));
+            v.push((self.t("toggle flag").into(), Action::ToggleLibraryFlag(l.to_string())));
             v.push((t(95, "open Virustotal in a Browser"), Action::OpenUrl(pe_online::vt_search_content(l))));
         }
         if let Some(rest) = row.key.strip_prefix("import:")
             && let Some((l, f)) = rest.split_once('|')
         {
-            v.push(("toggle flag".into(), Action::ToggleFunctionFlag(l.to_string(), f.to_string())));
-            v.push(("lookup in Browser (MSDN)".into(), Action::OpenUrl(pe_online::msdn_search(f))));
+            v.push((self.t("toggle flag").into(), Action::ToggleFunctionFlag(l.to_string(), f.to_string())));
+            v.push((self.t("lookup in Browser (MSDN)").into(), Action::OpenUrl(pe_online::msdn_search(f))));
         }
         if let Some(ns) = row.key.strip_prefix("ns:") {
             v.push((t(601, "copy namespace"), Action::CopyText(ns.to_string())));
-            v.push(("toggle flag".into(), Action::ToggleNamespaceFlag(ns.to_string())));
+            v.push((self.t("toggle flag").into(), Action::ToggleNamespaceFlag(ns.to_string())));
         }
         if let Some(idx) = row.key.strip_prefix("resource:").and_then(|s| s.parse::<usize>().ok())
             && let Some(r) = self.doc.as_ref().and_then(|d| d.analysis.resources.get(idx))
         {
-            v.push(("toggle language flag".into(), Action::ToggleLanguageFlag((r.language & 0xffff) as u16)));
-            v.push(("score > Virustotal".into(), Action::QueryItemScore(format!("resource {}", r.name), r.md5.clone(), false)));
+            v.push((self.t("toggle language flag").into(), Action::ToggleLanguageFlag((r.language & 0xffff) as u16)));
+            v.push((self.t("score > Virustotal").into(), Action::QueryItemScore(self.tf("resource {0}", &[&r.name]), r.md5.clone(), false)));
             if !r.signature.is_empty() && self.knowledge.signatures.iter().any(|s| s.name == r.signature) {
                 for (l, s) in [("signature > severity +++", 1u8), ("signature > severity ++", 2), ("signature > severity +", 3)] {
-                    v.push((l.into(), Action::SetSignatureSeverity(r.signature.clone(), s)));
+                    v.push((self.t(l).into(), Action::SetSignatureSeverity(r.signature.clone(), s)));
                 }
             }
         }
@@ -840,24 +891,24 @@ impl State {
             if bit == pe_parser::headers::file_characteristics::DLL {
                 let is_dll = row.cells.get(1).is_some_and(|c| c == "true");
                 v.push((
-                    if is_dll { "toggle DLL > EXE" } else { "toggle EXE > DLL" }.into(),
+                    self.t(if is_dll { "toggle DLL > EXE" } else { "toggle EXE > DLL" }).into(),
                     Action::Modify(Modification::SetDll(!is_dll)),
                 ));
             } else {
-                v.push(("toggle characteristic".into(), Action::Modify(Modification::ToggleFileCharacteristic(bit))));
+                v.push((self.t("toggle characteristic").into(), Action::Modify(Modification::ToggleFileCharacteristic(bit))));
             }
         }
         if let Some(bit) = row.key.strip_prefix("dll-char:").and_then(|s| s.parse::<u16>().ok()) {
-            v.push(("toggle characteristic".into(), Action::Modify(Modification::ToggleDllCharacteristic(bit))));
+            v.push((self.t("toggle characteristic").into(), Action::Modify(Modification::ToggleDllCharacteristic(bit))));
         }
         if row.key == "ep" {
             v.push((t(603, "set entry-point"), Action::ShowDialog(Dialog::EntryPoint(String::new()))));
         }
         if row.key == "overlay" {
-            v.push((format!("{} overlay", t(596, "delete")), Action::Modify(Modification::RemoveOverlay)));
+            v.push((self.tf("{0} overlay", &[&t(596, "delete")]), Action::Modify(Modification::RemoveOverlay)));
         }
         if let Some(j) = row.jump {
-            v.push((format!("jump > {}", j.name()), Action::Select(j)));
+            v.push((self.tf("jump > {0}", &[&self.t(j.name())]), Action::Select(j)));
         }
         v
     }
@@ -874,6 +925,23 @@ pub struct SettingField {
 }
 
 pub const SETTING_FIELDS: &[SettingField] = &[
+    SettingField {
+        tab: "General",
+        label: "language",
+        elem: "language",
+        attr: "code",
+        choices: &[
+            ("auto", "auto (system)"),
+            ("en", "English"),
+            ("zh-TW", "繁體中文"),
+            ("zh-CN", "简体中文"),
+            ("ja", "日本語"),
+            ("ko", "한국어"),
+            ("es", "Español"),
+            ("de", "Deutsch"),
+            ("fr", "Français"),
+        ],
+    },
     SettingField { tab: "General", label: "show groups color", elem: "groups", attr: "color", choices: &[] },
     SettingField { tab: "General", label: "show Mitre", elem: "mitre", attr: "enable", choices: &[] },
     SettingField { tab: "General", label: "show Mitre Tactics", elem: "mitre", attr: "ta", choices: &[] },
@@ -952,6 +1020,7 @@ pub fn setting_default(f: &SettingField) -> &'static str {
         ("indicators", "bytes") => "32",
         ("report", "type") | ("strings", "limit") => "0",
         ("score", "api") => "3",
+        ("language", _) => "auto",
         ("score", "key") | ("score", "favorite") | ("proxy", _) => "",
         ("overlay", "score") | ("strings", "cjk") => "0",
         ("stamps", "epoch") | ("score", "enable") => "0",

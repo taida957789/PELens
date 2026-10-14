@@ -1,0 +1,273 @@
+# PELens interface — 한국어 (ko)
+# English text<TAB>translation. {0}, {1}… are placeholders and must be kept.
+
+# status and messages
+drag-and-drop a file to analyse...	분석할 파일을 끌어다 놓으세요...
+please wait while analyzing the file...	파일을 분석하는 중입니다. 잠시 기다려 주세요...
+{0} | {1} bytes | indicators: {2}	{0} | {1}바이트 | 지표: {2}
+Image not found ({0})	파일을 찾을 수 없습니다({0})
+The newest version of pestudio is: {0}	pestudio 최신 버전: {0}
+pestudio {0} (reference knowledge base) | up to date	pestudio {0}(참조 지식 베이스) | 최신 상태
+internet connection failed ({0})	인터넷 연결에 실패했습니다({0})
+report	보고서
+dump	덤프
+text	텍스트
+executable	실행 파일
+report: {0}	보고서: {0}
+Cannot create Report file! ({0})	보고서 파일을 만들 수 없습니다! ({0})
+copy to clipboard	클립보드에 복사했습니다
+dump to file: {0} ({1} bytes)	파일로 덤프했습니다: {0}({1}바이트)
+dump failed: {0}	덤프 실패: {0}
+save to file: {0}	파일로 저장했습니다: {0}
+save failed: {0}	저장 실패: {0}
+invalid address: {0}	잘못된 주소: {0}
+save file: {0}	파일을 저장했습니다: {0}
+settings saved	설정을 저장했습니다
+setting kept in memory ({0})	설정이 메모리에만 유지됩니다({0})
+
+# context menu
+copy line	행 복사
+copy import name	임포트 이름 복사
+copy indicator	지표 복사
+copy name	이름 복사
+copy property	속성 복사
+copy item	항목 복사
+copy value	값 복사
+copy detail	세부 정보 복사
+copy description	설명 복사
+lookup in Browser	브라우저에서 조회
+search Virustotal	VirusTotal에서 검색
+search Google	Google에서 검색
+score > Virustotal (url)	점수 > VirusTotal(URL)
+score > Virustotal	점수 > VirusTotal
+copy technique	기법 복사
+attack.mitre.org	attack.mitre.org
+dump stream	스트림 덤프
+dump to file	파일로 덤프
+open in PELens	PELens에서 열기
+dump indicators to file	지표를 파일로 덤프
+copy file name	파일 이름 복사
+toggle flag	플래그 전환
+open Virustotal in a Browser	브라우저에서 VirusTotal 열기
+lookup in Browser (MSDN)	브라우저에서 조회(MSDN)
+copy namespace	네임스페이스 복사
+toggle language flag	언어 플래그 전환
+resource {0}	리소스 {0}
+toggle DLL > EXE	전환 DLL > EXE
+toggle EXE > DLL	전환 EXE > DLL
+toggle characteristic	특성 전환
+set entry-point	진입점 설정
+delete	삭제
+{0} overlay	overlay {0}
+jump > {0}	이동 > {0}
+severity +++	심각도 +++
+severity ++	심각도 ++
+severity +	심각도 +
+signature > severity +++	시그니처 > 심각도 +++
+signature > severity ++	시그니처 > 심각도 ++
+signature > severity +	시그니처 > 심각도 +
+
+# settings
+General	일반
+language	언어
+auto (system)	자동(시스템)
+show groups color	그룹 색상 표시
+show Mitre	MITRE 표시
+show Mitre Tactics	MITRE 전술 표시
+show Mitre duplicates	MITRE 중복 표시
+show Relocations	재배치 표시
+show Exceptions	예외 표시
+show Epoch stamps	Epoch 타임스탬프 표시
+sample is read-only	샘플을 읽기 전용으로
+show sample in caption	제목 표시줄에 샘플 표시
+show strings	문자열 표시
+extract CJK unicode strings	CJK 유니코드 문자열 추출
+show tooltips	도구 설명 표시
+upper-case hash values	해시 값을 대문자로
+Report format:	보고서 형식:
+Disable strings when file size exceeds:	파일 크기가 다음을 넘으면 문자열 비활성화:
+no-limit	제한 없음
+Footprints	풋프린트
+Type of footprints to use:	사용할 풋프린트 종류:
+string-tables	문자열 테이블
+menus	메뉴
+dialogs	대화 상자
+icons	아이콘
+cursors	커서
+bitmaps	비트맵
+First-bytes (hex|text)	첫 바이트(hex|text)
+Number of bytes to retrieve:	가져올 바이트 수:
+16 bytes	16바이트
+32 bytes	32바이트
+64 bytes	64바이트
+Virustotal	VirusTotal
+enable Virustotal query	VirusTotal 조회 사용
+Key to use when proceeding to query:	조회에 사용할 키:
+favorite engine(s)	선호 엔진
+query overlay score	overlay 점수 조회
+API version	API 버전
+proxy address	프록시 주소
+proxy port	프록시 포트
+Your own Virustotal key used to perform queries.	조회에 사용할 본인의 VirusTotal 키입니다.
+
+# file dialogs
+Select file to open	열 파일 선택
+Exe files (*.exe)	실행 파일 (*.exe)
+Dll files (*.dll)	DLL 파일 (*.dll)
+Sys files (*.sys)	드라이버 파일 (*.sys)
+All Files (*.*)	모든 파일 (*.*)
+save to file	파일로 저장
+
+# menus, toolbar, main window
+file	파일
+open file	파일 열기
+save file	파일 저장
+close file	파일 닫기
+create report	보고서 만들기
+exit PELens	PELens 종료
+view	보기
+light mode	라이트 모드
+dark mode	다크 모드
+expand all	모두 펼치기
+collapse all	모두 접기
+about	정보
+settings	설정
+query Virustotal score	VirusTotal 점수 조회
+modified	수정됨
+{0} items	{0}개 항목
+column	열
+show duplicates	중복 표시
+clear search	검색 지우기
+search	검색
+{0}: {1} strings	{0}: 문자열 {1}개
+flag	플래그
+group: {0}	그룹: {0}
+technique: {0}	기법: {0}
+url: {0}	URL: {0}
+double click > {0}	더블 클릭 > {0}
+high	높음
+medium	중간
+low	낮음
+(nameless)	(이름 없음)
+overlay	overlay
+url	URL
+
+# dialogs
+save changes ?	변경 내용을 저장하시겠습니까?
+discard the modifications and proceed?	수정 내용을 버리고 계속하시겠습니까?
+overwrite the file?	파일을 덮어쓰시겠습니까?
+OK	확인
+RVA, e.g. 0x1000	RVA(예: 0x1000)
+proceed	계속
+Cancel	취소
+Malware Initial Assessment (Rust remake of pestudio 9.61)	악성코드 초기 평가(pestudio 9.61의 Rust 리메이크)
+This software is provided 'as-is', without any expressed or implied warranty.	이 소프트웨어는 "있는 그대로" 제공되며 명시적이거나 묵시적인 어떠한 보증도 하지 않습니다.
+When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	파일의 온라인 점수를 조회할 때 파일 자체는 전송되지 않으며 해시만 전송됩니다.
+Knowledge base: pestudio XML files from your own installation	지식 베이스: 직접 설치한 pestudio의 XML 파일
+loaded: {0} | errors: {1}	로드됨: {0} | 오류: {1}
+fonts: {0}	글꼴: {0}
+Check online for an update	온라인으로 업데이트 확인
+
+# tree-view (views)
+image	이미지
+footprints	풋프린트
+groups	그룹
+indicators	지표
+mitre	MITRE
+score	점수
+dos-stub	DOS 스텁
+dos-header	DOS 헤더
+rich-header	Rich 헤더
+file-header	파일 헤더
+optional-header	선택적 헤더
+directories	데이터 디렉터리
+sections	섹션
+libraries	라이브러리
+imports	임포트
+exports	익스포트
+exceptions	예외
+certificate	인증서
+relocations	재배치
+thread-local-storage	스레드 로컬 저장소 (TLS)
+dotnet	.NET
+resources	리소스
+version	버전
+debug	디버그
+strings	문자열
+manifest	매니페스트
+
+# table columns
+address (begin)	주소(시작)
+address (end)	주소(끝)
+address (unwind)	주소(unwind)
+address	주소
+anonymous	익명
+block-size	블록 크기
+bound	바인딩
+build-id	빌드 ID
+count	개수
+description	설명
+detail	세부 정보
+detected	탐지
+duplicate	중복
+engine	엔진
+entry-point	진입점
+file-offset	파일 오프셋
+file-ratio	파일 비율
+footprint	풋프린트
+forwarded	전달
+gap	간격
+group	그룹
+id	ID
+import	임포트
+indicator	지표
+item	항목
+items	항목
+label	레이블
+level	수준
+library	라이브러리
+location	위치
+md5	MD5
+name	이름
+offset	오프셋
+ordinal	서수
+page	페이지
+product	제품
+product-id	제품 ID
+property	속성
+result	결과
+signature	시그니처
+size	크기
+sources	출처
+spoofed	위장
+stamp	타임스탬프
+status	상태
+tactic	전술
+tactic-name	전술 이름
+technique	기법
+tooling	도구
+type	유형
+types	유형
+undecorated	비장식 이름
+update	업데이트
+value	값
+entropy	엔트로피
+raw-address	원시 주소
+raw-size	원시 크기
+virtual-address	가상 주소
+virtual-size	가상 크기
+characteristics	특성
+flags	플래그
+file-cave	파일 케이브
+anti-debug	안티 디버깅
+callback	콜백
+code-page	코드 페이지
+deprecated	사용 중단
+first-bytes-hex	첫 바이트 (hex)
+first-bytes-text	첫 바이트 (text)
+first-thunk (IAT)	first-thunk (IAT)
+first-thunk-original (INT)	first-thunk-original (INT)
+hint	힌트
+map	맵
+namespace	네임스페이스
+undocumented	비공개

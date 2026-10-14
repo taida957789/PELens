@@ -1,6 +1,7 @@
 //! Look & feel: dark / light palettes, compact list-view spacing and system fonts.
 
-use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, Stroke, TextStyle};
+use crate::i18n::Lang;
+use egui::{Color32, CornerRadius, FontData, FontDefinitions, FontFamily, FontId, FontTweak, Stroke, TextStyle};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
@@ -105,50 +106,101 @@ pub fn apply(ctx: &egui::Context, p: &Palette) {
 }
 
 /// Candidate font files: (family, files tried in order). CJK fonts are used as fallbacks so that
-/// Chinese/Japanese/Korean strings found in samples render instead of showing boxes.
-pub fn font_candidates(fonts_dir: &Path) -> Vec<(FontFamily, Vec<PathBuf>)> {
+/// Chinese/Japanese/Korean text (interface and sample strings) renders instead of showing boxes.
+/// The interface language picks the first CJK font (its glyph shapes win); Malgun Gothic is
+/// always added for Hangul, which the Chinese and Japanese fonts lack.
+pub fn font_candidates(fonts_dir: &Path, lang: Lang) -> Vec<(FontFamily, Vec<PathBuf>)> {
     let f = |n: &str| fonts_dir.join(n);
-    vec![
+    let cjk = |files: &[&str]| files.iter().map(|n| f(n)).collect::<Vec<_>>();
+    let primary = match lang {
+        Lang::ZhCn => cjk(&["msyh.ttc", "msjh.ttc"]),
+        Lang::Ja => cjk(&["YuGothR.ttc", "meiryo.ttc", "msgothic.ttc", "msjh.ttc"]),
+        Lang::Ko => cjk(&["malgun.ttf", "msjh.ttc"]),
+        _ => cjk(&["msjh.ttc", "msyh.ttc", "YuGothR.ttc"]),
+    };
+    let mut v = vec![
         (FontFamily::Proportional, vec![f("segoeui.ttf"), f("arial.ttf")]),
         (FontFamily::Monospace, vec![f("consola.ttf"), f("cour.ttf")]),
-        // fallbacks shared by both families
-        (FontFamily::Name("cjk".into()), vec![f("msjh.ttc"), f("msyh.ttc"), f("YuGothR.ttc"), f("malgun.ttf")]),
-    ]
+        // fallbacks shared by both families, in this order
+        (FontFamily::Name("cjk".into()), primary),
+        (FontFamily::Name("hangul".into()), vec![f("malgun.ttf")]),
+    ];
+    if lang == Lang::Ko {
+        // Hanja: Malgun Gothic has none
+        v[3] = (FontFamily::Name("hanja".into()), vec![f("msjh.ttc"), f("msyh.ttc")]);
+    }
+    v
 }
 
 /// Build font definitions from system fonts, keeping egui's built-in fonts (emoji icons) as fallbacks.
 /// Returns the definitions and the names of the fonts that were loaded.
-pub fn font_definitions(fonts_dir: &Path) -> (FontDefinitions, Vec<String>) {
+pub fn font_definitions(fonts_dir: &Path, lang: Lang) -> (FontDefinitions, Vec<String>) {
     let mut defs = FontDefinitions::default();
-    let mut loaded = Vec::new();
-    let mut cjk: Option<String> = None;
-    for (family, files) in font_candidates(fonts_dir) {
-        let Some((path, bytes)) = files.iter().find_map(|p| std::fs::read(p).ok().map(|b| (p.clone(), b))) else { continue };
+    let mut loaded: Vec<String> = Vec::new();
+    let mut fallbacks: Vec<String> = Vec::new();
+    // vertical metrics of the main interface font, to align the fallbacks on it
+    let mut primary: Option<(f32, f32)> = None;
+    for (family, files) in font_candidates(fonts_dir, lang) {
+        let Some(path) = files.iter().find(|p| p.is_file()) else { continue };
         let name = path.file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_default();
-        defs.font_data.insert(name.clone(), Arc::new(FontData::from_owned(bytes)));
-        loaded.push(name.clone());
+        if !loaded.contains(&name) {
+            let Ok(bytes) = std::fs::read(path) else { continue };
+            let mut data = FontData::from_owned(bytes);
+            match (&family, primary) {
+                (FontFamily::Proportional, _) => primary = em_metrics(&data.font),
+                (FontFamily::Name(_), Some(pm)) => {
+                    let dy = em_metrics(&data.font).map(|fm| baseline_offset(pm, fm)).unwrap_or(0.0);
+                    if dy.abs() > 0.02 {
+                        data = data.tweak(FontTweak { y_offset_factor: dy, ..Default::default() });
+                    }
+                }
+                _ => {}
+            }
+            defs.font_data.insert(name.clone(), Arc::new(data));
+            loaded.push(name.clone());
+        }
         match family {
-            FontFamily::Name(_) => cjk = Some(name),
+            FontFamily::Name(_) => {
+                if !fallbacks.contains(&name) {
+                    fallbacks.push(name)
+                }
+            }
             fam => defs.families.entry(fam).or_default().insert(0, name),
         }
     }
-    if let Some(c) = cjk {
-        for fam in [FontFamily::Proportional, FontFamily::Monospace] {
-            let list = defs.families.entry(fam).or_default();
-            // after the primary font, before egui's emoji fonts
-            let pos = list.len().min(1);
-            list.insert(pos, c.clone());
+    for fam in [FontFamily::Proportional, FontFamily::Monospace] {
+        let list = defs.families.entry(fam).or_default();
+        // after the primary font, before egui's emoji fonts
+        let pos = list.len().min(1);
+        for (i, c) in fallbacks.iter().enumerate() {
+            list.insert(pos + i, c.clone());
         }
     }
     (defs, loaded)
+}
+
+/// (ascent, row height) in em, from the metrics epaint uses (skrifa, default location).
+pub fn em_metrics(font: &[u8]) -> Option<(f32, f32)> {
+    use skrifa::MetadataProvider;
+    let f = skrifa::FontRef::from_index(font, 0).ok()?;
+    let m = f.metrics(skrifa::instance::Size::unscaled(), skrifa::instance::LocationRef::default());
+    let upem = f32::from(m.units_per_em);
+    (upem > 0.0).then(|| (m.ascent / upem, (m.ascent - m.descent + m.leading) / upem))
+}
+
+/// Downward shift (in em) that puts a fallback font's baseline on the primary font's baseline.
+/// epaint centres a fallback glyph on the row by the difference of the two row heights, so a
+/// font with a small ascent and a large line gap (Yu Gothic, MS Gothic) would sit too high.
+pub fn baseline_offset(primary: (f32, f32), fallback: (f32, f32)) -> f32 {
+    primary.0 - (fallback.0 + 0.5 * (primary.1 - fallback.1))
 }
 
 pub fn windows_fonts_dir() -> PathBuf {
     std::env::var_os("WINDIR").map(PathBuf::from).unwrap_or_else(|| PathBuf::from("C:\\Windows")).join("Fonts")
 }
 
-pub fn install_fonts(ctx: &egui::Context) -> Vec<String> {
-    let (defs, loaded) = font_definitions(&windows_fonts_dir());
+pub fn install_fonts(ctx: &egui::Context, lang: Lang) -> Vec<String> {
+    let (defs, loaded) = font_definitions(&windows_fonts_dir(), lang);
     ctx.set_fonts(defs);
     loaded
 }

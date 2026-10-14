@@ -34,6 +34,15 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 | ![dotnet-dark](../screenshots/dotnet-dark.png) | |
 | .NET header、metadata streams、tables 與 namespaces | |
 
+## 介面語言
+
+| | |
+|---|---|
+| ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+介面預設跟隨 Windows 的顯示語言；可在「檢視 > 語言」或設定對話框中切換，或用 `-lang:<代碼>` 啟動（`en`、`zh-TW`、`zh-CN`、`ja`、`ko`、`es`、`de`、`fr`）。分析結果（表格內容、指標、報告）維持英文，與報告及搜尋一致。翻譯檔位於 `crates/pelens-gui/i18n/`。
+
 ## 功能
 
 - **27 個檢視**（與 pestudio 相同）：image、footprints、groups、indicators、MITRE、VirusTotal 分數、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
@@ -44,6 +53,7 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 - **檔案修改**：DLL ⇄ EXE 切換、設定 entry-point、切換 characteristics、刪除 overlay、匯出任何項目、在新分析中開啟嵌入檔。
 - **報告**：XML、JSON、純文字，內容與 GUI 顯示的表格相同。
 - **GUI**：tree-view、暗色／亮色主題、可排序與篩選的表格、右鍵選單、拖放、快捷鍵（Ctrl+O、S、E、R、X；Tab 在樹狀中移動）。
+- **8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨 Windows 顯示語言。
 
 ## 安裝／建置
 
@@ -58,7 +68,7 @@ cargo build --release
 ## 使用方式
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -88,7 +98,7 @@ PELens 從你自己安裝的 pestudio 讀取其 XML 檔（`settings.xml`、`indi
 ## 品質
 
 ```bash
-cargo test --workspace                       # 70 個測試
+cargo test --workspace                       # 87 個測試
 cargo llvm-cov --workspace --summary-only    # 約 97% 行覆蓋率
 python tools/crossval.py 250                 # 與 pefile 交叉驗證
 ```

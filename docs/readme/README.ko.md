@@ -34,6 +34,15 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 | ![dotnet-dark](../screenshots/dotnet-dark.png) | |
 | .NET 헤더, 메타데이터 스트림, 테이블, 네임스페이스 | |
 
+## 인터페이스 언어
+
+| | |
+|---|---|
+| ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+인터페이스는 기본적으로 Windows 표시 언어를 따릅니다. "보기 > 언어" 또는 설정 대화 상자에서 바꾸거나 `-lang:<코드>`(`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`)로 시작하세요. 분석 결과(테이블 내용, 지표, 보고서)는 보고서 및 검색과 일치하도록 영어로 유지됩니다. 번역 파일은 `crates/pelens-gui/i18n/`에 있습니다.
+
 ## 기능
 
 - pestudio와 같은 **27개 뷰**: image, footprints, groups, indicators, MITRE, VirusTotal 점수, DOS stub/header, Rich header, file/optional header, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest, overlay.
@@ -44,6 +53,7 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 - **파일 수정**: DLL ⇄ EXE 전환, 엔트리 포인트 설정, characteristics 전환, overlay 삭제, 항목 덤프, 내장 파일을 새 분석으로 열기.
 - **보고서**: XML, JSON, 텍스트. GUI와 같은 테이블로 만듭니다.
 - **GUI**: 트리 뷰, 다크·라이트 테마, 정렬·필터 가능한 테이블, 컨텍스트 메뉴, 드래그 앤 드롭, 단축키(Ctrl+O, S, E, R, X, Tab으로 트리 이동).
+- **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.
 
 ## 설치／빌드
 
@@ -58,7 +68,7 @@ Rust 1.85 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·
 ## 사용법
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -88,7 +98,7 @@ PELens는 사용자가 설치한 pestudio의 XML 파일(`settings.xml`, `indicat
 ## 품질
 
 ```bash
-cargo test --workspace                       # 테스트 70개
+cargo test --workspace                       # 테스트 87개
 cargo llvm-cov --workspace --summary-only    # 라인 커버리지 약 97%
 python tools/crossval.py 250                 # pefile과 교차 검증
 ```

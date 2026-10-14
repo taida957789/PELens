@@ -6,10 +6,12 @@ fn main() -> eframe::Result {
     let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.to_path_buf()));
     let k = pelens_gui::model::load_knowledge(xml.as_deref(), exe_dir.as_deref());
     let mut state = pelens_gui::State::new(k);
+    state.set_system_lang(pelens_gui::i18n::system_lang());
+    let startup = pelens_gui::parse_startup(&args);
+    startup.apply_lang(&mut state);
     if let Some(f) = file {
         state.apply(pelens_gui::Action::Open(f));
     }
-    let startup = pelens_gui::parse_startup(&args);
     let title = state.title();
     let wgpu = args.iter().any(|a| pelens_gui::option_body(a).is_some_and(|b| b.eq_ignore_ascii_case("renderer:wgpu")))
         || std::env::var("PELENS_RENDERER").is_ok_and(|v| v.eq_ignore_ascii_case("wgpu"));
@@ -28,7 +30,7 @@ fn main() -> eframe::Result {
         "pelens",
         opts,
         Box::new(move |_cc| {
-            let mut app = pelens_gui::PeLensApp::new(state, Box::new(pelens_gui::RfdHost));
+            let mut app = pelens_gui::PeLensApp::new(state, Box::new(pelens_gui::RfdHost::default()));
             startup.apply(&mut app);
             Ok(Box::new(app))
         }),

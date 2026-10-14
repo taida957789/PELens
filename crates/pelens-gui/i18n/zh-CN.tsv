@@ -1,0 +1,273 @@
+# PELens interface — 简体中文 (zh-CN)
+# English text<TAB>translation. {0}, {1}… are placeholders and must be kept.
+
+# status and messages
+drag-and-drop a file to analyse...	将文件拖放到此处进行分析...
+please wait while analyzing the file...	正在分析文件，请稍候...
+{0} | {1} bytes | indicators: {2}	{0} | {1} 字节 | 指标：{2}
+Image not found ({0})	找不到文件（{0}）
+The newest version of pestudio is: {0}	pestudio 最新版本为：{0}
+pestudio {0} (reference knowledge base) | up to date	pestudio {0}（参考知识库）| 已是最新
+internet connection failed ({0})	网络连接失败（{0}）
+report	报告
+dump	转储
+text	文本
+executable	可执行文件
+report: {0}	报告：{0}
+Cannot create Report file! ({0})	无法创建报告文件！（{0}）
+copy to clipboard	已复制到剪贴板
+dump to file: {0} ({1} bytes)	已转储到文件：{0}（{1} 字节）
+dump failed: {0}	转储失败：{0}
+save to file: {0}	已保存到文件：{0}
+save failed: {0}	保存失败：{0}
+invalid address: {0}	无效的地址：{0}
+save file: {0}	已保存文件：{0}
+settings saved	设置已保存
+setting kept in memory ({0})	设置仅保留在内存中（{0}）
+
+# context menu
+copy line	复制整行
+copy import name	复制导入名称
+copy indicator	复制指标
+copy name	复制名称
+copy property	复制属性
+copy item	复制项目
+copy value	复制值
+copy detail	复制详细信息
+copy description	复制描述
+lookup in Browser	在浏览器中查询
+search Virustotal	在 VirusTotal 搜索
+search Google	在 Google 搜索
+score > Virustotal (url)	评分 > VirusTotal（URL）
+score > Virustotal	评分 > VirusTotal
+copy technique	复制技术
+attack.mitre.org	attack.mitre.org
+dump stream	转储数据流
+dump to file	转储到文件
+open in PELens	在 PELens 中打开
+dump indicators to file	将指标转储到文件
+copy file name	复制文件名
+toggle flag	切换标记
+open Virustotal in a Browser	在浏览器中打开 VirusTotal
+lookup in Browser (MSDN)	在浏览器中查询（MSDN）
+copy namespace	复制命名空间
+toggle language flag	切换语言标记
+resource {0}	资源 {0}
+toggle DLL > EXE	切换 DLL > EXE
+toggle EXE > DLL	切换 EXE > DLL
+toggle characteristic	切换特征
+set entry-point	设置入口点
+delete	删除
+{0} overlay	{0} overlay
+jump > {0}	跳转 > {0}
+severity +++	严重性 +++
+severity ++	严重性 ++
+severity +	严重性 +
+signature > severity +++	签名 > 严重性 +++
+signature > severity ++	签名 > 严重性 ++
+signature > severity +	签名 > 严重性 +
+
+# settings
+General	常规
+language	语言
+auto (system)	自动（系统）
+show groups color	显示分组颜色
+show Mitre	显示 MITRE
+show Mitre Tactics	显示 MITRE 战术
+show Mitre duplicates	显示重复的 MITRE 项
+show Relocations	显示重定位
+show Exceptions	显示异常
+show Epoch stamps	显示 Epoch 时间戳
+sample is read-only	样本为只读
+show sample in caption	在标题栏显示样本
+show strings	显示字符串
+extract CJK unicode strings	提取中日韩 Unicode 字符串
+show tooltips	显示工具提示
+upper-case hash values	哈希值使用大写
+Report format:	报告格式：
+Disable strings when file size exceeds:	文件大小超过此值时禁用字符串：
+no-limit	无限制
+Footprints	指纹
+Type of footprints to use:	使用的指纹类型：
+string-tables	字符串表
+menus	菜单
+dialogs	对话框
+icons	图标
+cursors	光标
+bitmaps	位图
+First-bytes (hex|text)	起始字节（hex|text）
+Number of bytes to retrieve:	读取的字节数：
+16 bytes	16 字节
+32 bytes	32 字节
+64 bytes	64 字节
+Virustotal	VirusTotal
+enable Virustotal query	启用 VirusTotal 查询
+Key to use when proceeding to query:	查询时使用的密钥：
+favorite engine(s)	偏好的引擎
+query overlay score	查询 overlay 评分
+API version	API 版本
+proxy address	代理地址
+proxy port	代理端口
+Your own Virustotal key used to perform queries.	您自己的 VirusTotal 密钥，用于查询。
+
+# file dialogs
+Select file to open	选择要打开的文件
+Exe files (*.exe)	可执行文件 (*.exe)
+Dll files (*.dll)	DLL 文件 (*.dll)
+Sys files (*.sys)	驱动程序文件 (*.sys)
+All Files (*.*)	所有文件 (*.*)
+save to file	保存到文件
+
+# menus, toolbar, main window
+file	文件
+open file	打开文件
+save file	保存文件
+close file	关闭文件
+create report	创建报告
+exit PELens	退出 PELens
+view	视图
+light mode	浅色模式
+dark mode	深色模式
+expand all	全部展开
+collapse all	全部折叠
+about	关于
+settings	设置
+query Virustotal score	查询 VirusTotal 评分
+modified	已修改
+{0} items	{0} 项
+column	列
+show duplicates	显示重复项
+clear search	清除搜索
+search	搜索
+{0}: {1} strings	{0}：{1} 个字符串
+flag	标记
+group: {0}	分组：{0}
+technique: {0}	技术：{0}
+url: {0}	URL：{0}
+double click > {0}	双击 > {0}
+high	高
+medium	中
+low	低
+(nameless)	（无名称）
+overlay	overlay
+url	URL
+
+# dialogs
+save changes ?	要保存更改吗？
+discard the modifications and proceed?	要放弃修改并继续吗？
+overwrite the file?	要覆盖文件吗？
+OK	确定
+RVA, e.g. 0x1000	RVA，例如 0x1000
+proceed	继续
+Cancel	取消
+Malware Initial Assessment (Rust remake of pestudio 9.61)	恶意软件初步评估（pestudio 9.61 的 Rust 重制版）
+This software is provided 'as-is', without any expressed or implied warranty.	本软件按“原样”提供，不提供任何明示或暗示的担保。
+When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	查询文件的在线评分时不会上传文件本身，只发送其哈希值。
+Knowledge base: pestudio XML files from your own installation	知识库：使用您自己安装的 pestudio XML 文件
+loaded: {0} | errors: {1}	已加载：{0} | 错误：{1}
+fonts: {0}	字体：{0}
+Check online for an update	在线检查更新
+
+# tree-view (views)
+image	映像
+footprints	指纹
+groups	分组
+indicators	指标
+mitre	MITRE
+score	评分
+dos-stub	DOS stub
+dos-header	DOS 头
+rich-header	Rich 头
+file-header	文件头
+optional-header	可选头
+directories	数据目录
+sections	节
+libraries	库
+imports	导入
+exports	导出
+exceptions	异常
+certificate	证书
+relocations	重定位
+thread-local-storage	线程局部存储 (TLS)
+dotnet	.NET
+resources	资源
+version	版本
+debug	调试
+strings	字符串
+manifest	清单
+
+# table columns
+address (begin)	地址（起始）
+address (end)	地址（结束）
+address (unwind)	地址（unwind）
+address	地址
+anonymous	匿名
+block-size	块大小
+bound	绑定
+build-id	构建 ID
+count	数量
+description	描述
+detail	详细信息
+detected	已检出
+duplicate	重复
+engine	引擎
+entry-point	入口点
+file-offset	文件偏移
+file-ratio	文件占比
+footprint	指纹
+forwarded	转发
+gap	间隙
+group	分组
+id	ID
+import	导入
+indicator	指标
+item	项目
+items	项目
+label	标签
+level	等级
+library	库
+location	位置
+md5	MD5
+name	名称
+offset	偏移
+ordinal	序号
+page	页
+product	产品
+product-id	产品 ID
+property	属性
+result	结果
+signature	签名
+size	大小
+sources	来源
+spoofed	伪造
+stamp	时间戳
+status	状态
+tactic	战术
+tactic-name	战术名称
+technique	技术
+tooling	工具
+type	类型
+types	类型
+undecorated	未修饰名称
+update	更新
+value	值
+entropy	熵
+raw-address	原始地址
+raw-size	原始大小
+virtual-address	虚拟地址
+virtual-size	虚拟大小
+characteristics	特征
+flags	标记
+file-cave	文件空洞
+anti-debug	反调试
+callback	回调
+code-page	代码页
+deprecated	已弃用
+first-bytes-hex	起始字节 (hex)
+first-bytes-text	起始字节 (text)
+first-thunk (IAT)	first-thunk (IAT)
+first-thunk-original (INT)	first-thunk-original (INT)
+hint	提示
+map	映射
+namespace	命名空间
+undocumented	未公开

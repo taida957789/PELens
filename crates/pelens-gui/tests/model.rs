@@ -459,7 +459,7 @@ fn settings_model() {
     assert!(st.expand);
     assert_eq!(pelens_gui::parse_startup(&["-view:tls".into(), "-theme:dark".into()]).view, Some(ItemType::Tls));
     let mut app = pelens_gui::PeLensApp::new(State::new(pe_db::Knowledge::builtin()), Box::new(TestHost { open: None, save: None }));
-    pelens_gui::Startup { view: Some(ItemType::Imports), dark: Some(false), expand: true }.apply(&mut app);
+    pelens_gui::Startup { view: Some(ItemType::Imports), dark: Some(false), expand: true, lang: None }.apply(&mut app);
     assert_eq!(app.state.selected, ItemType::Imports);
     assert!(!app.state.dark_mode());
     assert!(app.expanded.contains("sections"));

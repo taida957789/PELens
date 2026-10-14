@@ -34,6 +34,15 @@ PELens examine les fichiers `.exe`, `.dll` et `.sys` **sans les exécuter**. Il 
 | ![dotnet-dark](../screenshots/dotnet-dark.png) | |
 | En-tête .NET, flux de métadonnées, tables et espaces de noms | |
 
+## Langues de l’interface
+
+| | |
+|---|---|
+| ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la dans « affichage > langue » ou dans les paramètres, ou lancez PELens avec `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Les résultats d’analyse (contenu des tableaux, indicateurs, rapports) restent en anglais pour correspondre aux rapports et à la recherche. Les traductions se trouvent dans `crates/pelens-gui/i18n/`.
+
 ## Fonctionnalités
 
 - **27 vues** comme dans pestudio : image, footprints, groups, indicators, MITRE, score VirusTotal, stub et en-tête DOS, en-tête Rich, en-têtes file et optional, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest et overlay.
@@ -58,7 +67,7 @@ Nécessite Rust 1.85 ou plus récent (édition 2024). Développé et testé sous
 ## Utilisation
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -88,7 +97,7 @@ Documents de conception : [inventaire des fonctionnalités](../FEATURE_INVENTORY
 ## Qualité
 
 ```bash
-cargo test --workspace                       # 70 tests
+cargo test --workspace                       # 87 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de couverture des lignes
 python tools/crossval.py 250                 # vérification croisée avec pefile
 ```

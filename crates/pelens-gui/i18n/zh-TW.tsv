@@ -1,0 +1,273 @@
+# PELens interface — 繁體中文 (zh-TW)
+# English text<TAB>translation. {0}, {1}… are placeholders and must be kept.
+
+# status and messages
+drag-and-drop a file to analyse...	將檔案拖放到此處以進行分析...
+please wait while analyzing the file...	正在分析檔案，請稍候...
+{0} | {1} bytes | indicators: {2}	{0} | {1} 位元組 | 指標：{2}
+Image not found ({0})	找不到檔案（{0}）
+The newest version of pestudio is: {0}	pestudio 最新版本為：{0}
+pestudio {0} (reference knowledge base) | up to date	pestudio {0}（參考知識庫）| 已是最新
+internet connection failed ({0})	網路連線失敗（{0}）
+report	報告
+dump	傾印
+text	文字
+executable	執行檔
+report: {0}	報告：{0}
+Cannot create Report file! ({0})	無法建立報告檔！（{0}）
+copy to clipboard	已複製到剪貼簿
+dump to file: {0} ({1} bytes)	已傾印至檔案：{0}（{1} 位元組）
+dump failed: {0}	傾印失敗：{0}
+save to file: {0}	已儲存至檔案：{0}
+save failed: {0}	儲存失敗：{0}
+invalid address: {0}	無效的位址：{0}
+save file: {0}	已儲存檔案：{0}
+settings saved	設定已儲存
+setting kept in memory ({0})	設定僅保留在記憶體中（{0}）
+
+# context menu
+copy line	複製整列
+copy import name	複製匯入名稱
+copy indicator	複製指標
+copy name	複製名稱
+copy property	複製屬性
+copy item	複製項目
+copy value	複製值
+copy detail	複製詳細資料
+copy description	複製說明
+lookup in Browser	在瀏覽器中查詢
+search Virustotal	在 VirusTotal 搜尋
+search Google	在 Google 搜尋
+score > Virustotal (url)	評分 > VirusTotal（URL）
+score > Virustotal	評分 > VirusTotal
+copy technique	複製技術
+attack.mitre.org	attack.mitre.org
+dump stream	傾印資料流
+dump to file	傾印至檔案
+open in PELens	在 PELens 中開啟
+dump indicators to file	將指標傾印至檔案
+copy file name	複製檔案名稱
+toggle flag	切換旗標
+open Virustotal in a Browser	在瀏覽器中開啟 VirusTotal
+lookup in Browser (MSDN)	在瀏覽器中查詢（MSDN）
+copy namespace	複製命名空間
+toggle language flag	切換語言旗標
+resource {0}	資源 {0}
+toggle DLL > EXE	切換 DLL > EXE
+toggle EXE > DLL	切換 EXE > DLL
+toggle characteristic	切換特性
+set entry-point	設定進入點
+delete	刪除
+{0} overlay	{0} overlay
+jump > {0}	跳至 > {0}
+severity +++	嚴重度 +++
+severity ++	嚴重度 ++
+severity +	嚴重度 +
+signature > severity +++	簽章 > 嚴重度 +++
+signature > severity ++	簽章 > 嚴重度 ++
+signature > severity +	簽章 > 嚴重度 +
+
+# settings
+General	一般
+language	語言
+auto (system)	自動（系統）
+show groups color	顯示群組顏色
+show Mitre	顯示 MITRE
+show Mitre Tactics	顯示 MITRE 戰術
+show Mitre duplicates	顯示重複的 MITRE 項目
+show Relocations	顯示重定位
+show Exceptions	顯示例外
+show Epoch stamps	顯示 Epoch 時間戳記
+sample is read-only	樣本為唯讀
+show sample in caption	在標題列顯示樣本
+show strings	顯示字串
+extract CJK unicode strings	擷取中日韓 Unicode 字串
+show tooltips	顯示工具提示
+upper-case hash values	雜湊值使用大寫
+Report format:	報告格式：
+Disable strings when file size exceeds:	檔案大小超過此值時停用字串：
+no-limit	無限制
+Footprints	指紋
+Type of footprints to use:	使用的指紋類型：
+string-tables	字串表
+menus	選單
+dialogs	對話方塊
+icons	圖示
+cursors	游標
+bitmaps	點陣圖
+First-bytes (hex|text)	前導位元組（hex|text）
+Number of bytes to retrieve:	讀取的位元組數：
+16 bytes	16 位元組
+32 bytes	32 位元組
+64 bytes	64 位元組
+Virustotal	VirusTotal
+enable Virustotal query	啟用 VirusTotal 查詢
+Key to use when proceeding to query:	查詢時使用的金鑰：
+favorite engine(s)	偏好的引擎
+query overlay score	查詢 overlay 評分
+API version	API 版本
+proxy address	Proxy 位址
+proxy port	Proxy 連接埠
+Your own Virustotal key used to perform queries.	您自己的 VirusTotal 金鑰，用於查詢。
+
+# file dialogs
+Select file to open	選擇要開啟的檔案
+Exe files (*.exe)	執行檔 (*.exe)
+Dll files (*.dll)	DLL 檔 (*.dll)
+Sys files (*.sys)	驅動程式檔 (*.sys)
+All Files (*.*)	所有檔案 (*.*)
+save to file	儲存至檔案
+
+# menus, toolbar, main window
+file	檔案
+open file	開啟檔案
+save file	儲存檔案
+close file	關閉檔案
+create report	建立報告
+exit PELens	結束 PELens
+view	檢視
+light mode	淺色模式
+dark mode	深色模式
+expand all	全部展開
+collapse all	全部摺疊
+about	關於
+settings	設定
+query Virustotal score	查詢 VirusTotal 評分
+modified	已修改
+{0} items	{0} 個項目
+column	欄位
+show duplicates	顯示重複項目
+clear search	清除搜尋
+search	搜尋
+{0}: {1} strings	{0}：{1} 個字串
+flag	旗標
+group: {0}	群組：{0}
+technique: {0}	技術：{0}
+url: {0}	URL：{0}
+double click > {0}	按兩下 > {0}
+high	高
+medium	中
+low	低
+(nameless)	（無名稱）
+overlay	overlay
+url	URL
+
+# dialogs
+save changes ?	要儲存變更嗎？
+discard the modifications and proceed?	要捨棄修改並繼續嗎？
+overwrite the file?	要覆寫檔案嗎？
+OK	確定
+RVA, e.g. 0x1000	RVA，例如 0x1000
+proceed	繼續
+Cancel	取消
+Malware Initial Assessment (Rust remake of pestudio 9.61)	惡意程式初步評估（pestudio 9.61 的 Rust 重製版）
+This software is provided 'as-is', without any expressed or implied warranty.	本軟體依「現狀」提供，不提供任何明示或默示的擔保。
+When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	查詢檔案的線上評分時不會上傳檔案本身，只會傳送其雜湊值。
+Knowledge base: pestudio XML files from your own installation	知識庫：使用您自己安裝的 pestudio XML 檔案
+loaded: {0} | errors: {1}	已載入：{0} | 錯誤：{1}
+fonts: {0}	字型：{0}
+Check online for an update	線上檢查更新
+
+# tree-view (views)
+image	映像檔
+footprints	指紋
+groups	群組
+indicators	指標
+mitre	MITRE
+score	評分
+dos-stub	DOS stub
+dos-header	DOS 標頭
+rich-header	Rich 標頭
+file-header	檔案標頭
+optional-header	選用標頭
+directories	資料目錄
+sections	區段
+libraries	函式庫
+imports	匯入
+exports	匯出
+exceptions	例外
+certificate	憑證
+relocations	重定位
+thread-local-storage	執行緒區域儲存 (TLS)
+dotnet	.NET
+resources	資源
+version	版本
+debug	偵錯
+strings	字串
+manifest	資訊清單
+
+# table columns
+address (begin)	位址（起始）
+address (end)	位址（結束）
+address (unwind)	位址（unwind）
+address	位址
+anonymous	匿名
+block-size	區塊大小
+bound	繫結
+build-id	組建 ID
+count	數量
+description	說明
+detail	詳細資料
+detected	已偵測
+duplicate	重複
+engine	引擎
+entry-point	進入點
+file-offset	檔案偏移
+file-ratio	檔案比例
+footprint	指紋
+forwarded	轉送
+gap	間隙
+group	群組
+id	ID
+import	匯入
+indicator	指標
+item	項目
+items	項目
+label	標籤
+level	等級
+library	函式庫
+location	位置
+md5	MD5
+name	名稱
+offset	偏移
+ordinal	序數
+page	頁面
+product	產品
+product-id	產品 ID
+property	屬性
+result	結果
+signature	簽章
+size	大小
+sources	來源
+spoofed	偽造
+stamp	時間戳記
+status	狀態
+tactic	戰術
+tactic-name	戰術名稱
+technique	技術
+tooling	工具
+type	類型
+types	類型
+undecorated	未修飾名稱
+update	更新
+value	值
+entropy	熵
+raw-address	原始位址
+raw-size	原始大小
+virtual-address	虛擬位址
+virtual-size	虛擬大小
+characteristics	特性
+flags	旗標
+file-cave	檔案空洞
+anti-debug	反偵錯
+callback	回呼
+code-page	字碼頁
+deprecated	已淘汰
+first-bytes-hex	前導位元組 (hex)
+first-bytes-text	前導位元組 (text)
+first-thunk (IAT)	first-thunk (IAT)
+first-thunk-original (INT)	first-thunk-original (INT)
+hint	提示
+map	對應
+namespace	命名空間
+undocumented	未公開

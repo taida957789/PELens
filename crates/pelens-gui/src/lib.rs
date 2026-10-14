@@ -1,5 +1,6 @@
 //! PELens graphical user interface.
 
+pub mod i18n;
 pub mod model;
 pub mod theme;
 pub mod ui;
@@ -13,7 +14,7 @@ impl eframe::App for ui::PeLensApp {
     }
 }
 
-const VALUE_OPTIONS: [&str; 5] = ["xml", "file", "renderer", "view", "theme"];
+const VALUE_OPTIONS: [&str; 6] = ["xml", "file", "renderer", "view", "theme", "lang"];
 const FLAG_OPTIONS: [&str; 1] = ["expand"];
 
 /// The option text of an argument (`-name:value`, `--name=value`, `/name:value`), or None when the
@@ -56,12 +57,13 @@ pub fn app_icon() -> egui::IconData {
     eframe::icon_data::from_png_bytes(include_bytes!("../../../assets/pelens.png")).unwrap_or_default()
 }
 
-/// Optional start-up state: `-view:<name>`, `-theme:dark|light`, `-expand`.
+/// Optional start-up state: `-view:<name>`, `-theme:dark|light`, `-expand`, `-lang:<code>`.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct Startup {
     pub view: Option<pe_analysis::model::ItemType>,
     pub dark: Option<bool>,
     pub expand: bool,
+    pub lang: Option<i18n::Lang>,
 }
 
 pub fn parse_startup(args: &[String]) -> Startup {
@@ -80,6 +82,8 @@ pub fn parse_startup(args: &[String]) -> Startup {
                 "light" => Some(false),
                 _ => None,
             };
+        } else if let Some(v) = t.strip_prefix("lang:") {
+            s.lang = i18n::Lang::from_code(v);
         } else if t == "expand" {
             s.expand = true;
         }
@@ -88,7 +92,17 @@ pub fn parse_startup(args: &[String]) -> Startup {
 }
 
 impl Startup {
+    /// `-lang:` for this session only (not saved): applied before the file is opened so that
+    /// the first status messages are already translated.
+    pub fn apply_lang(&self, state: &mut State) {
+        if let Some(l) = self.lang {
+            state.knowledge.settings.set("language", "code", l.code());
+            state.refresh_lang();
+        }
+    }
+
     pub fn apply(&self, app: &mut ui::PeLensApp) {
+        self.apply_lang(&mut app.state);
         if let Some(v) = self.view {
             app.state.apply(Action::Select(v));
         }

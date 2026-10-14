@@ -2431,6 +2431,8 @@ dependencies = [
  "pe-online",
  "pe-parser",
  "rfd",
+ "skrifa",
+ "windows-sys 0.59.0",
  "winresource",
 ]
 

@@ -1,0 +1,273 @@
+# PELens interface — Deutsch (de)
+# English text<TAB>translation. {0}, {1}… are placeholders and must be kept.
+
+# status and messages
+drag-and-drop a file to analyse...	Datei zum Analysieren hierher ziehen...
+please wait while analyzing the file...	Bitte warten, die Datei wird analysiert...
+{0} | {1} bytes | indicators: {2}	{0} | {1} Bytes | Indikatoren: {2}
+Image not found ({0})	Datei nicht gefunden ({0})
+The newest version of pestudio is: {0}	Die neueste Version von pestudio ist: {0}
+pestudio {0} (reference knowledge base) | up to date	pestudio {0} (Referenz-Wissensbasis) | aktuell
+internet connection failed ({0})	Internetverbindung fehlgeschlagen ({0})
+report	Bericht
+dump	Dump
+text	Text
+executable	ausführbare Datei
+report: {0}	Bericht: {0}
+Cannot create Report file! ({0})	Berichtsdatei kann nicht erstellt werden! ({0})
+copy to clipboard	in die Zwischenablage kopiert
+dump to file: {0} ({1} bytes)	in Datei gespeichert: {0} ({1} Bytes)
+dump failed: {0}	Dump fehlgeschlagen: {0}
+save to file: {0}	in Datei gespeichert: {0}
+save failed: {0}	Speichern fehlgeschlagen: {0}
+invalid address: {0}	ungültige Adresse: {0}
+save file: {0}	Datei gespeichert: {0}
+settings saved	Einstellungen gespeichert
+setting kept in memory ({0})	Einstellung nur im Speicher behalten ({0})
+
+# context menu
+copy line	Zeile kopieren
+copy import name	Importnamen kopieren
+copy indicator	Indikator kopieren
+copy name	Namen kopieren
+copy property	Eigenschaft kopieren
+copy item	Element kopieren
+copy value	Wert kopieren
+copy detail	Detail kopieren
+copy description	Beschreibung kopieren
+lookup in Browser	im Browser nachschlagen
+search Virustotal	in VirusTotal suchen
+search Google	in Google suchen
+score > Virustotal (url)	Bewertung > VirusTotal (URL)
+score > Virustotal	Bewertung > VirusTotal
+copy technique	Technik kopieren
+attack.mitre.org	attack.mitre.org
+dump stream	Stream speichern
+dump to file	in Datei speichern
+open in PELens	in PELens öffnen
+dump indicators to file	Indikatoren in Datei speichern
+copy file name	Dateinamen kopieren
+toggle flag	Markierung umschalten
+open Virustotal in a Browser	VirusTotal im Browser öffnen
+lookup in Browser (MSDN)	im Browser nachschlagen (MSDN)
+copy namespace	Namespace kopieren
+toggle language flag	Sprachmarkierung umschalten
+resource {0}	Ressource {0}
+toggle DLL > EXE	umschalten DLL > EXE
+toggle EXE > DLL	umschalten EXE > DLL
+toggle characteristic	Merkmal umschalten
+set entry-point	Einstiegspunkt setzen
+delete	entfernen
+{0} overlay	Overlay {0}
+jump > {0}	springen > {0}
+severity +++	Schweregrad +++
+severity ++	Schweregrad ++
+severity +	Schweregrad +
+signature > severity +++	Signatur > Schweregrad +++
+signature > severity ++	Signatur > Schweregrad ++
+signature > severity +	Signatur > Schweregrad +
+
+# settings
+General	Allgemein
+language	Sprache
+auto (system)	automatisch (System)
+show groups color	Gruppenfarben anzeigen
+show Mitre	MITRE anzeigen
+show Mitre Tactics	MITRE-Taktiken anzeigen
+show Mitre duplicates	MITRE-Duplikate anzeigen
+show Relocations	Relocations anzeigen
+show Exceptions	Exceptions anzeigen
+show Epoch stamps	Epoch-Zeitstempel anzeigen
+sample is read-only	Sample ist schreibgeschützt
+show sample in caption	Sample in der Titelleiste anzeigen
+show strings	Strings anzeigen
+extract CJK unicode strings	CJK-Unicode-Strings extrahieren
+show tooltips	Tooltips anzeigen
+upper-case hash values	Hashwerte in Großbuchstaben
+Report format:	Berichtsformat:
+Disable strings when file size exceeds:	Strings deaktivieren, wenn die Dateigröße überschreitet:
+no-limit	unbegrenzt
+Footprints	Footprints
+Type of footprints to use:	Art der Footprints:
+string-tables	String-Tabellen
+menus	Menüs
+dialogs	Dialoge
+icons	Symbole
+cursors	Cursor
+bitmaps	Bitmaps
+First-bytes (hex|text)	Erste Bytes (hex|text)
+Number of bytes to retrieve:	Anzahl der zu lesenden Bytes:
+16 bytes	16 Bytes
+32 bytes	32 Bytes
+64 bytes	64 Bytes
+Virustotal	VirusTotal
+enable Virustotal query	VirusTotal-Abfrage aktivieren
+Key to use when proceeding to query:	Schlüssel für Abfragen:
+favorite engine(s)	bevorzugte Engine(s)
+query overlay score	Overlay-Bewertung abfragen
+API version	API-Version
+proxy address	Proxy-Adresse
+proxy port	Proxy-Port
+Your own Virustotal key used to perform queries.	Ihr eigener VirusTotal-Schlüssel für Abfragen.
+
+# file dialogs
+Select file to open	Zu öffnende Datei auswählen
+Exe files (*.exe)	Programmdateien (*.exe)
+Dll files (*.dll)	DLL-Dateien (*.dll)
+Sys files (*.sys)	Treiberdateien (*.sys)
+All Files (*.*)	Alle Dateien (*.*)
+save to file	in Datei speichern
+
+# menus, toolbar, main window
+file	Datei
+open file	Datei öffnen
+save file	Datei speichern
+close file	Datei schließen
+create report	Bericht erstellen
+exit PELens	PELens beenden
+view	Ansicht
+light mode	heller Modus
+dark mode	dunkler Modus
+expand all	alle aufklappen
+collapse all	alle zuklappen
+about	Info
+settings	Einstellungen
+query Virustotal score	VirusTotal-Bewertung abfragen
+modified	geändert
+{0} items	{0} Einträge
+column	Spalte
+show duplicates	Duplikate anzeigen
+clear search	Suche löschen
+search	Suchen
+{0}: {1} strings	{0}: {1} Strings
+flag	Markierung
+group: {0}	Gruppe: {0}
+technique: {0}	Technik: {0}
+url: {0}	URL: {0}
+double click > {0}	Doppelklick > {0}
+high	hoch
+medium	mittel
+low	niedrig
+(nameless)	(ohne Namen)
+overlay	Overlay
+url	URL
+
+# dialogs
+save changes ?	Änderungen speichern?
+discard the modifications and proceed?	Änderungen verwerfen und fortfahren?
+overwrite the file?	Datei überschreiben?
+OK	OK
+RVA, e.g. 0x1000	RVA, z. B. 0x1000
+proceed	fortfahren
+Cancel	Abbrechen
+Malware Initial Assessment (Rust remake of pestudio 9.61)	Malware-Erstbewertung (Rust-Neuentwicklung von pestudio 9.61)
+This software is provided 'as-is', without any expressed or implied warranty.	Diese Software wird „wie besehen“ bereitgestellt, ohne ausdrückliche oder stillschweigende Gewährleistung.
+When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	Beim Abrufen der Online-Bewertung wird nicht die Datei selbst, sondern nur ihr Hash übertragen.
+Knowledge base: pestudio XML files from your own installation	Wissensbasis: pestudio-XML-Dateien aus Ihrer eigenen Installation
+loaded: {0} | errors: {1}	geladen: {0} | Fehler: {1}
+fonts: {0}	Schriftarten: {0}
+Check online for an update	Online nach Updates suchen
+
+# tree-view (views)
+image	Image
+footprints	Footprints
+groups	Gruppen
+indicators	Indikatoren
+mitre	MITRE
+score	Bewertung
+dos-stub	DOS-Stub
+dos-header	DOS-Header
+rich-header	Rich-Header
+file-header	Datei-Header
+optional-header	optionaler Header
+directories	Datenverzeichnisse
+sections	Sektionen
+libraries	Bibliotheken
+imports	Importe
+exports	Exporte
+exceptions	Exceptions
+certificate	Zertifikat
+relocations	Relocations
+thread-local-storage	Thread-Local-Storage (TLS)
+dotnet	.NET
+resources	Ressourcen
+version	Version
+debug	Debug
+strings	Strings
+manifest	Manifest
+
+# table columns
+address (begin)	Adresse (Anfang)
+address (end)	Adresse (Ende)
+address (unwind)	Adresse (Unwind)
+address	Adresse
+anonymous	anonym
+block-size	Blockgröße
+bound	gebunden
+build-id	Build-ID
+count	Anzahl
+description	Beschreibung
+detail	Detail
+detected	erkannt
+duplicate	Duplikat
+engine	Engine
+entry-point	Einstiegspunkt
+file-offset	Datei-Offset
+file-ratio	Dateianteil
+footprint	Footprint
+forwarded	weitergeleitet
+gap	Lücke
+group	Gruppe
+id	ID
+import	Import
+indicator	Indikator
+item	Element
+items	Elemente
+label	Bezeichnung
+level	Stufe
+library	Bibliothek
+location	Ort
+md5	MD5
+name	Name
+offset	Offset
+ordinal	Ordinal
+page	Seite
+product	Produkt
+product-id	Produkt-ID
+property	Eigenschaft
+result	Ergebnis
+signature	Signatur
+size	Größe
+sources	Quellen
+spoofed	gefälscht
+stamp	Zeitstempel
+status	Status
+tactic	Taktik
+tactic-name	Taktikname
+technique	Technik
+tooling	Werkzeug
+type	Typ
+types	Typen
+undecorated	unverziert
+update	Aktualisierung
+value	Wert
+entropy	Entropie
+raw-address	Rohadresse
+raw-size	Rohgröße
+virtual-address	virtuelle Adresse
+virtual-size	virtuelle Größe
+characteristics	Merkmale
+flags	Markierungen
+file-cave	Datei-Cave
+anti-debug	Anti-Debugging
+callback	Callback
+code-page	Codepage
+deprecated	veraltet
+first-bytes-hex	erste Bytes (hex)
+first-bytes-text	erste Bytes (text)
+first-thunk (IAT)	first-thunk (IAT)
+first-thunk-original (INT)	first-thunk-original (INT)
+hint	Hinweis
+map	Zuordnung
+namespace	Namespace
+undocumented	undokumentiert

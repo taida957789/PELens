@@ -170,3 +170,12 @@
 - [x] T11.10 Resources first-bytes 依設定（16/32/64）
 - [x] T11.11 次要：函式查詢不索引空名稱、1023 不重複、JSON 不重複 key、proxy 無 port、footprints 不複製 PeFile
 - 結果：82 個測試全過，行覆蓋率 96.97%
+
+## M12 多國語言介面（2026-10-14）
+- [x] T12.1 `i18n` 模組：8 種語言（en、zh-TW、zh-CN、ja、ko、es、de、fr），英文原文為 key，翻譯檔 `crates/pelens-gui/i18n/*.tsv`
+- [x] T12.2 語言選擇：settings.xml `<language code>`（預設 auto＝Windows 顯示語言）、「檢視 > 語言」選單、設定對話框下拉選單、`-lang:<code>`
+- [x] T12.3 翻譯範圍：選單、工具列、tree-view、表頭、欄位選單、右鍵選單、狀態列與訊息、對話框、設定、檔案對話框；分析資料（表格內容、指標、報告）維持英文
+- [x] T12.4 英文時 translations.xml 仍優先（pestudio 相容）；其他語言以內建翻譯為準
+- [x] T12.5 CJK 字型依語言排序（zh-CN 微軟雅黑、ja Yu Gothic、ko Malgun Gothic），並依字型 metrics 校正後備字型基線
+- [x] T12.6 測試：各語言 key 一致、placeholder 一致、介面字串與所有表頭皆有翻譯、語言切換（model＋UI）
+- 結果：87 個測試全過，行覆蓋率 96.93%

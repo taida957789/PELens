@@ -1,0 +1,273 @@
+# PELens interface — 日本語 (ja)
+# English text<TAB>translation. {0}, {1}… are placeholders and must be kept.
+
+# status and messages
+drag-and-drop a file to analyse...	解析するファイルをドラッグ＆ドロップしてください...
+please wait while analyzing the file...	ファイルを解析しています。お待ちください...
+{0} | {1} bytes | indicators: {2}	{0} | {1} バイト | インジケーター: {2}
+Image not found ({0})	ファイルが見つかりません（{0}）
+The newest version of pestudio is: {0}	pestudio の最新バージョン: {0}
+pestudio {0} (reference knowledge base) | up to date	pestudio {0}（参照ナレッジベース）| 最新です
+internet connection failed ({0})	インターネット接続に失敗しました（{0}）
+report	レポート
+dump	ダンプ
+text	テキスト
+executable	実行ファイル
+report: {0}	レポート: {0}
+Cannot create Report file! ({0})	レポートファイルを作成できません！（{0}）
+copy to clipboard	クリップボードにコピーしました
+dump to file: {0} ({1} bytes)	ファイルにダンプしました: {0}（{1} バイト）
+dump failed: {0}	ダンプに失敗しました: {0}
+save to file: {0}	ファイルに保存しました: {0}
+save failed: {0}	保存に失敗しました: {0}
+invalid address: {0}	無効なアドレス: {0}
+save file: {0}	ファイルを保存しました: {0}
+settings saved	設定を保存しました
+setting kept in memory ({0})	設定はメモリ上にのみ保持されます（{0}）
+
+# context menu
+copy line	行をコピー
+copy import name	インポート名をコピー
+copy indicator	インジケーターをコピー
+copy name	名前をコピー
+copy property	プロパティをコピー
+copy item	項目をコピー
+copy value	値をコピー
+copy detail	詳細をコピー
+copy description	説明をコピー
+lookup in Browser	ブラウザーで調べる
+search Virustotal	VirusTotal で検索
+search Google	Google で検索
+score > Virustotal (url)	スコア > VirusTotal（URL）
+score > Virustotal	スコア > VirusTotal
+copy technique	テクニックをコピー
+attack.mitre.org	attack.mitre.org
+dump stream	ストリームをダンプ
+dump to file	ファイルにダンプ
+open in PELens	PELens で開く
+dump indicators to file	インジケーターをファイルにダンプ
+copy file name	ファイル名をコピー
+toggle flag	フラグを切り替え
+open Virustotal in a Browser	ブラウザーで VirusTotal を開く
+lookup in Browser (MSDN)	ブラウザーで調べる（MSDN）
+copy namespace	名前空間をコピー
+toggle language flag	言語フラグを切り替え
+resource {0}	リソース {0}
+toggle DLL > EXE	切り替え DLL > EXE
+toggle EXE > DLL	切り替え EXE > DLL
+toggle characteristic	特性を切り替え
+set entry-point	エントリポイントを設定
+delete	削除
+{0} overlay	overlay を{0}
+jump > {0}	ジャンプ > {0}
+severity +++	重大度 +++
+severity ++	重大度 ++
+severity +	重大度 +
+signature > severity +++	シグネチャ > 重大度 +++
+signature > severity ++	シグネチャ > 重大度 ++
+signature > severity +	シグネチャ > 重大度 +
+
+# settings
+General	全般
+language	言語
+auto (system)	自動（システム）
+show groups color	グループの色を表示
+show Mitre	MITRE を表示
+show Mitre Tactics	MITRE の戦術を表示
+show Mitre duplicates	MITRE の重複を表示
+show Relocations	再配置を表示
+show Exceptions	例外を表示
+show Epoch stamps	Epoch タイムスタンプを表示
+sample is read-only	サンプルを読み取り専用にする
+show sample in caption	タイトルバーにサンプルを表示
+show strings	文字列を表示
+extract CJK unicode strings	CJK の Unicode 文字列を抽出
+show tooltips	ツールチップを表示
+upper-case hash values	ハッシュ値を大文字で表示
+Report format:	レポート形式:
+Disable strings when file size exceeds:	ファイルサイズがこれを超えたら文字列を無効化:
+no-limit	無制限
+Footprints	フットプリント
+Type of footprints to use:	使用するフットプリントの種類:
+string-tables	文字列テーブル
+menus	メニュー
+dialogs	ダイアログ
+icons	アイコン
+cursors	カーソル
+bitmaps	ビットマップ
+First-bytes (hex|text)	先頭バイト（hex|text）
+Number of bytes to retrieve:	取得するバイト数:
+16 bytes	16 バイト
+32 bytes	32 バイト
+64 bytes	64 バイト
+Virustotal	VirusTotal
+enable Virustotal query	VirusTotal への問い合わせを有効化
+Key to use when proceeding to query:	問い合わせに使用するキー:
+favorite engine(s)	お気に入りのエンジン
+query overlay score	overlay のスコアを問い合わせ
+API version	API バージョン
+proxy address	プロキシのアドレス
+proxy port	プロキシのポート
+Your own Virustotal key used to perform queries.	問い合わせに使用するご自身の VirusTotal キー。
+
+# file dialogs
+Select file to open	開くファイルを選択
+Exe files (*.exe)	実行ファイル (*.exe)
+Dll files (*.dll)	DLL ファイル (*.dll)
+Sys files (*.sys)	ドライバーファイル (*.sys)
+All Files (*.*)	すべてのファイル (*.*)
+save to file	ファイルに保存
+
+# menus, toolbar, main window
+file	ファイル
+open file	ファイルを開く
+save file	ファイルを保存
+close file	ファイルを閉じる
+create report	レポートを作成
+exit PELens	PELens を終了
+view	表示
+light mode	ライトモード
+dark mode	ダークモード
+expand all	すべて展開
+collapse all	すべて折りたたむ
+about	バージョン情報
+settings	設定
+query Virustotal score	VirusTotal のスコアを問い合わせ
+modified	変更あり
+{0} items	{0} 件
+column	列
+show duplicates	重複を表示
+clear search	検索をクリア
+search	検索
+{0}: {1} strings	{0}: {1} 個の文字列
+flag	フラグ
+group: {0}	グループ: {0}
+technique: {0}	テクニック: {0}
+url: {0}	URL: {0}
+double click > {0}	ダブルクリック > {0}
+high	高
+medium	中
+low	低
+(nameless)	（名前なし）
+overlay	overlay
+url	URL
+
+# dialogs
+save changes ?	変更を保存しますか？
+discard the modifications and proceed?	変更を破棄して続行しますか？
+overwrite the file?	ファイルを上書きしますか？
+OK	OK
+RVA, e.g. 0x1000	RVA（例: 0x1000）
+proceed	続行
+Cancel	キャンセル
+Malware Initial Assessment (Rust remake of pestudio 9.61)	マルウェアの初期評価（pestudio 9.61 の Rust 版リメイク）
+This software is provided 'as-is', without any expressed or implied warranty.	本ソフトウェアは「現状のまま」提供され、明示または黙示を問わず一切の保証はありません。
+When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	ファイルのオンラインスコアを取得する際、ファイル自体は送信されず、ハッシュのみが送信されます。
+Knowledge base: pestudio XML files from your own installation	ナレッジベース: ご自身がインストールした pestudio の XML ファイル
+loaded: {0} | errors: {1}	読み込み: {0} | エラー: {1}
+fonts: {0}	フォント: {0}
+Check online for an update	オンラインで更新を確認
+
+# tree-view (views)
+image	イメージ
+footprints	フットプリント
+groups	グループ
+indicators	インジケーター
+mitre	MITRE
+score	スコア
+dos-stub	DOS スタブ
+dos-header	DOS ヘッダー
+rich-header	Rich ヘッダー
+file-header	ファイルヘッダー
+optional-header	オプションヘッダー
+directories	データディレクトリ
+sections	セクション
+libraries	ライブラリ
+imports	インポート
+exports	エクスポート
+exceptions	例外
+certificate	証明書
+relocations	再配置
+thread-local-storage	スレッドローカルストレージ (TLS)
+dotnet	.NET
+resources	リソース
+version	バージョン
+debug	デバッグ
+strings	文字列
+manifest	マニフェスト
+
+# table columns
+address (begin)	アドレス（開始）
+address (end)	アドレス（終了）
+address (unwind)	アドレス（unwind）
+address	アドレス
+anonymous	匿名
+block-size	ブロックサイズ
+bound	バインド
+build-id	ビルド ID
+count	数
+description	説明
+detail	詳細
+detected	検出
+duplicate	重複
+engine	エンジン
+entry-point	エントリポイント
+file-offset	ファイルオフセット
+file-ratio	ファイル比率
+footprint	フットプリント
+forwarded	転送
+gap	ギャップ
+group	グループ
+id	ID
+import	インポート
+indicator	インジケーター
+item	項目
+items	項目
+label	ラベル
+level	レベル
+library	ライブラリ
+location	場所
+md5	MD5
+name	名前
+offset	オフセット
+ordinal	序数
+page	ページ
+product	製品
+product-id	製品 ID
+property	プロパティ
+result	結果
+signature	シグネチャ
+size	サイズ
+sources	ソース
+spoofed	偽装
+stamp	タイムスタンプ
+status	状態
+tactic	戦術
+tactic-name	戦術名
+technique	テクニック
+tooling	ツール
+type	種類
+types	種類
+undecorated	非装飾名
+update	更新
+value	値
+entropy	エントロピー
+raw-address	RAW アドレス
+raw-size	RAW サイズ
+virtual-address	仮想アドレス
+virtual-size	仮想サイズ
+characteristics	特性
+flags	フラグ
+file-cave	ファイルケーブ
+anti-debug	アンチデバッグ
+callback	コールバック
+code-page	コードページ
+deprecated	非推奨
+first-bytes-hex	先頭バイト (hex)
+first-bytes-text	先頭バイト (text)
+first-thunk (IAT)	first-thunk (IAT)
+first-thunk-original (INT)	first-thunk-original (INT)
+hint	ヒント
+map	マップ
+namespace	名前空間
+undocumented	非公開

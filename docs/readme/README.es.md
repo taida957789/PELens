@@ -34,6 +34,15 @@ PELens examina archivos `.exe`, `.dll` y `.sys` **sin ejecutarlos**. Muestra sus
 | ![dotnet-dark](../screenshots/dotnet-dark.png) | |
 | Cabecera .NET, flujos de metadatos, tablas y espacios de nombres | |
 
+## Idiomas de la interfaz
+
+| | |
+|---|---|
+| ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo en «ver > idioma» o en la configuración, o inicie con `-lang:<código>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`, `de`, `fr`). Los resultados del análisis (contenido de las tablas, indicadores, informes) se mantienen en inglés para coincidir con los informes y las búsquedas. Las traducciones están en `crates/pelens-gui/i18n/`.
+
 ## Funciones
 
 - **27 vistas** como en pestudio: image, footprints, groups, indicators, MITRE, puntuación de VirusTotal, DOS stub y header, Rich header, file y optional headers, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest y overlay.
@@ -44,6 +53,7 @@ PELens examina archivos `.exe`, `.dll` y `.sys` **sin ejecutarlos**. Muestra sus
 - **Modificación de archivos**: cambiar entre DLL y EXE, fijar el punto de entrada, alternar characteristics, borrar el overlay, volcar cualquier elemento y abrir un archivo incrustado en un nuevo análisis.
 - **Informes** en XML, JSON o texto, generados a partir de las mismas tablas que muestra la GUI.
 - **GUI**: vista de árbol, temas oscuro y claro, tablas ordenables y filtrables, menús contextuales, arrastrar y soltar, y atajos (Ctrl+O, S, E, R, X; Tab recorre el árbol).
+- **Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.
 
 ## Instalación / compilación
 
@@ -58,7 +68,7 @@ Requiere Rust 1.85 o posterior (edition 2024). Desarrollado y probado en Windows
 ## Uso
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -88,7 +98,7 @@ Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (2
 ## Calidad
 
 ```bash
-cargo test --workspace                       # 70 pruebas
+cargo test --workspace                       # 87 pruebas
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % de cobertura de líneas
 python tools/crossval.py 250                 # verificación cruzada con pefile
 ```

@@ -34,6 +34,15 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 | ![dotnet-dark](../screenshots/dotnet-dark.png) | |
 | .NET ヘッダー、メタデータストリーム、テーブル、名前空間 | |
 
+## 表示言語
+
+| | |
+|---|---|
+| ![繁體中文](../screenshots/strings-zh-TW.png) | ![日本語](../screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+表示言語は既定で Windows の表示言語に従います。「表示 > 言語」または設定ダイアログで切り替えるか、`-lang:<コード>`（`en`・`zh-TW`・`zh-CN`・`ja`・`ko`・`es`・`de`・`fr`）で起動してください。解析結果（テーブルの内容、インジケーター、レポート）は、レポートや検索と一致するよう英語のままです。翻訳ファイルは `crates/pelens-gui/i18n/` にあります。
+
 ## 機能
 
 - pestudio と同じ **27 のビュー**：image、footprints、groups、indicators、MITRE、VirusTotal スコア、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
@@ -44,6 +53,7 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 - **ファイル変更**：DLL ⇄ EXE の切り替え、エントリポイントの設定、characteristics の切り替え、overlay の削除、任意の項目のダンプ、埋め込みファイルを新しい解析で開く。
 - **レポート**：XML・JSON・テキスト。GUI と同じテーブルから生成します。
 - **GUI**：ツリービュー、ダーク／ライトテーマ、並べ替え・絞り込みできるテーブル、右クリックメニュー、ドラッグ＆ドロップ、ショートカット（Ctrl+O・S・E・R・X、Tab でツリーを移動）。
+- **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。
 
 ## インストール／ビルド
 
@@ -58,7 +68,7 @@ Rust 1.85 以降（edition 2024）が必要です。Windows 11 x64 で開発・�
 ## 使い方
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -88,7 +98,7 @@ PELens は、お使いの pestudio に含まれる XML ファイル（`settings.
 ## 品質
 
 ```bash
-cargo test --workspace                       # 70 件のテスト
+cargo test --workspace                       # 87 件のテスト
 cargo llvm-cov --workspace --summary-only    # 約 97% の行カバレッジ
 python tools/crossval.py 250                 # pefile とのクロスチェック
 ```

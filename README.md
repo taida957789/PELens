@@ -39,6 +39,19 @@ compatible with pestudio's XML knowledge base and its `pestudiox` command line.
 | ![.NET](docs/screenshots/dotnet-dark.png) | |
 | .NET header, metadata streams, tables and namespaces | |
 
+## Interface languages
+
+| | |
+|---|---|
+| ![繁體中文](docs/screenshots/strings-zh-TW.png) | ![日本語](docs/screenshots/indicators-ja.png) |
+| 繁體中文 | 日本語 |
+
+The interface follows the Windows display language by default. Change it in view > language or
+in the settings dialog, or start with `-lang:<code>` (`en`, `zh-TW`, `zh-CN`, `ja`, `ko`, `es`,
+`de`, `fr`). Analysis results (table contents, indicators, reports) stay in English so they
+match the reports and what the search box finds. The translations live in
+`crates/pelens-gui/i18n/`.
+
 ## Features
 
 - **27 views** like pestudio's: image, footprints, groups, indicators, MITRE, VirusTotal score,
@@ -59,6 +72,8 @@ compatible with pestudio's XML knowledge base and its `pestudiox` command line.
 - **Reports** in XML, JSON or text, built from the same tables the GUI shows.
 - **GUI**: tree-view, dark and light themes, sortable and filterable tables, context menus,
   drag and drop, and shortcuts (Ctrl+O, S, E, R, X; Tab moves through the tree).
+- **Interface in 8 languages**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch and
+  Français; by default the Windows display language.
 
 ## Install / build
 
@@ -73,7 +88,7 @@ You need Rust 1.85 or newer (edition 2024). It is developed and tested on Window
 ## Usage
 
 ```bash
-pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-expand] [-renderer:wgpu]
+pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-expand] [-renderer:wgpu]
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir]
 ```
 
@@ -108,7 +123,7 @@ traceability link) · [development plan](docs/DEVELOPMENT_PLAN.md) · [task list
 ## Quality
 
 ```bash
-cargo test --workspace                       # 70 tests
+cargo test --workspace                       # 87 tests
 cargo llvm-cov --workspace --summary-only    # ≈ 97 % line coverage
 python tools/crossval.py 250                 # cross-check against pefile
 ```

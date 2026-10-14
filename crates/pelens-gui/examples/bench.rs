@@ -4,7 +4,7 @@ fn main() {
     let mut s = pelens_gui::State::new(k);
     s.synchronous = true;
     s.apply(pelens_gui::Action::Open("C:/Windows/Microsoft.NET/Framework64/v4.0.30319/System.Web.dll".into()));
-    let mut app = pelens_gui::PeLensApp::new(s, Box::new(pelens_gui::RfdHost));
+    let mut app = pelens_gui::PeLensApp::new(s, Box::new(pelens_gui::RfdHost::default()));
     let ctx = egui::Context::default();
     for item in [ItemType::Indicators, ItemType::Imports, ItemType::Strings] {
         app.state.apply(pelens_gui::Action::Select(item));

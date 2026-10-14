@@ -259,7 +259,7 @@ fn file_menu_and_copy_effects() {
     assert!(h.state().state.doc.is_none());
     h.get_by_label("file").click();
     h.run();
-    h.get_by_label("exit pestudio\tCtrl+X").click();
+    h.get_by_label("exit PELens\tCtrl+X").click();
     h.run();
     assert!(h.state().exit_requested);
     // url and title effects are forwarded to the context
@@ -350,10 +350,67 @@ fn tree_view_theme_and_layout() {
     h.get_all_by_label("strings").next().map(|n| n.hover());
     h.run();
     assert!(h.query_by_label("modified").is_some());
-    let l = pelens_gui::theme::font_definitions(std::path::Path::new("Z:/nope")).1;
+    let l = pelens_gui::theme::font_definitions(std::path::Path::new("Z:/nope"), pelens_gui::i18n::Lang::En).1;
     assert!(l.is_empty());
     assert!(pelens_gui::theme::is_mono_column("md5") && !pelens_gui::theme::is_mono_column("name"));
     for t in ItemType::ALL {
         assert!(!pelens_gui::theme::icon(t).is_empty());
     }
+}
+
+#[test]
+fn interface_language_switch() {
+    use pelens_gui::i18n::Lang;
+    let (mut app, sample) = setup("lang");
+    app.state.apply(Action::Open(sample));
+    let mut h = harness(app);
+    h.run();
+    // view > language > 日本語
+    h.get_by_label("view").click();
+    h.run();
+    h.get_by_label("language ⏵").hover();
+    h.run();
+    h.get_by_label("日本語").click();
+    h.run();
+    assert_eq!(h.state().state.lang, Lang::Ja);
+    assert!(!h.state().fonts_loaded.is_empty());
+    // menus, tree, header and columns are translated
+    assert!(h.query_by_label("ファイル").is_some());
+    assert!(h.query_by_label_contains("インジケーター (").is_some());
+    assert!(h.query_by_label_contains("セクション").is_some() && h.query_by_label("イメージ").is_some());
+    h.state_mut().state.apply(Action::Select(ItemType::Libraries));
+    h.run();
+    assert!(h.query_all_by_label("ライブラリ").count() >= 2, "heading and column header");
+    assert!(h.query_by_label("検索をクリア").is_none() && h.query_by_label("重複を表示").is_some());
+    h.get_by_label("ファイル").click();
+    h.run();
+    assert!(h.query_by_label("ファイルを開く\tCtrl+O").is_some());
+    h.key_press(egui::Key::Escape);
+    h.run();
+    // settings: the language drop-down
+    h.state_mut().state.apply(Action::ShowDialog(Dialog::Settings));
+    h.run();
+    assert!(h.query_by_label("全般").is_some());
+    let combo = h.get_by_role(egui::accesskit::Role::ComboBox);
+    assert_eq!(combo.value().as_deref(), Some("日本語"));
+    combo.click();
+    h.run();
+    h.get_by_label("Deutsch").click();
+    h.run();
+    assert_eq!(h.state().state.lang, Lang::De);
+    h.get_by_role(egui::accesskit::Role::ComboBox).click();
+    h.run();
+    h.get_by_label("automatisch (System)").click();
+    h.run();
+    assert_eq!(h.state().state.language_setting(), None);
+    h.get_by_role(egui::accesskit::Role::ComboBox).click();
+    h.run();
+    h.get_by_label("English").click();
+    h.run();
+    assert_eq!(h.state().state.lang, Lang::En);
+    assert!(h.query_by_label("General").is_some());
+    // back to the system language
+    h.state_mut().state.apply(Action::SetLanguage(None));
+    h.run();
+    assert_eq!(h.state().state.language_setting(), None);
 }
