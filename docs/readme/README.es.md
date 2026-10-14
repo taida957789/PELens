@@ -7,7 +7,7 @@
 <p align="center">Una lente para Portable Executables: evaluación inicial estática de malware para binarios de Windows, reconstruida en Rust.</p>
 
 <p align="center">
-  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+  <a href="https://github.com/taida957789/PELens/actions/workflows/ci.yml"><img src="https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
 </p>
 
 <p align="center">
