@@ -108,7 +108,9 @@ query overlay score	overlay のスコアを問い合わせ
 API version	API バージョン
 proxy address	プロキシのアドレス
 proxy port	プロキシのポート
-Your own Virustotal key used to perform queries.	問い合わせに使用するご自身の VirusTotal キー。
+Your own Virustotal key, stored in the Windows Credential Manager.	ご自身の VirusTotal キー。Windows 資格情報マネージャーに保存されます。
+the Virustotal key is stored in the Windows Credential Manager	VirusTotal キーを Windows 資格情報マネージャーに保存しました
+cannot store the Virustotal key ({0})	VirusTotal キーを保存できません（{0}）
 
 # file dialogs
 Select file to open	開くファイルを選択

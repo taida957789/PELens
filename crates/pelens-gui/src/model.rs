@@ -168,6 +168,9 @@ pub struct State {
     pub synchronous: bool,
     /// Visible (filtered/sorted) table of the selected view, reused across frames.
     view_cache: Option<(ViewKey, Arc<Table>)>,
+    /// Where the VirusTotal key is kept: in memory by default (tests), the Windows Credential
+    /// Manager in the application (see main.rs).
+    pub key_store: Arc<dyn pe_online::secret::KeyStore>,
     /// Interface language (settings.xml `<language code>`, else `system_lang`).
     pub lang: Lang,
     pub system_lang: Lang,
@@ -222,6 +225,7 @@ impl State {
             http: default_http(),
             synchronous: false,
             view_cache: None,
+            key_store: Arc::new(pe_online::secret::MemoryStore::default()),
             lang: Lang::En,
             system_lang: Lang::En,
         };
@@ -663,7 +667,7 @@ impl State {
             }
             Action::QueryScore => {
                 let Some(d) = &self.doc else { return };
-                let (api, key, _) = pe_online::vt_settings(&self.knowledge);
+                let (api, key, _) = pe_online::vt_settings_with(&self.knowledge, self.key_store.as_ref());
                 let md5 = d.analysis.hashes.md5.to_ascii_lowercase();
                 let client = (self.http)(&self.knowledge);
                 self.last_score_attempt = Some(std::time::Instant::now());
@@ -680,7 +684,7 @@ impl State {
                 self.poll();
             }
             Action::QueryItemScore(label, q, is_url) => {
-                let (api, key, _) = pe_online::vt_settings(&self.knowledge);
+                let (api, key, _) = pe_online::vt_settings_with(&self.knowledge, self.key_store.as_ref());
                 let client = (self.http)(&self.knowledge);
                 let r = if is_url {
                     pe_online::vt_url_report(client.as_ref(), &key, &q)
@@ -771,6 +775,10 @@ impl State {
 
     /// Persist a setting edited in the settings dialog.
     pub fn set_setting(&mut self, elem: &str, attr: &str, value: &str) {
+        if (elem, attr) == ("score", "key") {
+            self.set_vt_key(value);
+            return;
+        }
         let r = if self.knowledge.dir.is_some() {
             self.knowledge.save_setting(elem, attr, value)
         } else {
@@ -788,6 +796,28 @@ impl State {
         self.view = ViewOptions::from_settings(&self.knowledge);
         if let Some(d) = self.doc.as_mut() {
             d.invalidate();
+        }
+    }
+
+    /// The VirusTotal key as stored (not `VT_API_KEY`): the key store, else a legacy plaintext setting.
+    pub fn stored_key(&self) -> String {
+        self.key_store.get().or_else(|| self.knowledge.settings.get("score", "key").map(str::to_string)).unwrap_or_default()
+    }
+
+    /// Save the VirusTotal key in the key store, never in settings.xml (an old plaintext key there
+    /// is blanked). When the store fails the key is not written anywhere.
+    fn set_vt_key(&mut self, key: &str) {
+        match self.key_store.set(key) {
+            Ok(()) => {
+                if self.knowledge.settings.get("score", "key").is_some_and(|k| !k.is_empty()) {
+                    let saved = self.knowledge.dir.is_some() && self.knowledge.save_setting("score", "key", "").is_ok();
+                    if !saved {
+                        self.knowledge.settings.set("score", "key", "");
+                    }
+                }
+                self.status = self.t("the Virustotal key is stored in the Windows Credential Manager").into();
+            }
+            Err(e) => self.status = self.tf("cannot store the Virustotal key ({0})", &[&e]),
         }
     }
 

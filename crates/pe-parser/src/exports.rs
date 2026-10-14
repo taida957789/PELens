@@ -47,6 +47,8 @@ pub struct Exports {
     pub functions: Vec<ExportedFunction>,
     /// Names exported more than once.
     pub duplicate_names: Vec<String>,
+    /// NumberOfFunctions / NumberOfNames claim more entries than the file holds.
+    pub truncated: bool,
 }
 
 impl Exports {
@@ -70,8 +72,12 @@ impl Exports {
             ..Default::default()
         };
         e.dll_name = l.cstr_at_rva(r, e.name_rva, 256).unwrap_or_default();
-        let nfuncs = (e.number_of_functions as usize).min(MAX_EXPORTS);
-        let nnames = (e.number_of_names as usize).min(MAX_EXPORTS);
+        // Never trust the counts beyond what the arrays can hold in the file: a corrupted count
+        // would otherwise produce up to MAX_EXPORTS empty "gap" entries from a few bytes.
+        let in_file = |rva: u32, width: usize| l.rva_to_offset(rva).map_or(0, |o| r.len().saturating_sub(o) / width);
+        let nfuncs = (e.number_of_functions as usize).min(MAX_EXPORTS).min(in_file(e.address_of_functions, 4));
+        let nnames = (e.number_of_names as usize).min(MAX_EXPORTS).min(in_file(e.address_of_names, 4));
+        e.truncated = nfuncs < e.number_of_functions as usize || nnames < e.number_of_names as usize;
         let fstart = d.rva;
         let fend = d.rva.saturating_add(d.size);
 

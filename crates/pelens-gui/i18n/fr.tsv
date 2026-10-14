@@ -108,7 +108,9 @@ query overlay score	demander le score de l’overlay
 API version	version de l’API
 proxy address	adresse du proxy
 proxy port	port du proxy
-Your own Virustotal key used to perform queries.	Votre propre clé VirusTotal utilisée pour les requêtes.
+Your own Virustotal key, stored in the Windows Credential Manager.	Votre propre clé VirusTotal, enregistrée dans le Gestionnaire d’identification Windows.
+the Virustotal key is stored in the Windows Credential Manager	la clé VirusTotal est enregistrée dans le Gestionnaire d’identification Windows
+cannot store the Virustotal key ({0})	impossible d’enregistrer la clé VirusTotal ({0})
 
 # file dialogs
 Select file to open	Sélectionnez le fichier à ouvrir

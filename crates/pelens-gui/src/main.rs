@@ -4,8 +4,12 @@ fn main() -> eframe::Result {
     let args: Vec<String> = std::env::args().skip(1).collect();
     let (file, xml) = pelens_gui::parse_cli(&args);
     let exe_dir = std::env::current_exe().ok().and_then(|p| p.parent().map(|d| d.to_path_buf()));
-    let k = pelens_gui::model::load_knowledge(xml.as_deref(), exe_dir.as_deref());
+    let mut k = pelens_gui::model::load_knowledge(xml.as_deref(), exe_dir.as_deref());
+    let store = std::sync::Arc::new(pe_online::secret::CredentialStore::vt());
+    // a key from an older settings.xml moves to the Credential Manager (stays if that fails)
+    let _ = pe_online::secret::migrate_plaintext_key(&mut k, store.as_ref());
     let mut state = pelens_gui::State::new(k);
+    state.key_store = store;
     state.set_system_lang(pelens_gui::i18n::system_lang());
     let startup = pelens_gui::parse_startup(&args);
     startup.apply_lang(&mut state);

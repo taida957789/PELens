@@ -108,7 +108,9 @@ query overlay score	查询 overlay 评分
 API version	API 版本
 proxy address	代理地址
 proxy port	代理端口
-Your own Virustotal key used to perform queries.	您自己的 VirusTotal 密钥，用于查询。
+Your own Virustotal key, stored in the Windows Credential Manager.	您自己的 VirusTotal 密钥，保存在 Windows 凭据管理器中。
+the Virustotal key is stored in the Windows Credential Manager	VirusTotal 密钥已保存在 Windows 凭据管理器
+cannot store the Virustotal key ({0})	无法保存 VirusTotal 密钥（{0}）
 
 # file dialogs
 Select file to open	选择要打开的文件

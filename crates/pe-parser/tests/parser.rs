@@ -1028,3 +1028,29 @@ fn dotnet_unknown_table_keeps_known_tables() {
     assert_eq!(n.impl_maps[0].module, "kernel32.dll");
     assert_eq!(n.assembly.unwrap().name, "A");
 }
+
+#[test]
+fn export_counts_are_bounded_by_the_file() {
+    let mut b = PeBuilder::new();
+    b.exports = vec![
+        Export { name: Some("A".into()), rva: 0x1000, forwarder: None },
+        Export { name: Some("B".into()), rva: 0x1001, forwarder: None },
+    ];
+    let mut data = b.build();
+    let pe = PeFile::parse(&data);
+    let e = pe.exports.as_ref().unwrap();
+    assert!(!e.truncated);
+    let off = e.offset as usize;
+    // NumberOfFunctions and NumberOfNames far beyond the arrays the file can hold
+    data[off + 20..off + 24].copy_from_slice(&0x7fff_ffffu32.to_le_bytes());
+    data[off + 24..off + 28].copy_from_slice(&0x7fff_ffffu32.to_le_bytes());
+    let pe = PeFile::parse(&data);
+    let e = pe.exports.as_ref().unwrap();
+    assert!(e.truncated);
+    assert!(e.functions.len() <= data.len() / 4, "{}", e.functions.len());
+    assert!(e.functions.iter().any(|f| f.name.as_deref() == Some("A")));
+    // arrays outside the image: nothing to read
+    data[off + 28..off + 32].copy_from_slice(&0xfff0_0000u32.to_le_bytes());
+    let pe = PeFile::parse(&data);
+    assert!(pe.exports.as_ref().unwrap().functions.is_empty());
+}

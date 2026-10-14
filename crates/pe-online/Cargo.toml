@@ -10,5 +10,8 @@ serde_json = { workspace = true }
 ureq = { workspace = true }
 pe-db = { workspace = true }
 
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = ["Win32_Foundation", "Win32_Security_Credentials"] }
+
 [dev-dependencies]
 pe-parser = { workspace = true }

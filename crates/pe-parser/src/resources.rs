@@ -124,9 +124,9 @@ impl Resources {
             minor_version: r.u16(base + 10)?,
             ..Default::default()
         };
-        let mut visited = HashSet::new();
+        let mut seen = Seen::default();
         let mut path: Vec<ResId> = Vec::new();
-        walk(r, l, base, 0, 0, &mut path, &mut visited, &mut res);
+        walk(r, l, base, 0, 0, &mut path, &mut seen, &mut res);
         Some(res)
     }
 
@@ -156,21 +156,21 @@ fn read_name(r: &Reader, base: usize, raw: u32) -> ResId {
     }
 }
 
+/// Directories and directory-entry slots already walked. Directories may overlap (a directory
+/// starting 8 bytes into another shares its entries), so entry slots are tracked as well: entries
+/// never overlap, hence at most one entry per 8 bytes of the file, whatever the tree looks like.
+#[derive(Default)]
+struct Seen {
+    dirs: HashSet<usize>,
+    slots: HashSet<usize>,
+}
+
 #[allow(clippy::too_many_arguments)]
-fn walk(
-    r: &Reader,
-    l: &Layout,
-    base: usize,
-    rel: usize,
-    depth: usize,
-    path: &mut Vec<ResId>,
-    visited: &mut HashSet<usize>,
-    res: &mut Resources,
-) {
+fn walk(r: &Reader, l: &Layout, base: usize, rel: usize, depth: usize, path: &mut Vec<ResId>, seen: &mut Seen, res: &mut Resources) {
     if depth > 8 || res.entries.len() >= MAX_ENTRIES {
         return;
     }
-    if !visited.insert(rel) {
+    if !seen.dirs.insert(rel) {
         res.loops += 1;
         return;
     }
@@ -180,10 +180,16 @@ fn walk(
     for i in 0..n {
         let eo = o + 16 + i * 8;
         let (Some(name), Some(off)) = (r.u32(eo), r.u32(eo + 4)) else { break };
+        // a slot overlapping one already read (directories can start at any byte)
+        if (eo.saturating_sub(7)..eo + 8).any(|x| seen.slots.contains(&x)) {
+            res.loops += 1;
+            continue;
+        }
+        seen.slots.insert(eo);
         let id = read_name(r, base, name);
         path.push(id);
         if off & 0x8000_0000 != 0 {
-            walk(r, l, base, (off & 0x7fff_ffff) as usize, depth + 1, path, visited, res);
+            walk(r, l, base, (off & 0x7fff_ffff) as usize, depth + 1, path, seen, res);
         } else {
             let de = base + off as usize;
             if let (Some(rva), Some(size), Some(cp)) = (r.u32(de), r.u32(de + 4), r.u32(de + 8)) {

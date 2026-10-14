@@ -1,0 +1,56 @@
+[package]
+name = "pelens-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+pe-parser = { path = "../crates/pe-parser" }
+pe-db = { path = "../crates/pe-db" }
+pe-analysis = { path = "../crates/pe-analysis" }
+
+# Not part of the main workspace: built with nightly by `cargo fuzz`.
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "parse_pe"
+path = "fuzz_targets/parse_pe.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "certificate"
+path = "fuzz_targets/certificate.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "dotnet"
+path = "fuzz_targets/dotnet.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "resources"
+path = "fuzz_targets/resources.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "analyze"
+path = "fuzz_targets/analyze.rs"
+test = false
+doc = false
+bench = false

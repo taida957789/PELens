@@ -79,7 +79,7 @@ fn rgb(c: (u8, u8, u8)) -> Color32 {
 
 impl PeLensApp {
     pub fn new(state: State, host: Box<dyn Host>) -> Self {
-        let key_buffer = state.knowledge.settings.get("score", "key").unwrap_or("").to_string();
+        let key_buffer = state.stored_key();
         let palette = Palette::for_mode(state.dark_mode());
         let mut expanded = HashSet::new();
         expanded.insert("root".to_string());
@@ -893,6 +893,7 @@ impl PeLensApp {
                         ui.label("");
                     } else if f.choices[0].0 == "*" {
                         ui.label(label);
+                        let cur = if f.attr == "key" { self.state.stored_key() } else { cur };
                         let mut v = if f.attr == "key" { self.key_buffer.clone() } else { cur.clone() };
                         let r = if f.attr == "key" {
                             ui.add(egui::TextEdit::singleline(&mut v).password(true))
@@ -901,7 +902,7 @@ impl PeLensApp {
                         };
                         if f.attr == "key" {
                             self.key_buffer = v.clone();
-                            r.clone().on_hover_text(self.state.t("Your own Virustotal key used to perform queries."));
+                            r.clone().on_hover_text(self.state.t("Your own Virustotal key, stored in the Windows Credential Manager."));
                         }
                         if r.lost_focus() && v != cur {
                             changes.push((f.elem, f.attr, v));

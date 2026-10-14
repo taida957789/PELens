@@ -1,6 +1,8 @@
 //! Online services: VirusTotal score (hash only, the sample is never uploaded), search links
 //! (VirusTotal, Google, MITRE, Microsoft Learn), update check and network status.
 
+pub mod secret;
+
 use pe_analysis::{EngineResult, ScoreReport};
 use serde_json::Value;
 use std::time::Duration;
@@ -267,14 +269,15 @@ pub fn network_alive(timeout: Duration) -> bool {
 }
 
 /// Settings → (api, key, enabled).
+/// (API version, key, enabled) with the key from `VT_API_KEY`, the Windows Credential Manager or
+/// a legacy plaintext `<score key>` (see [`secret::resolve_key`]).
 pub fn vt_settings(k: &pe_db::Knowledge) -> (VtApi, String, bool) {
+    vt_settings_with(k, &secret::CredentialStore::vt())
+}
+
+pub fn vt_settings_with(k: &pe_db::Knowledge, store: &dyn secret::KeyStore) -> (VtApi, String, bool) {
     let s = &k.settings;
-    let key = s
-        .get("score", "key")
-        .map(str::to_string)
-        .filter(|v| !v.is_empty())
-        .or_else(|| std::env::var("VT_API_KEY").ok())
-        .unwrap_or_default();
+    let key = secret::resolve_key(k, store);
     let api = if s.get_int("score", "api", 3) == 2 { VtApi::V2 } else { VtApi::V3 };
     (api, key, s.get_bool("score", "enable", true))
 }
@@ -295,7 +298,11 @@ pub fn net_config(k: &pe_db::Knowledge) -> NetConfig {
 
 /// Attach the VirusTotal score to an analysis and derive the score indicators.
 pub fn attach_score(a: &mut pe_analysis::Analysis, k: &pe_db::Knowledge, c: &dyn HttpClient) {
-    let (api, key, enabled) = vt_settings(k);
+    attach_score_with(a, k, c, &secret::CredentialStore::vt());
+}
+
+pub fn attach_score_with(a: &mut pe_analysis::Analysis, k: &pe_db::Knowledge, c: &dyn HttpClient, store: &dyn secret::KeyStore) {
+    let (api, key, enabled) = vt_settings_with(k, store);
     if !enabled {
         a.score = Some(report("disabled", &a.hashes.md5));
     } else {

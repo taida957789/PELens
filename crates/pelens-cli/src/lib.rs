@@ -86,6 +86,8 @@ pub fn parse_args(args: &[String]) -> Result<Args, ArgError> {
 pub trait Env {
     fn exe_dir(&self) -> Option<PathBuf>;
     fn http(&self, k: &Knowledge) -> Box<dyn pe_online::HttpClient>;
+    /// Where the VirusTotal key is kept (the Windows Credential Manager).
+    fn key_store(&self) -> Box<dyn pe_online::secret::KeyStore>;
 }
 
 pub struct RealEnv;
@@ -97,6 +99,10 @@ impl Env for RealEnv {
 
     fn http(&self, k: &Knowledge) -> Box<dyn pe_online::HttpClient> {
         Box::new(pe_online::UreqClient::new(&pe_online::net_config(k)))
+    }
+
+    fn key_store(&self) -> Box<dyn pe_online::secret::KeyStore> {
+        Box::new(pe_online::secret::CredentialStore::vt())
     }
 }
 
@@ -139,12 +145,22 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
         let _ = writeln!(err, "missing -file:\n\n{USAGE}");
         return 2;
     };
-    let k = match find_xml_dir(a.xml_dir.as_deref(), env.exe_dir().as_deref()) {
+    let mut k = match find_xml_dir(a.xml_dir.as_deref(), env.exe_dir().as_deref()) {
         Some(d) => Knowledge::load(d),
         None => Knowledge::builtin(),
     };
     for (f, e) in &k.errors {
         let _ = writeln!(err, "[!] {f}: {e}");
+    }
+    let store = env.key_store();
+    match pe_online::secret::migrate_plaintext_key(&mut k, store.as_ref()) {
+        Ok(true) => {
+            let _ = writeln!(err, "[+] the Virustotal key was moved from settings.xml to the Windows Credential Manager");
+        }
+        Ok(false) => {}
+        Err(e) => {
+            let _ = writeln!(err, "[!] the Virustotal key stays in settings.xml ({e})");
+        }
     }
     let opts = pe_analysis::Options::from_settings(&k);
     let (data, mut an) = match pe_analysis::analyze_file(&file, &k, &opts) {
@@ -156,7 +172,7 @@ pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn 
     };
     if a.vt {
         let c = env.http(&k);
-        pe_online::attach_score(&mut an, &k, c.as_ref());
+        pe_online::attach_score_with(&mut an, &k, c.as_ref(), store.as_ref());
     }
     let fmt = a.format.unwrap_or_else(|| Format::from_setting(k.settings.get_int("report", "type", 0)));
     let text = report::render(&an, &k, &data, fmt);

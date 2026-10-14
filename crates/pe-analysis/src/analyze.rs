@@ -417,6 +417,13 @@ fn build_exports(a: &mut Analysis, k: &Knowledge) {
     }
 }
 
+/// Resource bytes hashed and scanned: at most this many times the file size…
+const RESOURCE_SCAN_FACTOR: u64 = 8;
+/// …but always at least this much.
+const RESOURCE_SCAN_MIN: u64 = 64 << 20;
+/// md5 shown for a resource left out of the scan budget.
+pub const RESOURCE_SKIPPED: &str = "n/a (overlapping resources, not hashed)";
+
 fn build_resources(a: &mut Analysis, k: &Knowledge, data: &[u8], first_bytes: usize) {
     let Some(res) = a.pe.resources.as_ref() else { return };
     // Entries may share one data blob (crafted files repeat it thousands of times): hash once.
@@ -427,13 +434,17 @@ fn build_resources(a: &mut Analysis, k: &Knowledge, data: &[u8], first_bytes: us
         md5: String,
     }
     let mut cache: HashMap<(Option<u32>, u32), BlobInfo> = HashMap::new();
+    // Distinct blobs can still overlap (thousands of entries each claiming most of the file), so
+    // the bytes hashed and scanned are capped: past the budget a blob is listed without them.
+    let mut budget = (data.len() as u64).saturating_mul(RESOURCE_SCAN_FACTOR).max(RESOURCE_SCAN_MIN);
     for e in &res.entries {
         let blob = e.data(&pe_parser::reader::Reader::new(data));
-        let info = cache.entry((e.file_offset, e.size)).or_insert_with(|| BlobInfo {
-            embedded: sigscan::embedded_signature(k, blob),
-            signature: None,
-            entropy: entropy(blob),
-            md5: md5_hex(blob),
+        let info = cache.entry((e.file_offset, e.size)).or_insert_with(|| {
+            if (blob.len() as u64) > budget {
+                return BlobInfo { embedded: None, signature: Some(None), entropy: 0.0, md5: RESOURCE_SKIPPED.into() };
+            }
+            budget -= blob.len() as u64;
+            BlobInfo { embedded: sigscan::embedded_signature(k, blob), signature: None, entropy: entropy(blob), md5: md5_hex(blob) }
         });
         let lang = (e.language & 0xffff) as u16;
         let (lname, lflag) = k.languages.language(lang).map(|(n, f)| (n.to_string(), f)).unwrap_or_else(|| ("unknown".into(), false));

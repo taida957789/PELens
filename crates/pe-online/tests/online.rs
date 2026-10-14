@@ -139,7 +139,8 @@ fn settings_and_attach() {
     k.settings.set("score", "enable", "1");
     k.settings.set("score", "key", "abc");
     k.settings.set("score", "api", "2");
-    let (api, key, en) = vt_settings(&k);
+    // not the real Credential Manager: a key stored there must not change the test
+    let (api, key, en) = vt_settings_with(&k, &secret::MemoryStore::default());
     assert_eq!((api, key.as_str(), en), (VtApi::V2, "abc", true));
     assert!(net_config(&k).proxy.is_none());
     k.settings.set("proxy", "address", "10.0.0.1");

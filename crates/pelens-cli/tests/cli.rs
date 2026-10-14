@@ -4,6 +4,8 @@ use std::path::{Path, PathBuf};
 
 struct TestEnv {
     exe: Option<PathBuf>,
+    /// Stands for the Credential Manager: shared by every run of one test.
+    store: std::sync::Arc<pe_online::secret::MemoryStore>,
 }
 
 struct NoNet;
@@ -23,6 +25,9 @@ impl Env for TestEnv {
     }
     fn http(&self, _k: &pe_db::Knowledge) -> Box<dyn pe_online::HttpClient> {
         Box::new(NoNet)
+    }
+    fn key_store(&self) -> Box<dyn pe_online::secret::KeyStore> {
+        Box::new(self.store.clone())
     }
 }
 
@@ -66,7 +71,7 @@ fn parse_arguments() {
 
 #[test]
 fn usage_and_errors() {
-    let env = TestEnv { exe: None };
+    let env = TestEnv { exe: None, store: Default::default() };
     let (c, o, _) = run_cli(&s(&["-help"]), &env);
     assert_eq!(c, 0);
     assert!(o.contains("pelens-cli") && o.contains("-file:"));
@@ -93,12 +98,17 @@ fn writes_reports() {
     std::fs::write(kb.join("settings.xml"), st).unwrap();
     let sample = dir.join("sample.exe");
     std::fs::write(&sample, pe_analysis::testkit::suspicious_sample()).unwrap();
-    let env = TestEnv { exe: None };
+    let env = TestEnv { exe: None, store: Default::default() };
 
     // default report name: input + .xml
     let (c, o, e) = run_cli(&s(&[&format!("-file:{}", sample.display()), &format!("-xml:{}", kb.display())]), &env);
     assert_eq!(c, 0, "{e}");
     assert!(o.contains("[+] report:") && o.contains("as-is"));
+    // the plaintext key moved to the credential store; settings.xml no longer holds it
+    use pe_online::secret::KeyStore;
+    assert!(e.contains("moved from settings.xml"), "{e}");
+    assert_eq!(env.store.get().as_deref(), Some("TESTKEY"));
+    assert!(!std::fs::read_to_string(kb.join("settings.xml")).unwrap().contains("TESTKEY"));
     let xml = std::fs::read_to_string(dir.join("sample.exe.xml")).unwrap();
     assert!(pe_db::dom::parse(&xml).is_ok());
 
@@ -161,7 +171,7 @@ fn locates_knowledge_directory() {
     // builtin knowledge when nothing is found
     let sample = elsewhere.join("s.exe");
     std::fs::write(&sample, pe_parser::testutil::PeBuilder::new().build()).unwrap();
-    let env = TestEnv { exe: Some(elsewhere.clone()) };
+    let env = TestEnv { exe: Some(elsewhere.clone()), store: Default::default() };
     let (c, _, _) = run_cli(&s(&["-banner", &format!("-file:{}", sample.display()), "-stdout"]), &env);
     assert_eq!(c, 0);
     let real = RealEnv;
@@ -185,7 +195,7 @@ fn stdout_is_pipe_clean() {
     let dir = tmp("pipe");
     let sample = dir.join("s.exe");
     std::fs::write(&sample, pe_parser::testutil::PeBuilder::new().build()).unwrap();
-    let env = TestEnv { exe: None };
+    let env = TestEnv { exe: None, store: Default::default() };
     let (c, o, e) = run_cli(&s(&[&format!("-file:{}", sample.display()), "-format:json", "-stdout"]), &env);
     assert_eq!(c, 0);
     assert!(o.starts_with('{'), "stdout starts with the report: {}", &o[..40.min(o.len())]);

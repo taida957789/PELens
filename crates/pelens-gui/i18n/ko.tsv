@@ -108,7 +108,9 @@ query overlay score	overlay 점수 조회
 API version	API 버전
 proxy address	프록시 주소
 proxy port	프록시 포트
-Your own Virustotal key used to perform queries.	조회에 사용할 본인의 VirusTotal 키입니다.
+Your own Virustotal key, stored in the Windows Credential Manager.	본인의 VirusTotal 키이며 Windows 자격 증명 관리자에 저장됩니다.
+the Virustotal key is stored in the Windows Credential Manager	VirusTotal 키를 Windows 자격 증명 관리자에 저장했습니다
+cannot store the Virustotal key ({0})	VirusTotal 키를 저장할 수 없습니다({0})
 
 # file dialogs
 Select file to open	열 파일 선택

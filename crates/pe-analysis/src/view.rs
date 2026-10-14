@@ -768,6 +768,9 @@ fn imports(a: &Analysis, k: &Knowledge) -> Table {
             "namespace",
         ],
     );
+    if a.pe.imports.truncated {
+        t.note = Some(format!("truncated after {} functions", pe_parser::imports::MAX_TOTAL_FUNCTIONS));
+    }
     for i in &a.imports {
         let mut r = Row::new(vec![
             i.name.clone(),
@@ -798,14 +801,25 @@ fn imports(a: &Analysis, k: &Knowledge) -> Table {
     t
 }
 
+const EXPORTS_TRUNCATED: &str = "truncated: the export directory claims more entries than the file holds";
+
 fn exports(a: &Analysis) -> Table {
+    let truncated = a.pe.exports.as_ref().is_some_and(|e| e.truncated);
     if a.exports.is_empty() {
-        return Table::na(ItemType::Exports, if a.pe.exports.is_some() { "empty" } else { "n/a (no export)" });
+        let note = match &a.pe.exports {
+            Some(_) if truncated => EXPORTS_TRUNCATED,
+            Some(_) => "empty",
+            None => "n/a (no export)",
+        };
+        return Table::na(ItemType::Exports, note);
     }
     let mut t = Table::new(
         ItemType::Exports,
         &["ordinal", "name", "undecorated", "address", "location", "forwarded", "gap", "anonymous", "duplicate", "entry-point", "flag"],
     );
+    if truncated {
+        t.note = Some(EXPORTS_TRUNCATED.into());
+    }
     if let Some(e) = &a.pe.exports {
         t.rows.push(Row::new(vec![
             "file-name".into(),

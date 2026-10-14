@@ -510,3 +510,41 @@ fn reanalysis_keeps_score_and_drive_info() {
     assert!(a.network_drive, "same file → drive info kept");
     assert!(a.score.is_none(), "bytes changed → old score dropped");
 }
+
+#[test]
+fn virustotal_key_goes_to_the_key_store() {
+    struct Failing;
+    impl pe_online::secret::KeyStore for Failing {
+        fn get(&self) -> Option<String> {
+            None
+        }
+        fn set(&self, _key: &str) -> Result<(), String> {
+            Err("locked".into())
+        }
+        fn delete(&self) -> Result<(), String> {
+            Ok(())
+        }
+    }
+    // the settings.xml of `state()` holds a plaintext key "K"
+    let (mut s, _) = state("vtkey");
+    let dir = s.knowledge.dir.clone().unwrap();
+    assert_eq!(s.stored_key(), "K", "legacy plaintext key");
+    s.set_setting("score", "key", "NEW");
+    assert_eq!(s.key_store.get().as_deref(), Some("NEW"));
+    assert_eq!(s.stored_key(), "NEW");
+    let xml = std::fs::read_to_string(dir.join("settings.xml")).unwrap();
+    assert!(!xml.contains("NEW") && !xml.contains("key=\"K\""), "the key never reaches settings.xml");
+    assert!(s.status.contains("Credential Manager"), "{}", s.status);
+    // queries use the stored key
+    assert_eq!(pe_online::vt_settings_with(&s.knowledge, s.key_store.as_ref()).1, "NEW");
+    // a store that cannot be written: nothing is saved anywhere, the user is told
+    s.key_store = Arc::new(Failing);
+    s.set_setting("score", "key", "OTHER");
+    assert_eq!(s.status, "cannot store the Virustotal key (locked)");
+    assert!(!std::fs::read_to_string(dir.join("settings.xml")).unwrap().contains("OTHER"));
+    // without a settings directory the plaintext value is blanked in memory
+    let mut s2 = State::new(pe_db::Knowledge::builtin());
+    s2.knowledge.settings.set("score", "key", "MEM");
+    s2.set_setting("score", "key", "MEM2");
+    assert_eq!((s2.stored_key(), s2.knowledge.settings.get("score", "key")), ("MEM2".to_string(), Some("")));
+}

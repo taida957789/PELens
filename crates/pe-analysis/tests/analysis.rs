@@ -1047,3 +1047,47 @@ fn duplicate_library_names_and_json_keys() {
     }
     assert!(json.contains("\"flagged\":true"));
 }
+
+#[test]
+fn truncated_exports_are_noted_in_the_view() {
+    use pe_parser::testutil::{Export, PeBuilder};
+    let mut b = PeBuilder::new();
+    b.exports = vec![Export { name: Some("A".into()), rva: 0x1000, forwarder: None }];
+    let mut data = b.build();
+    let off = pe_parser::PeFile::parse(&data).exports.unwrap().offset as usize;
+    data[off + 20..off + 24].copy_from_slice(&0x7fff_ffffu32.to_le_bytes());
+    let k = testkit::knowledge("trunc-exports");
+    let a = pe_analysis::analyze(&data, "t.dll", &k, &pe_analysis::Options::default());
+    let v = pe_analysis::view::table(&a, &k, &data, ItemType::Exports, &pe_analysis::view::ViewOptions::from_settings(&k));
+    assert!(!v.rows.is_empty());
+    assert!(v.note.as_deref().is_some_and(|n| n.starts_with("truncated")), "{:?}", v.note);
+}
+
+#[test]
+fn overlapping_resources_respect_the_scan_budget() {
+    let mut b = PeBuilder::new();
+    b.resources =
+        (0..80u16).map(|i| Resource { type_id: ResKey::Id(10), name: ResKey::Id(i + 1), lang: 0x409, data: vec![i as u8; 4] }).collect();
+    b.extra_sections.push(ExtraSection {
+        name: ".big".into(),
+        data: vec![0x41; 1 << 20],
+        characteristics: 0x4000_0040,
+        virtual_size: None,
+    });
+    let mut data = b.build();
+    let pe = pe_parser::PeFile::parse(&data);
+    let big = pe.layout.as_ref().unwrap().sections.iter().find(|s| s.name == ".big").unwrap().virtual_address;
+    // every data entry claims ~1 MB of the big section, each starting one byte further
+    for (i, e) in pe.resources.as_ref().unwrap().entries.iter().enumerate() {
+        let de = e.entry_offset as usize;
+        data[de..de + 4].copy_from_slice(&(big + i as u32).to_le_bytes());
+        data[de + 4..de + 8].copy_from_slice(&(1u32 << 20).to_le_bytes());
+    }
+    let k = testkit::knowledge("res-budget");
+    let opts = Options { verify_signature: false, ..Default::default() };
+    let a = analyze(&data, "b.exe", &k, &opts);
+    assert_eq!(a.resources.len(), 80);
+    let skipped = a.resources.iter().filter(|r| r.md5 == pe_analysis::analyze::RESOURCE_SKIPPED).count();
+    assert!(skipped > 0 && skipped < 80, "{skipped}");
+    assert!(a.resources[0].md5.len() == 32);
+}
