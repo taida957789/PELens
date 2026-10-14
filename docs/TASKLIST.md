@@ -189,7 +189,7 @@
 - [x] T13.2 清除 clippy 的 15 個警告，改以 `-D warnings` 執行（stable 1.99 新增的 lint 也已修正；最低版本改為 Rust 1.88）
 - [x] T13.3 `.github/workflows/ci.yml`：rustfmt、clippy、test、llvm-cov（< 90% 失敗）；CI 綠燈
 - [x] T13.4 確認測試在 CI 中不依賴本機（pestudio XML、字型、語系）；`.gitattributes` 統一 LF
-- [ ] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE）＋ SHA-256 → GitHub Releases
+- [ ] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE、知識庫授權與來源）＋ SHA-256 → GitHub Releases
 - [x] T13.6 README（8 種語言）加入下載說明與 CI badge
 
 ## M14 Fuzzing

@@ -27,6 +27,9 @@ jobs:
           $name = "PELens-$($env:GITHUB_REF_NAME)-windows-x64"
           New-Item -ItemType Directory $name | Out-Null
           Copy-Item target/release/pelens.exe, target/release/pelens-cli.exe, README.md, LICENSE $name
+          # the binaries embed the open knowledge base: ship its license (CC0, MITRE ATT&CK terms)
+          Copy-Item kb/LICENSE "$name/LICENSE-knowledge-base.txt"
+          Copy-Item kb/SOURCES.md "$name/SOURCES-knowledge-base.md"
           Compress-Archive -Path $name -DestinationPath "$name.zip"
           $hash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLower()
           "$hash  $name.zip" | Out-File -Encoding ascii "$name.zip.sha256"
