@@ -7,6 +7,10 @@
 <p align="center">Una lente para Portable Executables: evaluación inicial estática de malware para binarios de Windows, reconstruida en Rust.</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -56,6 +60,8 @@ La interfaz sigue por defecto el idioma de visualización de Windows. Cámbielo 
 - **Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.
 
 ## Instalación / compilación
+
+**Descarga**: obtenga `PELens-<versión>-windows-x64.zip` en [Releases](https://github.com/taida957789/PELens/releases/latest), descomprímalo y ejecute `pelens.exe` (sin instalación). Incluye un `.sha256` para verificarlo. Para compilar desde el código fuente:
 
 ```bash
 cargo build --release

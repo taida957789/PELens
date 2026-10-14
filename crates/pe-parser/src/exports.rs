@@ -96,7 +96,7 @@ impl Exports {
         e.duplicate_names = dups;
 
         let functions_off = l.rva_to_offset(e.address_of_functions);
-        for i in 0..nfuncs {
+        for (i, slot) in names.iter_mut().enumerate().take(nfuncs) {
             let rva = functions_off.and_then(|o| r.u32(o + i * 4)).unwrap_or(0);
             let forwarder = if rva >= fstart && rva < fend { l.cstr_at_rva(r, rva, 512).filter(|s| !s.is_empty()) } else { None };
             let base = ExportedFunction {
@@ -107,7 +107,7 @@ impl Exports {
                 gap: rva == 0,
                 ..Default::default()
             };
-            let slot = std::mem::take(&mut names[i]);
+            let slot = std::mem::take(slot);
             if slot.is_empty() {
                 e.functions.push(base);
             } else {

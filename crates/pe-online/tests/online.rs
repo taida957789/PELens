@@ -1,9 +1,12 @@
 use pe_online::*;
 use std::cell::RefCell;
 
+/// A request seen by the mock: (url, headers).
+type Request = (String, Vec<(String, String)>);
+
 struct Mock {
     responses: RefCell<Vec<Result<HttpResponse, String>>>,
-    seen: RefCell<Vec<(String, Vec<(String, String)>)>>,
+    seen: RefCell<Vec<Request>>,
 }
 
 impl Mock {

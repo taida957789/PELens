@@ -7,6 +7,10 @@
 <p align="center">Portable Executable のためのレンズ — Rust で作り直した、Windows バイナリ向けの静的マルウェア初期評価ツール。</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -56,6 +60,8 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 - **8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。
 
 ## インストール／ビルド
+
+**ダウンロード**：[Releases](https://github.com/taida957789/PELens/releases/latest) から `PELens-<バージョン>-windows-x64.zip` を入手し、展開して `pelens.exe` を実行します（インストール不要）。検証用の `.sha256` も付いています。ソースからビルドする場合：
 
 ```bash
 cargo build --release

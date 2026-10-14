@@ -347,7 +347,9 @@ fn tree_view_theme_and_layout() {
     h.state_mut().state.apply(Action::Modify(pe_analysis::actions::Modification::SetDll(true)));
     h.state_mut().state.apply(Action::Select(ItemType::Strings));
     h.run();
-    h.get_all_by_label("strings").next().map(|n| n.hover());
+    if let Some(n) = h.get_all_by_label("strings").next() {
+        n.hover()
+    }
     h.run();
     assert!(h.query_by_label("modified").is_some());
     let l = pelens_gui::theme::font_definitions(std::path::Path::new("Z:/nope"), pelens_gui::i18n::Lang::En).1;

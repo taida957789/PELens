@@ -7,6 +7,10 @@
 <p align="center">Une loupe pour les Portable Executables : évaluation initiale statique des malwares pour les binaires Windows, réécrite en Rust.</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -55,6 +59,8 @@ Par défaut, l’interface suit la langue d’affichage de Windows. Changez-la d
 - **Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence).
 
 ## Installation / compilation
+
+**Téléchargement** : récupérez `PELens-<version>-windows-x64.zip` sur [Releases](https://github.com/taida957789/PELens/releases/latest), décompressez-le et lancez `pelens.exe` (aucune installation). Un fichier `.sha256` permet de le vérifier. Pour compiler depuis les sources :
 
 ```bash
 cargo build --release

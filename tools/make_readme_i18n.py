@@ -31,6 +31,7 @@ T = {
   '**報告**：XML、JSON、純文字，內容與 GUI 顯示的表格相同。',
   '**GUI**：tree-view、暗色／亮色主題、可排序與篩選的表格、右鍵選單、拖放、快捷鍵（Ctrl+O、S、E、R、X；Tab 在樹狀中移動）。',
   '**8 種介面語言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，預設跟隨 Windows 顯示語言。'],
+ dl='**下載**：到 [Releases](https://github.com/taida957789/PELens/releases/latest) 下載 `PELens-<版本>-windows-x64.zip`，解壓縮後執行 `pelens.exe`，不需安裝。附有 `.sha256` 可驗證檔案。從原始碼建置：',
  build_note='需要 Rust 1.85 以上（edition 2024），於 Windows 11 x64 開發與測試。',
  usage_note='CLI 預設在樣本旁輸出 `<input>.xml`，與 pestudio 相同。',
  kb='PELens 從你自己安裝的 pestudio 讀取其 XML 檔（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml`…）：用 `-xml:<dir>` 指定，或在執行檔旁放一個 `xml` 資料夾。**這些檔案不隨 PELens 散佈**，它們屬於 pestudio 的作者。沒有它們時，PELens 仍會以內建預設值運作。',
@@ -58,6 +59,7 @@ T = {
   '**报告**：XML、JSON、纯文本，内容与 GUI 显示的表格一致。',
   '**GUI**：树视图、深色／浅色主题、可排序和筛选的表格、右键菜单、拖放、快捷键（Ctrl+O、S、E、R、X；Tab 在树中移动）。',
   '**8 种界面语言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，默认跟随 Windows 显示语言。'],
+ dl='**下载**：从 [Releases](https://github.com/taida957789/PELens/releases/latest) 下载 `PELens-<版本>-windows-x64.zip`，解压后运行 `pelens.exe`，无需安装。附带 `.sha256` 可校验文件。从源码构建：',
  build_note='需要 Rust 1.85 或更高版本（edition 2024），在 Windows 11 x64 上开发和测试。',
  usage_note='CLI 默认在样本旁输出 `<input>.xml`，与 pestudio 相同。',
  kb='PELens 从你自己安装的 pestudio 读取其 XML 文件（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml`…）：用 `-xml:<dir>` 指定，或在可执行文件旁放一个 `xml` 文件夹。**这些文件不随 PELens 分发**，它们属于 pestudio 的作者。没有它们时，PELens 仍会使用内置默认值运行。',
@@ -85,6 +87,7 @@ T = {
   '**レポート**：XML・JSON・テキスト。GUI と同じテーブルから生成します。',
   '**GUI**：ツリービュー、ダーク／ライトテーマ、並べ替え・絞り込みできるテーブル、右クリックメニュー、ドラッグ＆ドロップ、ショートカット（Ctrl+O・S・E・R・X、Tab でツリーを移動）。',
   '**8 つの表示言語**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français。既定では Windows の表示言語に合わせます。'],
+ dl='**ダウンロード**：[Releases](https://github.com/taida957789/PELens/releases/latest) から `PELens-<バージョン>-windows-x64.zip` を入手し、展開して `pelens.exe` を実行します（インストール不要）。検証用の `.sha256` も付いています。ソースからビルドする場合：',
  build_note='Rust 1.85 以降（edition 2024）が必要です。Windows 11 x64 で開発・テストしています。',
  usage_note='CLI は既定で、pestudio と同じくサンプルの隣に `<input>.xml` を書き出します。',
  kb='PELens は、お使いの pestudio に含まれる XML ファイル（`settings.xml`、`indicators.xml`、`functions.xml`、`signatures.xml` など）を読み込みます。`-xml:<dir>` で指定するか、実行ファイルの隣に `xml` フォルダーを置いてください。**これらのファイルは PELens には同梱されません**（pestudio の作者のものです）。ファイルがなくても、PELens は組み込みの既定値で動作します。',
@@ -112,6 +115,7 @@ T = {
   '**보고서**: XML, JSON, 텍스트. GUI와 같은 테이블로 만듭니다.',
   '**GUI**: 트리 뷰, 다크·라이트 테마, 정렬·필터 가능한 테이블, 컨텍스트 메뉴, 드래그 앤 드롭, 단축키(Ctrl+O, S, E, R, X, Tab으로 트리 이동).',
   '**8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.'],
+ dl='**다운로드**: [Releases](https://github.com/taida957789/PELens/releases/latest)에서 `PELens-<버전>-windows-x64.zip`을 받아 압축을 풀고 `pelens.exe`를 실행하세요(설치 불필요). 검증용 `.sha256` 파일이 함께 제공됩니다. 소스에서 빌드하려면:',
  build_note='Rust 1.85 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·테스트했습니다.',
  usage_note='CLI는 기본적으로 pestudio처럼 샘플 옆에 `<input>.xml`을 씁니다.',
  kb='PELens는 사용자가 설치한 pestudio의 XML 파일(`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml` 등)을 읽습니다. `-xml:<dir>`로 지정하거나 실행 파일 옆에 `xml` 폴더를 두세요. **이 파일들은 PELens와 함께 배포되지 않습니다**. pestudio 작성자의 소유입니다. 파일이 없어도 PELens는 내장 기본값으로 동작합니다.',
@@ -139,6 +143,7 @@ T = {
   '**Informes** en XML, JSON o texto, generados a partir de las mismas tablas que muestra la GUI.',
   '**GUI**: vista de árbol, temas oscuro y claro, tablas ordenables y filtrables, menús contextuales, arrastrar y soltar, y atajos (Ctrl+O, S, E, R, X; Tab recorre el árbol).',
   '**Interfaz en 8 idiomas**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch y Français; por defecto sigue el idioma de Windows.'],
+ dl='**Descarga**: obtenga `PELens-<versión>-windows-x64.zip` en [Releases](https://github.com/taida957789/PELens/releases/latest), descomprímalo y ejecute `pelens.exe` (sin instalación). Incluye un `.sha256` para verificarlo. Para compilar desde el código fuente:',
  build_note='Requiere Rust 1.85 o posterior (edition 2024). Desarrollado y probado en Windows 11 x64.',
  usage_note='Por defecto la CLI escribe `<input>.xml` junto a la muestra, igual que pestudio.',
  kb='PELens lee los archivos XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`, …) de tu propia instalación de pestudio. Indícalos con `-xml:<dir>` o coloca una carpeta `xml` junto al ejecutable. **Estos archivos no se distribuyen con PELens**: pertenecen al autor de pestudio. Sin ellos, PELens funciona con valores predeterminados integrados.',
@@ -166,6 +171,7 @@ T = {
   '**Berichte** als XML, JSON oder Text, erzeugt aus denselben Tabellen, die die GUI anzeigt.',
   '**GUI**: Baumansicht, dunkles und helles Design, sortier- und filterbare Tabellen, Kontextmenüs, Drag & Drop und Tastenkürzel (Strg+O, S, E, R, X; Tab bewegt sich durch den Baum).',
   '**Oberfläche in 8 Sprachen**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch und Français; standardmäßig die Anzeigesprache von Windows.'],
+ dl='**Download**: Laden Sie `PELens-<Version>-windows-x64.zip` unter [Releases](https://github.com/taida957789/PELens/releases/latest) herunter, entpacken Sie es und starten Sie `pelens.exe` (keine Installation). Eine `.sha256`-Datei zur Prüfung liegt bei. Aus dem Quellcode bauen:',
  build_note='Benötigt Rust 1.85 oder neuer (Edition 2024). Entwickelt und getestet unter Windows 11 x64.',
  usage_note='Standardmäßig schreibt die CLI wie pestudio `<input>.xml` neben die Probe.',
  kb='PELens liest die XML-Dateien von pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`, …) aus deiner eigenen pestudio-Installation. Gib sie mit `-xml:<dir>` an oder lege einen Ordner `xml` neben die ausführbare Datei. **Diese Dateien werden nicht mit PELens verteilt**: Sie gehören dem Autor von pestudio. Ohne sie läuft PELens mit eingebauten Standardwerten.',
@@ -192,6 +198,7 @@ T = {
   "**Modification de fichiers** : basculer entre DLL et EXE, définir le point d'entrée, basculer les characteristics, supprimer l'overlay, extraire n'importe quel élément et ouvrir un fichier intégré dans une nouvelle analyse.",
   "**Rapports** en XML, JSON ou texte, construits à partir des mêmes tables que celles de l'interface.",
   "**Interface graphique** : arborescence, thèmes sombre et clair, tableaux triables et filtrables, menus contextuels, glisser-déposer et raccourcis (Ctrl+O, S, E, R, X ; Tab parcourt l'arborescence)."],
+ dl='**Téléchargement** : récupérez `PELens-<version>-windows-x64.zip` sur [Releases](https://github.com/taida957789/PELens/releases/latest), décompressez-le et lancez `pelens.exe` (aucune installation). Un fichier `.sha256` permet de le vérifier. Pour compiler depuis les sources :',
  build_note='Nécessite Rust 1.85 ou plus récent (édition 2024). Développé et testé sous Windows 11 x64.',
  usage_note="Par défaut, la CLI écrit `<input>.xml` à côté de l'échantillon, comme pestudio.",
  kb="PELens lit les fichiers XML de pestudio (`settings.xml`, `indicators.xml`, `functions.xml`, `signatures.xml`…) depuis votre propre installation de pestudio. Indiquez-les avec `-xml:<dir>` ou placez un dossier `xml` à côté de l'exécutable. **Ces fichiers ne sont pas distribués avec PELens** : ils appartiennent à l'auteur de pestudio. Sans eux, PELens fonctionne avec des valeurs par défaut intégrées.",
@@ -239,6 +246,10 @@ def render(code, t):
 <p align="center">{t["tagline"]}</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   {lang_bar(code)}
 </p>
 
@@ -268,6 +279,8 @@ def render(code, t):
 {feats}
 
 ## {t["h_build"]}
+
+{t["dl"]}
 
 ```bash
 cargo build --release

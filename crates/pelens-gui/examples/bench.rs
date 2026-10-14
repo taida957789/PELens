@@ -10,8 +10,10 @@ fn main() {
         app.state.apply(pelens_gui::Action::Select(item));
         let mut times = Vec::new();
         for _ in 0..30 {
-            let mut input = egui::RawInput::default();
-            input.screen_rect = Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1280.0, 800.0)));
+            let input = egui::RawInput {
+                screen_rect: Some(egui::Rect::from_min_size(egui::Pos2::ZERO, egui::vec2(1280.0, 800.0))),
+                ..Default::default()
+            };
             let t = std::time::Instant::now();
             let out = ctx.run_ui(input, |ui| app.draw(ui));
             let _ = ctx.tessellate(out.shapes, out.pixels_per_point);

@@ -9,6 +9,10 @@
 </p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <b>English</b> ·
   <a href="docs/readme/README.zh-TW.md">繁體中文</a> ·
   <a href="docs/readme/README.zh-CN.md">简体中文</a> ·
@@ -76,6 +80,9 @@ match the reports and what the search box finds. The translations live in
   Français; by default the Windows display language.
 
 ## Install / build
+
+**Download**: get `PELens-<version>-windows-x64.zip` from [Releases](https://github.com/taida957789/PELens/releases/latest), unzip it and run
+`pelens.exe`; nothing to install. A `.sha256` file is published next to it. To build from source:
 
 ```bash
 cargo build --release

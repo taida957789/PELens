@@ -529,10 +529,11 @@ impl PeLensApp {
 
     fn location_map(&mut self) -> Option<Arc<LocationMap>> {
         let d = self.state.doc.as_ref()?;
-        if let Some((p, g, m)) = &self.loc_cache {
-            if *p == d.path && *g == d.generation {
-                return Some(m.clone());
-            }
+        if let Some((p, g, m)) = &self.loc_cache
+            && *p == d.path
+            && *g == d.generation
+        {
+            return Some(m.clone());
         }
         let m = Arc::new(pe_analysis::view::location_map(&d.analysis, &self.state.knowledge));
         self.loc_cache = Some((d.path.clone(), d.generation, m.clone()));
@@ -541,10 +542,12 @@ impl PeLensApp {
 
     fn resource_lines(&mut self, idx: usize) -> Option<Arc<Vec<String>>> {
         let d = self.state.doc.as_ref()?;
-        if let Some((p, g, i, l)) = &self.res_cache {
-            if *p == d.path && *g == d.generation && *i == idx {
-                return Some(l.clone());
-            }
+        if let Some((p, g, i, l)) = &self.res_cache
+            && *p == d.path
+            && *g == d.generation
+            && *i == idx
+        {
+            return Some(l.clone());
         }
         let l = Arc::new(pe_analysis::view::resource_content(&d.analysis, &d.data, idx));
         self.res_cache = Some((d.path.clone(), d.generation, idx, l.clone()));
@@ -553,9 +556,7 @@ impl PeLensApp {
 
     fn central(&mut self, ui: &mut egui::Ui) {
         let Some(table) = self.state.visible_table() else {
-            ui.centered_and_justified(|ui| {
-                ui.label(RichText::new(self.state.t(IDLE)).size(18.0).color(self.palette.muted))
-            });
+            ui.centered_and_justified(|ui| ui.label(RichText::new(self.state.t(IDLE)).size(18.0).color(self.palette.muted)));
             return;
         };
         let item = self.state.selected;
@@ -591,21 +592,21 @@ impl PeLensApp {
             });
         });
         ui.add_space(4.0);
-        if item == ItemType::Strings {
-            if let Some(map) = self.location_map() {
-                let total: usize = map.iter().map(|m| m.1).sum::<usize>().max(1);
-                let w = ui.available_width();
-                ui.horizontal(|ui| {
-                    ui.spacing_mut().item_spacing.x = 0.0;
-                    for (name, n, c) in map.iter() {
-                        let width = (w * *n as f32 / total as f32).max(2.0);
-                        let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 8.0), Sense::hover());
-                        ui.painter().rect_filled(rect, 1.0, rgb(*c));
-                        resp.on_hover_text(self.state.tf("{0}: {1} strings", &[name, n]));
-                    }
-                });
-                ui.add_space(4.0);
-            }
+        if item == ItemType::Strings
+            && let Some(map) = self.location_map()
+        {
+            let total: usize = map.iter().map(|m| m.1).sum::<usize>().max(1);
+            let w = ui.available_width();
+            ui.horizontal(|ui| {
+                ui.spacing_mut().item_spacing.x = 0.0;
+                for (name, n, c) in map.iter() {
+                    let width = (w * *n as f32 / total as f32).max(2.0);
+                    let (rect, resp) = ui.allocate_exact_size(egui::vec2(width, 8.0), Sense::hover());
+                    ui.painter().rect_filled(rect, 1.0, rgb(*c));
+                    resp.on_hover_text(self.state.tf("{0}: {1} strings", &[name, n]));
+                }
+            });
+            ui.add_space(4.0);
         }
         if let Some(n) = &table.note {
             ui.label(RichText::new(n).italics().color(p.muted));

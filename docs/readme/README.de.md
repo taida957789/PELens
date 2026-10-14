@@ -7,6 +7,10 @@
 <p align="center">Eine Linse für Portable Executables: statische Malware-Ersteinschätzung für Windows-Binärdateien, neu gebaut in Rust.</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -56,6 +60,8 @@ Die Oberfläche folgt standardmäßig der Anzeigesprache von Windows. Wechseln S
 - **Oberfläche in 8 Sprachen**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch und Français; standardmäßig die Anzeigesprache von Windows.
 
 ## Installation / Build
+
+**Download**: Laden Sie `PELens-<Version>-windows-x64.zip` unter [Releases](https://github.com/taida957789/PELens/releases/latest) herunter, entpacken Sie es und starten Sie `pelens.exe` (keine Installation). Eine `.sha256`-Datei zur Prüfung liegt bei. Aus dem Quellcode bauen:
 
 ```bash
 cargo build --release

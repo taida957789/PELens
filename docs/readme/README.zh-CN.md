@@ -7,6 +7,10 @@
 <p align="center">看清 Portable Executable 的镜头 — 用 Rust 重新打造的 Windows 可执行文件静态恶意软件初步评估工具。</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <b>简体中文</b> ·
@@ -56,6 +60,8 @@ PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、�
 - **8 种界面语言**：English、繁體中文、简体中文、日本語、한국어、Español、Deutsch、Français，默认跟随 Windows 显示语言。
 
 ## 安装／构建
+
+**下载**：从 [Releases](https://github.com/taida957789/PELens/releases/latest) 下载 `PELens-<版本>-windows-x64.zip`，解压后运行 `pelens.exe`，无需安装。附带 `.sha256` 可校验文件。从源码构建：
 
 ```bash
 cargo build --release

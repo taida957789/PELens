@@ -179,3 +179,75 @@
 - [x] T12.5 CJK 字型依語言排序（zh-CN 微軟雅黑、ja Yu Gothic、ko Malgun Gothic），並依字型 metrics 校正後備字型基線
 - [x] T12.6 測試：各語言 key 一致、placeholder 一致、介面字串與所有表頭皆有翻譯、語言切換（model＋UI）
 - 結果：87 個測試全過，行覆蓋率 96.93%
+
+---
+
+# v0.2 增強（計畫：`ENHANCEMENT_PLAN.md`）
+
+## M13 CI 與 Release
+- [ ] T13.1 新增 `LICENSE`（MIT）
+- [ ] T13.2 清除 clippy 的 15 個警告，改以 `-D warnings` 執行
+- [ ] T13.3 `.github/workflows/ci.yml`：test、clippy、llvm-cov（< 90% 失敗）
+- [ ] T13.4 確認測試在 CI 中不依賴本機（pestudio XML、字型、語系）
+- [ ] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE）＋ SHA-256 → GitHub Releases
+- [ ] T13.6 README 加入下載說明與 CI badge
+
+## M14 Fuzzing
+- [ ] T14.1 `fuzz/` crate 與 5 個目標：parse_pe、certificate、dotnet、resources、analyze
+- [ ] T14.2 種子語料（testkit 樣本；系統 PE 僅存在本機）
+- [ ] T14.3 穩定版變異回歸測試（固定種子、數萬次、每個輸入設時間上限），CI 執行
+- [ ] T14.4 每個目標本機各跑 ≥ 30 分鐘；修正找到的問題
+- [ ] T14.5 crash 輸入存入 `tests/corpus/` 作為永久回歸測試
+
+## M15 大檔效能
+- [ ] T15.1 合成 50 / 200 / 500 MB 樣本的基準測試（時間、尖峰記憶體、GUI 首次顯示）
+- [ ] T15.2 記錄基準結果
+- [ ] T15.3 依結果改善（候選：memmap2、字串分段、雜湊平行化、GUI 只建可見列）
+- [ ] T15.4 記錄改善前後比較
+
+## M16 VirusTotal 金鑰保護
+- [ ] T16.1 Windows 認證管理員讀寫（`PELens/VirusTotal`）
+- [ ] T16.2 自動搬移 settings.xml 中的明文金鑰
+- [ ] T16.3 讀取順序：`VT_API_KEY` → 認證管理員 → settings.xml；CLI 與 GUI 共用
+- [ ] T16.4 發佈 v0.2.0
+
+## M17 開放知識庫
+- [ ] T17.1 `kb/` 目錄、授權與 `kb/SOURCES.md`（每筆資料可追溯來源）
+- [ ] T17.2 `functions.xml`：API 分類、可疑旗標、MITRE 技術
+- [ ] T17.3 `indicators.xml`：150 個指標的說明與嚴重度
+- [ ] T17.4 `strings.xml`：可疑字串
+- [ ] T17.5 `signatures.xml`：加殼與安裝程式特徵
+- [ ] T17.6 `mitre.xml`、`rich.xml`、`languages.xml`
+- [ ] T17.7 `tools/build_kb.py` 可重現產生
+- [ ] T17.8 內嵌為內建知識庫；指定 `-xml:` 時以使用者 XML 為準
+- [ ] T17.9 本機比較與 pestudio XML 的指標命中數（目標 high 指標 ≥ 80%），記錄結果
+
+## M18 YARA 掃描
+- [ ] T18.1 加入 `yara-x`（feature `yara`）；量測編譯時間與執行檔大小
+- [ ] T18.2 規則載入：`<yara dir>`、`-yara:<dir>`；編譯錯誤列出檔名與行號
+- [ ] T18.3 新檢視 `yara`（規則、命名空間、tags、metadata、比對字串與偏移）
+- [ ] T18.4 YARA 指標（嚴重度取自規則 metadata）
+- [ ] T18.5 報告 XML / JSON / text 加入 yara 區段
+- [ ] T18.6 tree-view、`-view:`、翻譯檔同步更新
+
+## M19 Hex 檢視器
+- [ ] T19.1 hex 面板（位移 / hex / ASCII，只繪製可見列）
+- [ ] T19.2 前往位移、選取與複製（hex / 文字）、檔案位移與 RVA 切換
+- [ ] T19.3 標示選取結構的範圍
+- [ ] T19.4 各檢視右鍵「在 Hex 中顯示」
+
+## M20 進入點反組譯
+- [ ] T20.1 加入 `iced-x86`；x86 / x64，其他架構顯示不支援
+- [ ] T20.2 新檢視 `disassembly`：進入點或任意 RVA，N 條指令（`<disassembly count>`，預設 64）
+- [ ] T20.3 IAT 呼叫顯示函式名稱；進入點位置異常時提示
+- [ ] T20.4 TLS callback 反組譯
+- [ ] T20.5 發佈 v0.3.0
+
+## 待辦（未排程）
+- 模糊雜湊（TLSH / ssdeep）、Authentihash、Rich header hash
+- 混淆字串解碼（stack strings、單位元組 XOR）
+- 兩個檔案比對
+- CLI 批次掃描資料夾，輸出 JSON / CSV
+- 介面：最近開啟的檔案、記住視窗與欄寬、多檔分頁、正規表示式搜尋、匯出 CSV、複製單一儲存格
+- 翻譯請母語人士校對（ko、es、de、fr）
+- 發佈檔的程式碼簽章（需要憑證）

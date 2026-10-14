@@ -118,7 +118,7 @@ const TRANSLATIONS: &str = r#"<xml>
 <machines><item id="00">Intel-386</item></machines>
 </xml>"#;
 
-fn write_all(dir: &PathBuf) {
+fn write_all(dir: &std::path::Path) {
     for (n, c) in [
         ("settings.xml", SETTINGS),
         ("indicators.xml", INDICATORS),

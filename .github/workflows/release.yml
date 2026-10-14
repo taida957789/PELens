@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Tests
+        run: cargo test --workspace
+      - name: Build
+        run: cargo build --release -p pelens-gui -p pelens-cli
+      - name: Package
+        shell: pwsh
+        run: |
+          $name = "PELens-$($env:GITHUB_REF_NAME)-windows-x64"
+          New-Item -ItemType Directory $name | Out-Null
+          Copy-Item target/release/pelens.exe, target/release/pelens-cli.exe, README.md, LICENSE $name
+          Compress-Archive -Path $name -DestinationPath "$name.zip"
+          $hash = (Get-FileHash "$name.zip" -Algorithm SHA256).Hash.ToLower()
+          "$hash  $name.zip" | Out-File -Encoding ascii "$name.zip.sha256"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            PELens-*.zip
+            PELens-*.zip.sha256
+          generate_release_notes: true

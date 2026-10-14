@@ -1,0 +1,5 @@
+# Same bytes on every platform: tests compare multi-line text exactly.
+* text=auto eol=lf
+*.png binary
+*.ico binary
+*.exe binary

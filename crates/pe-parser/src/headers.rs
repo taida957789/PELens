@@ -223,11 +223,11 @@ impl RichHeader {
         }
         // Checksum: dans offset + rol(byte,i) over the DOS header/stub (e_lfanew excluded) + rol(comp,count).
         let mut csum: u32 = dans as u32;
-        for i in 0..dans {
+        for (i, &b) in area.iter().enumerate().take(dans) {
             if (0x3c..0x40).contains(&i) {
                 continue;
             }
-            csum = csum.wrapping_add((area[i] as u32).rotate_left(i as u32 & 31));
+            csum = csum.wrapping_add((b as u32).rotate_left(i as u32 & 31));
         }
         for en in &entries {
             csum = csum.wrapping_add(en.comp_id().rotate_left(en.count & 31));

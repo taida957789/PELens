@@ -76,9 +76,7 @@ impl From<std::io::Error> for DbError {
 impl Knowledge {
     /// Defaults used when no XML directory is available.
     pub fn builtin() -> Self {
-        let mut k = Knowledge::default();
-        k.settings = default_settings();
-        k
+        Knowledge { settings: default_settings(), ..Default::default() }
     }
 
     pub fn load(dir: impl AsRef<Path>) -> Self {

@@ -7,6 +7,10 @@
 <p align="center">Portable Executable을 들여다보는 렌즈 — Rust로 다시 만든 Windows 바이너리 정적 악성코드 초기 분석 도구.</p>
 
 <p align="center">
+  [![CI](https://github.com/taida957789/PELens/actions/workflows/ci.yml/badge.svg)](https://github.com/taida957789/PELens/actions/workflows/ci.yml)
+</p>
+
+<p align="center">
   <a href="../../README.md">English</a> ·
   <a href="README.zh-TW.md">繁體中文</a> ·
   <a href="README.zh-CN.md">简体中文</a> ·
@@ -56,6 +60,8 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 - **8개 인터페이스 언어**: English, 繁體中文, 简体中文, 日本語, 한국어, Español, Deutsch, Français. 기본값은 Windows 표시 언어를 따릅니다.
 
 ## 설치／빌드
+
+**다운로드**: [Releases](https://github.com/taida957789/PELens/releases/latest)에서 `PELens-<버전>-windows-x64.zip`을 받아 압축을 풀고 `pelens.exe`를 실행하세요(설치 불필요). 검증용 `.sha256` 파일이 함께 제공됩니다. 소스에서 빌드하려면:
 
 ```bash
 cargo build --release

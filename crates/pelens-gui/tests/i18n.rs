@@ -165,7 +165,8 @@ fn state_follows_the_language_setting() {
     let high = &s.tree_children(ItemType::Indicators)[0];
     assert!(high.0.starts_with("高 (") && high.1 == "high", "{high:?}");
     let row = pe_analysis::view::Row::new(vec!["a".into(), "b".into()]);
-    let labels: Vec<String> = s.context_actions(ItemType::Sections, &row, &["name".into(), "md5".into()], "|").into_iter().map(|a| a.0).collect();
+    let labels: Vec<String> =
+        s.context_actions(ItemType::Sections, &row, &["name".into(), "md5".into()], "|").into_iter().map(|a| a.0).collect();
     assert_eq!(labels[..3], ["複製整列", "複製項目", "複製詳細資料"]);
     s.apply(Action::CopyText("x".into()));
     assert_eq!(s.status, "已複製到剪貼簿");

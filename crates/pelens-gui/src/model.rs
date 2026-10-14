@@ -158,12 +158,12 @@ pub struct State {
     pub status: String,
     pub dialog: Dialog,
     pub effects: Effects,
-    pub busy: Option<Receiver<Result<(PathBuf, Vec<u8>, Analysis), String>>>,
+    pub busy: Option<Receiver<OpenResult>>,
     pub score_rx: Option<Receiver<pe_analysis::ScoreReport>>,
     pub update_rx: Option<Receiver<Result<String, String>>>,
     pub update_result: Option<String>,
     pub last_score_attempt: Option<std::time::Instant>,
-    pub http: std::sync::Arc<dyn Fn(&Knowledge) -> Box<dyn pe_online::HttpClient + Send> + Send + Sync>,
+    pub http: HttpFactory,
     /// Run analysis/network jobs synchronously (tests).
     pub synchronous: bool,
     /// Visible (filtered/sorted) table of the selected view, reused across frames.
@@ -188,10 +188,14 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 /// Status shown while no file is loaded.
 pub const IDLE: &str = "drag-and-drop a file to analyse...";
 
-fn default_http() -> std::sync::Arc<dyn Fn(&Knowledge) -> Box<dyn pe_online::HttpClient + Send> + Send + Sync> {
-    std::sync::Arc::new(|k: &Knowledge| {
-        Box::new(pe_online::UreqClient::new(&pe_online::net_config(k))) as Box<dyn pe_online::HttpClient + Send>
-    })
+/// Result of a background analysis: (path, file bytes, analysis) or an error message.
+pub type OpenResult = Result<(PathBuf, Vec<u8>, Analysis), String>;
+
+/// Creates the HTTP client for network jobs (replaced by a mock in tests).
+pub type HttpFactory = Arc<dyn Fn(&Knowledge) -> Box<dyn pe_online::HttpClient + Send> + Send + Sync>;
+
+fn default_http() -> HttpFactory {
+    Arc::new(|k: &Knowledge| Box::new(pe_online::UreqClient::new(&pe_online::net_config(k))) as Box<dyn pe_online::HttpClient + Send>)
 }
 
 impl State {
@@ -339,10 +343,10 @@ impl State {
             sort: self.sort,
             dups: self.show_duplicates,
         };
-        if let Some((ck, t)) = &self.view_cache {
-            if *ck == key {
-                return Some(t.clone());
-            }
+        if let Some((ck, t)) = &self.view_cache
+            && *ck == key
+        {
+            return Some(t.clone());
         }
         let base = doc.table(k, sel, o);
         let t = if self.show_duplicates && self.filter.is_empty() && self.sort.is_none() {
@@ -407,7 +411,7 @@ impl State {
     fn start_open(&mut self, path: PathBuf) {
         self.status = self.t("please wait while analyzing the file...").into();
         let k = self.knowledge.clone();
-        let job = move || -> Result<(PathBuf, Vec<u8>, Analysis), String> {
+        let job = move || -> OpenResult {
             let opts = pe_analysis::Options::from_settings(&k);
             pe_analysis::analyze_file(&path, &k, &opts).map(|(d, a)| (path.clone(), d, a)).map_err(|e| format!("{}: {e}", path.display()))
         };
@@ -880,7 +884,10 @@ impl State {
             && let Some(r) = self.doc.as_ref().and_then(|d| d.analysis.resources.get(idx))
         {
             v.push((self.t("toggle language flag").into(), Action::ToggleLanguageFlag((r.language & 0xffff) as u16)));
-            v.push((self.t("score > Virustotal").into(), Action::QueryItemScore(self.tf("resource {0}", &[&r.name]), r.md5.clone(), false)));
+            v.push((
+                self.t("score > Virustotal").into(),
+                Action::QueryItemScore(self.tf("resource {0}", &[&r.name]), r.md5.clone(), false),
+            ));
             if !r.signature.is_empty() && self.knowledge.signatures.iter().any(|s| s.name == r.signature) {
                 for (l, s) in [("signature > severity +++", 1u8), ("signature > severity ++", 2), ("signature > severity +", 3)] {
                     v.push((self.t(l).into(), Action::SetSignatureSeverity(r.signature.clone(), s)));
