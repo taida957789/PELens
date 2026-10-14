@@ -2,6 +2,7 @@
 name = "pe-analysis"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 pe-parser = { workspace = true }

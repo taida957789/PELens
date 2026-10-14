@@ -166,7 +166,7 @@ pub fn string_value(t: &Tlv) -> String {
     match t.tag {
         0x1e => {
             // BMPString (UTF-16BE)
-            let units: Vec<u16> = t.content.chunks_exact(2).map(|c| u16::from_be_bytes([c[0], c[1]])).collect();
+            let units: Vec<u16> = t.content.as_chunks::<2>().0.iter().map(|&c| u16::from_be_bytes(c)).collect();
             String::from_utf16_lossy(&units)
         }
         _ => String::from_utf8_lossy(t.content).into_owned(),

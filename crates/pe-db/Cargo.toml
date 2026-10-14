@@ -2,6 +2,7 @@
 name = "pe-db"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 quick-xml = { workspace = true }

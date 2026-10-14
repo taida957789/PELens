@@ -2,6 +2,7 @@
 name = "pe-online"
 version.workspace = true
 edition.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 pe-analysis = { workspace = true }

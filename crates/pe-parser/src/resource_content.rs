@@ -258,7 +258,7 @@ pub fn parse_message_table(data: &[u8]) -> Vec<(u32, String)> {
             }
             let body = r.bytes_clamped(eo + 4, len as usize - 4);
             let text = if flags & 1 != 0 {
-                let units: Vec<u16> = body.chunks_exact(2).map(|c| u16::from_le_bytes([c[0], c[1]])).collect();
+                let units: Vec<u16> = body.as_chunks::<2>().0.iter().map(|&c| u16::from_le_bytes(c)).collect();
                 String::from_utf16_lossy(&units)
             } else {
                 String::from_utf8_lossy(body).into_owned()
@@ -521,7 +521,7 @@ impl Manifest {
 pub fn decode_text(data: &[u8]) -> String {
     if data.starts_with(&[0xff, 0xfe]) || (data.len() >= 4 && data[1] == 0 && data[3] == 0 && data[0] != 0) {
         let body = if data.starts_with(&[0xff, 0xfe]) { &data[2..] } else { data };
-        let units: Vec<u16> = body.chunks_exact(2).map(|c| u16::from_le_bytes([c[0], c[1]])).collect();
+        let units: Vec<u16> = body.as_chunks::<2>().0.iter().map(|&c| u16::from_le_bytes(c)).collect();
         return String::from_utf16_lossy(&units).trim_end_matches('\0').to_string();
     }
     let body = data.strip_prefix(&[0xef, 0xbb, 0xbf]).unwrap_or(data);

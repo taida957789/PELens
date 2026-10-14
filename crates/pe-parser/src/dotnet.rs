@@ -295,7 +295,7 @@ fn split_user_strings(h: &[u8]) -> Vec<String> {
         }
         let body = &h[o.min(h.len())..(o + len).min(h.len())];
         let chars = &body[..body.len().saturating_sub(1) & !1];
-        let units: Vec<u16> = chars.chunks_exact(2).map(|c| u16::from_le_bytes([c[0], c[1]])).collect();
+        let units: Vec<u16> = chars.as_chunks::<2>().0.iter().map(|&c| u16::from_le_bytes(c)).collect();
         let s = String::from_utf16_lossy(&units);
         if !s.is_empty() {
             out.push(s);

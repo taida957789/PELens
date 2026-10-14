@@ -69,7 +69,7 @@ cargo build --release
 # target/release/pelens-cli.exe  (CLI)
 ```
 
-Rust 1.85 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·테스트했습니다.
+Rust 1.88 이상(edition 2024)이 필요합니다. Windows 11 x64에서 개발·테스트했습니다.
 
 ## 사용법
 

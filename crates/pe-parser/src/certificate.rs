@@ -315,7 +315,7 @@ fn spc_string(t: &Tlv) -> Option<String> {
     let inner = t.children().into_iter().next().unwrap_or(*t);
     match inner.tag {
         0x80 => {
-            let units: Vec<u16> = inner.content.chunks_exact(2).map(|c| u16::from_be_bytes([c[0], c[1]])).collect();
+            let units: Vec<u16> = inner.content.as_chunks::<2>().0.iter().map(|&c| u16::from_be_bytes(c)).collect();
             Some(String::from_utf16_lossy(&units))
         }
         0x81 => Some(String::from_utf8_lossy(inner.content).into_owned()),

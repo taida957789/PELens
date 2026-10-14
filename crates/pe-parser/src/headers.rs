@@ -529,15 +529,13 @@ impl OptionalHeader {
             base_of_code: r.u32(off + 20)?,
             ..Default::default()
         };
-        let o;
         if is64 {
             h.image_base = r.u64(off + 24)?;
-            o = off + 32;
         } else {
             h.base_of_data = Some(r.u32(off + 24)?);
             h.image_base = r.u32(off + 28)? as u64;
-            o = off + 32;
         }
+        let o = off + 32;
         h.section_alignment = r.u32(o)?;
         h.file_alignment = r.u32(o + 4)?;
         h.major_os_version = r.u16(o + 8)?;

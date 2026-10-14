@@ -69,7 +69,7 @@ cargo build --release
 # target/release/pelens-cli.exe  (CLI)
 ```
 
-需要 Rust 1.85 以上（edition 2024），於 Windows 11 x64 開發與測試。
+需要 Rust 1.88 以上（edition 2024），於 Windows 11 x64 開發與測試。
 
 ## 使用方式
 
