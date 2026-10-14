@@ -27,8 +27,50 @@ pub fn sha256_hex(data: &[u8]) -> String {
     hex_upper(&Sha256::digest(data))
 }
 
+/// Below this size the three digests are computed one after the other (threads cost more).
+const PARALLEL_HASH_MIN: usize = 1 << 20;
+
 pub fn hashes(data: &[u8]) -> Hashes {
-    Hashes { md5: md5_hex(data), sha1: sha1_hex(data), sha256: sha256_hex(data) }
+    if data.len() < PARALLEL_HASH_MIN {
+        return Hashes { md5: md5_hex(data), sha1: sha1_hex(data), sha256: sha256_hex(data) };
+    }
+    std::thread::scope(|s| {
+        let md5 = s.spawn(|| md5_hex(data));
+        let sha1 = s.spawn(|| sha1_hex(data));
+        let sha256 = sha256_hex(data);
+        Hashes { md5: md5.join().unwrap_or_default(), sha1: sha1.join().unwrap_or_default(), sha256 }
+    })
+}
+
+/// Hashes of `data[..split]` and of all of `data` in one pass: the prefix state is finalized on a
+/// copy, then the same hasher continues with the rest (used for "without overlay").
+pub fn hashes_with_prefix(data: &[u8], split: usize) -> (Hashes, Hashes) {
+    fn one<D: md5::Digest + Clone>(data: &[u8], split: usize) -> (String, String) {
+        let mut h = D::new();
+        h.update(&data[..split]);
+        let prefix = hex_upper(&h.clone().finalize());
+        h.update(&data[split..]);
+        (hex_upper(&h.finalize()), prefix)
+    }
+    let split = split.min(data.len());
+    let ((md5, md5p), (sha1, sha1p), (sha256, sha256p)) = std::thread::scope(|s| {
+        let a = s.spawn(|| one::<Md5>(data, split));
+        let b = s.spawn(|| one::<Sha1>(data, split));
+        let c = one::<Sha256>(data, split);
+        (a.join().unwrap_or_default(), b.join().unwrap_or_default(), c)
+    });
+    (Hashes { md5, sha1, sha256 }, Hashes { md5: md5p, sha1: sha1p, sha256: sha256p })
+}
+
+impl Hashes {
+    /// The digest selected by a footprint type (0 = md5, 1 = sha1, otherwise sha256).
+    pub fn by_type(&self, t: i64) -> &str {
+        match t {
+            0 => &self.md5,
+            1 => &self.sha1,
+            _ => &self.sha256,
+        }
+    }
 }
 
 /// Footprint type selector as stored in settings (`footprints type`): 0 = md5, 1 = sha1, 2 = sha256.

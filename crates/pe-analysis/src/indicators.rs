@@ -255,7 +255,7 @@ pub fn evaluate(a: &Analysis, k: &Knowledge, data: &[u8], o: &Options) -> Vec<In
         c.emit(1085, &[s(oh.size_of_headers)]);
     }
     if oh.checksum != 0
-        && let Some(cs) = pe.computed_checksum(data)
+        && let Some(cs) = a.checksum_real
         && cs != oh.checksum
     {
         c.emit(1036, &[s(oh.checksum)]);

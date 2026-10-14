@@ -210,7 +210,7 @@ pub fn table(a: &Analysis, k: &Knowledge, data: &[u8], item: ItemType, o: &ViewO
         ItemType::DosHeader => dos_header(a),
         ItemType::RichHeader => rich(a, k),
         ItemType::FileHeader => file_header(a, o),
-        ItemType::OptionalHeader => optional_header(a, data),
+        ItemType::OptionalHeader => optional_header(a),
         ItemType::Directories => directories(a, o),
         ItemType::Sections => sections(a, o),
         ItemType::Libraries => libraries(a, k),
@@ -524,7 +524,7 @@ fn file_header(a: &Analysis, o: &ViewOptions) -> Table {
     t
 }
 
-fn optional_header(a: &Analysis, data: &[u8]) -> Table {
+fn optional_header(a: &Analysis) -> Table {
     let Some(l) = a.pe.layout.as_ref() else { return Table::na(ItemType::OptionalHeader, "n/a (not a portable executable)") };
     let h = &l.optional_header;
     let mut t = Table::props(ItemType::OptionalHeader);
@@ -559,7 +559,7 @@ fn optional_header(a: &Analysis, data: &[u8]) -> Table {
     p(&mut t, "Win32VersionValue", hex32(h.win32_version_value as u64));
     t.rows.push(Row::kv("size-of-image", hex32(h.size_of_image as u64)).flag(a.has_indicator(1084)));
     t.rows.push(Row::kv("size-of-headers", hex32(h.size_of_headers as u64)).flag(a.has_indicator(1085)));
-    let real = a.pe.computed_checksum(data).unwrap_or(0);
+    let real = a.checksum_real.unwrap_or(0);
     t.rows.push(Row::kv("checksum-builtin", hex32(h.checksum as u64)).flag(h.checksum != 0 && h.checksum != real));
     p(&mut t, "checksum-real", hex32(real as u64));
     p(&mut t, "subsystem", subsystem_name(h.subsystem).to_string());
@@ -1351,14 +1351,20 @@ fn overlay(a: &Analysis, k: &Knowledge, data: &[u8], o: &ViewOptions) -> Table {
     let Some(ov) = &a.pe.overlay else { return Table::na(ItemType::Overlay, "n/a (no overlay)") };
     let b = &data[ov.offset as usize..(ov.offset + ov.size) as usize];
     let mut t = Table::props(ItemType::Overlay);
-    let sig = crate::sigscan::blob_signature(k, b).unwrap_or_else(|| "unknown".into());
+    // hashes, entropy and signature were computed once by the analysis
+    let info = a.overlay_info.clone().unwrap_or_else(|| crate::model::OverlayInfo {
+        hashes: util::hashes(b),
+        entropy: entropy(b),
+        signature: crate::sigscan::blob_signature(k, b).unwrap_or_else(|| "unknown".into()),
+    });
+    let sig = info.signature;
     t.rows
         .push(Row::kv("location", format!("0x{:08X} - 0x{:08X}", ov.offset, ov.offset + ov.size)).dump(ov.offset, ov.size).key("overlay"));
     t.rows.push(Row::kv("size", format!("{} bytes", ov.size)));
     t.rows.push(Row::kv("file-ratio", format!("{:.2}%", ratio(ov.size, a.size))));
-    t.rows.push(Row::kv("entropy", format!("{:.3}", entropy(b))).flag(a.has_indicator(1035)));
+    t.rows.push(Row::kv("entropy", format!("{:.3}", info.entropy)).flag(a.has_indicator(1035)));
     t.rows.push(Row::kv("signature", sig).flag(true));
-    let h = util::hashes(b);
+    let h = info.hashes;
     t.rows.push(Row::kv("md5", o.hash(&h.md5)).url(google_url(&h.md5)).key(format!("hash:{}", h.md5)));
     t.rows.push(Row::kv("sha1", o.hash(&h.sha1)).url(google_url(&h.sha1)));
     t.rows.push(Row::kv("sha256", o.hash(&h.sha256)).url(google_url(&h.sha256)).key(format!("hash:{}", h.sha256)));

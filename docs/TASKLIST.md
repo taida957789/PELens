@@ -185,30 +185,43 @@
 # v0.2 增強（計畫：`ENHANCEMENT_PLAN.md`）
 
 ## M13 CI 與 Release
-- [ ] T13.1 新增 `LICENSE`（MIT）
-- [ ] T13.2 清除 clippy 的 15 個警告，改以 `-D warnings` 執行
-- [ ] T13.3 `.github/workflows/ci.yml`：test、clippy、llvm-cov（< 90% 失敗）
-- [ ] T13.4 確認測試在 CI 中不依賴本機（pestudio XML、字型、語系）
+- [x] T13.1 新增 `LICENSE`（MIT）
+- [x] T13.2 清除 clippy 的 15 個警告，改以 `-D warnings` 執行（stable 1.99 新增的 lint 也已修正；最低版本改為 Rust 1.88）
+- [x] T13.3 `.github/workflows/ci.yml`：rustfmt、clippy、test、llvm-cov（< 90% 失敗）；CI 綠燈
+- [x] T13.4 確認測試在 CI 中不依賴本機（pestudio XML、字型、語系）；`.gitattributes` 統一 LF
 - [ ] T13.5 `.github/workflows/release.yml`：`v*` tag → zip（pelens.exe、pelens-cli.exe、README、LICENSE）＋ SHA-256 → GitHub Releases
-- [ ] T13.6 README 加入下載說明與 CI badge
+- [x] T13.6 README（8 種語言）加入下載說明與 CI badge
 
 ## M14 Fuzzing
-- [ ] T14.1 `fuzz/` crate 與 5 個目標：parse_pe、certificate、dotnet、resources、analyze
-- [ ] T14.2 種子語料（testkit 樣本；系統 PE 僅存在本機）
-- [ ] T14.3 穩定版變異回歸測試（固定種子、數萬次、每個輸入設時間上限），CI 執行
+- [x] T14.1 `fuzz/` crate 與 5 個目標：parse_pe、certificate、dotnet、resources、analyze（Windows 需把 MSVC 的 ASan DLL 加入 PATH）
+- [x] T14.2 種子語料：`tools/fuzz_seeds.py`（testkit 樣本＋本機系統 PE，不提交）
+- [x] T14.3 `tests/mutation.rs`：固定種子變異（每次 12,000 次解析＋800 次完整分析，`PELENS_MUTATIONS` 可放大），檢查不 panic、不超時、輸出量與輸入成正比；本機以 200 倍跑過
 - [ ] T14.4 每個目標本機各跑 ≥ 30 分鐘；修正找到的問題
-- [ ] T14.5 crash 輸入存入 `tests/corpus/` 作為永久回歸測試
+- [x] T14.5 `tests/corpus/`（僅放 testkit 衍生的輸入；系統 PE 衍生的另寫合成測試）
+
+- 修正：fuzzing 與變異測試找到兩個放大問題
+  - exports：損毀的 NumberOfFunctions 讓 17 KB 輸入產生 100 萬列、40 MB 報告 → 依檔案中實際容得下的陣列大小限制，並在檢視中註明 truncated
+  - resources：重疊的目錄讓 118 KB 輸入產生 64,048 列 → 目錄項目不得重疊（每 8 位元組最多一項），重疊資料的雜湊另設位元組預算
+  - imports 截斷也會在檢視中註明
 
 ## M15 大檔效能
-- [ ] T15.1 合成 50 / 200 / 500 MB 樣本的基準測試（時間、尖峰記憶體、GUI 首次顯示）
-- [ ] T15.2 記錄基準結果
-- [ ] T15.3 依結果改善（候選：memmap2、字串分段、雜湊平行化、GUI 只建可見列）
-- [ ] T15.4 記錄改善前後比較
+- [x] T15.1 `examples/big_sample.rs`（50 / 200 / 500 MB）、`examples/profile.rs`（各階段時間）、GUI `examples/bench.rs`
+- [x] T15.2 記錄基準結果（見下表）
+- [x] T15.3 改善：整檔雜湊／熵／checksum／overlay 平行且只算一次；「不含 overlay」與整檔雜湊共用同一趟；footprints、overlay 與 optional-header 檢視重用結果；報告逃逸字元不再逐格配置字串。不採用 memmap2：GUI 需要可修改的副本，節省的只有私有記憶體，且映射期間檔案被改寫的風險較高
+- [x] T15.4 改善前後比較（release，Knowledge::builtin）
+
+  | 樣本 | 分析（前 → 後） | JSON 報告（前 → 後） | XML 報告（前 → 後） | overlay 檢視 |
+  |---|---|---|---|---|
+  | 50 MB | 1,738 → 645 ms | 1,514 → 約 300 ms | 936 → 231 ms | 171 → 2 ms |
+  | 200 MB | 5,668 → 1,678 ms | 2,210 → 313 ms | 1,616 → 268 ms | 574 → 2 ms |
+  | 500 MB | — → 4,023 ms | — → 約 310 ms | — → 256 ms | — |
+
+  CLI 尖峰記憶體：50 MB 樣本 243 MB、200 MB 樣本 393 MB、500 MB 樣本 693 MB（約為檔案大小＋200 MB）。GUI：各檢視穩定時每幀 < 1.5 ms；字串檢視（20 萬列）第一次顯示約 200 ms
 
 ## M16 VirusTotal 金鑰保護
-- [ ] T16.1 Windows 認證管理員讀寫（`PELens/VirusTotal`）
-- [ ] T16.2 自動搬移 settings.xml 中的明文金鑰
-- [ ] T16.3 讀取順序：`VT_API_KEY` → 認證管理員 → settings.xml；CLI 與 GUI 共用
+- [x] T16.1 Windows 認證管理員讀寫（`PELens/VirusTotal`，`pe_online::secret`）
+- [x] T16.2 自動搬移 settings.xml 中的明文金鑰（GUI 與 CLI 啟動時；認證管理員寫入失敗時保留原處）
+- [x] T16.3 讀取順序：`VT_API_KEY` → 認證管理員 → settings.xml；CLI 與 GUI 共用；設定對話框只寫入認證管理員
 - [ ] T16.4 發佈 v0.2.0
 
 ## M17 開放知識庫

@@ -108,17 +108,42 @@ fn drive_type(_path: &std::path::Path, _a: &mut Analysis) {}
 pub fn analyze(data: &[u8], path: &str, k: &Knowledge, o: &Options) -> Analysis {
     let pe = PeFile::parse(data);
     let file_name = std::path::Path::new(path).file_name().map(|s| s.to_string_lossy().into_owned()).unwrap_or_else(|| path.to_string());
+    // Every pass over the whole file runs once, side by side (they dominate large files).
+    let overlay = pe.overlay.as_ref().map(|ov| (ov.offset as usize, (ov.offset + ov.size) as usize));
+    let (hashes, entropy_all, without_overlay, overlay_info, checksum_real) = std::thread::scope(|s| {
+        let info = overlay.map(|(start, end)| {
+            s.spawn(move || {
+                let b = &data[start..end];
+                OverlayInfo {
+                    hashes: util::hashes(b),
+                    entropy: entropy(b),
+                    signature: sigscan::blob_signature(k, b).unwrap_or_else(|| "unknown".into()),
+                }
+            })
+        });
+        let pe = &pe;
+        let checksum = s.spawn(move || pe.computed_checksum(data));
+        let ent = s.spawn(move || entropy(data));
+        let (h, without) = match overlay {
+            Some((start, _)) => {
+                let (whole, prefix) = util::hashes_with_prefix(data, start);
+                (whole, Some(prefix))
+            }
+            None => (util::hashes(data), None),
+        };
+        (h, ent.join().unwrap_or_default(), without, info.and_then(|t| t.join().ok()), checksum.join().ok().flatten())
+    });
     let mut a = Analysis {
         path: path.to_string(),
         file_name,
         size: data.len() as u64,
-        hashes: util::hashes(data),
-        entropy: entropy(data),
+        hashes,
+        entropy: entropy_all,
+        hashes_without_overlay: without_overlay,
+        overlay_info,
+        checksum_real,
         ..Default::default()
     };
-    if let Some(ov) = &pe.overlay {
-        a.hashes_without_overlay = Some(util::hashes(&data[..ov.offset as usize]));
-    }
     a.pe = pe;
     describe_type(&mut a, data);
     let scan = sigscan::scan(k, &a.pe, data);
@@ -556,11 +581,25 @@ fn build_footprints(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
     }
     let t = s.get_int("footprints", "type", 2);
     let on = |key: &str| s.get_bool("footprints", key, true);
-    add_footprint(a, t, "image", "file", data);
+    // the whole-file hashes are already known: no second pass over the file
+    let image = Footprint {
+        item: "image".into(),
+        location: "file".into(),
+        hash_type: hash_type_name(t).into(),
+        hash: a.hashes.by_type(t).into(),
+        size: a.size,
+    };
+    a.footprints.push(image);
     if let Some(h) = &a.hashes_without_overlay {
-        let ov = a.pe.overlay.as_ref().map(|o| o.offset).unwrap_or(0) as usize;
-        let _ = h;
-        add_footprint(a, t, "image (without overlay)", "file", &data[..ov]);
+        let ov = a.pe.overlay.as_ref().map(|o| o.offset).unwrap_or(0);
+        let f = Footprint {
+            item: "image (without overlay)".into(),
+            location: "file".into(),
+            hash_type: hash_type_name(t).into(),
+            hash: h.by_type(t).into(),
+            size: ov,
+        };
+        a.footprints.push(f);
     }
     if let Some(i) = a.imphash.clone() {
         a.footprints.push(Footprint { item: "imphash".into(), location: "imports".into(), hash_type: "md5".into(), hash: i, size: 0 });
@@ -613,8 +652,15 @@ fn build_footprints(a: &mut Analysis, k: &Knowledge, data: &[u8]) {
             }
         }
     }
-    if let Some(ov) = &pe.overlay {
-        add_footprint(a, t, "overlay", "overlay", &data[ov.offset as usize..(ov.offset + ov.size) as usize]);
+    if let (Some(ov), Some(info)) = (&pe.overlay, &a.overlay_info) {
+        let hash = info.hashes.by_type(t).to_string();
+        a.footprints.push(Footprint {
+            item: "overlay".into(),
+            location: "overlay".into(),
+            hash_type: hash_type_name(t).into(),
+            hash,
+            size: ov.size,
+        });
     }
     if let Some(sd) = &pe.security {
         let b = &data[(sd.offset as usize).min(data.len())..((sd.offset as u64 + sd.size as u64) as usize).min(data.len())];

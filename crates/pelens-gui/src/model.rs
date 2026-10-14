@@ -449,10 +449,7 @@ impl State {
                     if self.knowledge.settings.get_bool("score", "enable", false) {
                         self.apply(Action::QueryScore);
                         if self.knowledge.settings.get_bool("overlay", "score", false) {
-                            let item = self.doc.as_ref().and_then(|d| {
-                                let ov = d.analysis.pe.overlay.as_ref()?;
-                                Some(pe_analysis::util::md5_hex(&d.data[ov.offset as usize..(ov.offset + ov.size) as usize]))
-                            });
+                            let item = self.doc.as_ref().and_then(|d| Some(d.analysis.overlay_info.as_ref()?.hashes.md5.clone()));
                             if let Some(md5) = item {
                                 self.apply(Action::QueryItemScore("overlay".into(), md5, false));
                             }

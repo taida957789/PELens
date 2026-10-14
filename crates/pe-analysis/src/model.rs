@@ -349,6 +349,14 @@ pub struct CertificateCheck {
     pub message: String,
 }
 
+#[derive(Debug, Clone, Default)]
+pub struct OverlayInfo {
+    pub hashes: Hashes,
+    pub entropy: f64,
+    /// Signature of the overlay's content ("unknown" when none matches).
+    pub signature: String,
+}
+
 /// Everything pestudio knows about one file.
 #[derive(Debug, Clone, Default)]
 pub struct Analysis {
@@ -359,6 +367,10 @@ pub struct Analysis {
     pub hashes: Hashes,
     pub hashes_without_overlay: Option<Hashes>,
     pub entropy: f64,
+    /// Hashes, entropy and signature of the overlay, computed once (views, footprints, score).
+    pub overlay_info: Option<OverlayInfo>,
+    /// PE checksum computed over the file (the optional header holds the claimed one).
+    pub checksum_real: Option<u32>,
     pub imphash: Option<String>,
     pub cpu: String,
     pub file_type: String,

@@ -32,6 +32,17 @@ impl Format {
 /// XML escaping that also neutralises characters invalid in XML 1.0.
 pub fn xml_escape(s: &str) -> String {
     let mut o = String::with_capacity(s.len());
+    xml_escape_into(&mut o, s);
+    o
+}
+
+/// Append `s` escaped for an XML attribute (no allocation when nothing needs escaping).
+pub fn xml_escape_into(o: &mut String, s: &str) {
+    let plain = |b: &u8| *b >= 0x20 && !matches!(b, b'&' | b'<' | b'>' | b'"' | b'\'' | 0xEF);
+    if s.bytes().all(|b| plain(&b)) {
+        o.push_str(s);
+        return;
+    }
     for c in s.chars() {
         match c {
             '&' => o.push_str("&amp;"),
@@ -44,7 +55,6 @@ pub fn xml_escape(s: &str) -> String {
             c => o.push(c),
         }
     }
-    o
 }
 
 /// Column title → XML attribute name.
@@ -97,7 +107,11 @@ pub fn to_xml(a: &Analysis, ts: &[Table]) -> String {
         for r in &t.rows {
             o.push_str("    <item");
             for (c, v) in cols.iter().zip(&r.cells) {
-                o.push_str(&format!(" {c}=\"{}\"", xml_escape(v)));
+                o.push(' ');
+                o.push_str(c);
+                o.push_str("=\"");
+                xml_escape_into(&mut o, v);
+                o.push('"');
             }
             if r.flag {
                 o.push_str(" flagged=\"x\"");
@@ -117,7 +131,19 @@ pub fn to_xml(a: &Analysis, ts: &[Table]) -> String {
 }
 
 fn json_str(s: &str) -> String {
-    let mut o = String::from("\"");
+    let mut o = String::with_capacity(s.len() + 2);
+    json_str_into(&mut o, s);
+    o
+}
+
+/// Append `s` as a JSON string literal (no allocation when nothing needs escaping).
+fn json_str_into(o: &mut String, s: &str) {
+    o.push('"');
+    if s.bytes().all(|b| b >= 0x20 && b != b'"' && b != b'\\') {
+        o.push_str(s);
+        o.push('"');
+        return;
+    }
     for c in s.chars() {
         match c {
             '"' => o.push_str("\\\""),
@@ -130,7 +156,6 @@ fn json_str(s: &str) -> String {
         }
     }
     o.push('"');
-    o
 }
 
 pub fn to_json(a: &Analysis, ts: &[Table]) -> String {
@@ -152,16 +177,19 @@ pub fn to_json(a: &Analysis, ts: &[Table]) -> String {
             o.push_str(&format!("\"note\":{},", json_str(n)));
         }
         o.push_str("\"rows\":[");
+        let keys: Vec<String> = t.columns.iter().map(|c| json_str(c)).collect();
         for (ri, r) in t.rows.iter().enumerate() {
             if ri > 0 {
                 o.push(',');
             }
             o.push('{');
-            for (ci, (c, v)) in t.columns.iter().zip(&r.cells).enumerate() {
+            for (ci, (c, v)) in keys.iter().zip(&r.cells).enumerate() {
                 if ci > 0 {
                     o.push(',');
                 }
-                o.push_str(&format!("{}:{}", json_str(c), json_str(v)));
+                o.push_str(c);
+                o.push(':');
+                json_str_into(&mut o, v);
             }
             if r.flag {
                 o.push_str(",\"flagged\":true");

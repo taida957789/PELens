@@ -1091,3 +1091,38 @@ fn overlapping_resources_respect_the_scan_budget() {
     assert!(skipped > 0 && skipped < 80, "{skipped}");
     assert!(a.resources[0].md5.len() == 32);
 }
+
+#[test]
+fn large_file_hashing_paths_agree() {
+    // ≥ 1 MB: the three digests run in parallel; with an overlay the prefix is hashed once
+    let data: Vec<u8> = (0..3_000_000u32).map(|i| (i.wrapping_mul(2_654_435_761) >> 13) as u8).collect();
+    let h = util::hashes(&data);
+    assert_eq!((h.md5.as_str(), h.sha1.as_str()), (util::md5_hex(&data).as_str(), util::sha1_hex(&data).as_str()));
+    assert_eq!(h.sha256, util::sha256_hex(&data));
+    for split in [0, 1, 1_234_567, data.len(), data.len() + 10] {
+        let (whole, prefix) = util::hashes_with_prefix(&data, split);
+        assert_eq!(whole, h);
+        assert_eq!(prefix, util::hashes(&data[..split.min(data.len())]), "split {split}");
+    }
+    assert_eq!((h.by_type(0), h.by_type(1), h.by_type(2)), (h.md5.as_str(), h.sha1.as_str(), h.sha256.as_str()));
+    // the analysis reuses them: footprints, overlay view and checksum come from one pass
+    let mut b = PeBuilder::new();
+    b.overlay = data[..2_000_000].to_vec();
+    let pe = b.build();
+    let k = testkit::knowledge("big-hash");
+    let a = analyze(&pe, "o.exe", &k, &Options::default());
+    let ov = a.pe.overlay.as_ref().unwrap();
+    let info = a.overlay_info.as_ref().unwrap();
+    assert_eq!(info.hashes, util::hashes(&pe[ov.offset as usize..]));
+    assert_eq!(a.hashes_without_overlay.as_ref().unwrap(), &util::hashes(&pe[..ov.offset as usize]));
+    assert_eq!(a.checksum_real, a.pe.computed_checksum(&pe));
+    let fp = |item: &str| a.footprints.iter().find(|f| f.item == item).map(|f| f.hash.clone());
+    assert_eq!(fp("image").as_deref(), Some(a.hashes.sha256.as_str()));
+    assert_eq!(fp("overlay").as_deref(), Some(info.hashes.sha256.as_str()));
+    let v = view::table(&a, &k, &pe, ItemType::Overlay, &ViewOptions::from_settings(&k));
+    assert!(
+        v.rows
+            .iter()
+            .any(|r| r.cells.get(1) == Some(&info.hashes.md5) || r.cells.get(1).is_some_and(|c| c.eq_ignore_ascii_case(&info.hashes.md5)))
+    );
+}
