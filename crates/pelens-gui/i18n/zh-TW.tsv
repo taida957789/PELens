@@ -6,8 +6,8 @@ drag-and-drop a file to analyse...	將檔案拖放到此處以進行分析...
 please wait while analyzing the file...	正在分析檔案，請稍候...
 {0} | {1} bytes | indicators: {2}	{0} | {1} 位元組 | 指標：{2}
 Image not found ({0})	找不到檔案（{0}）
-The newest version of pestudio is: {0}	pestudio 最新版本為：{0}
-pestudio {0} (reference knowledge base) | up to date	pestudio {0}（參考知識庫）| 已是最新
+The newest version of PELens is: {0}	PELens 最新版本為：{0}
+PELens {0} | up to date	PELens {0} | 已是最新
 internet connection failed ({0})	網路連線失敗（{0}）
 report	報告
 dump	傾印
@@ -165,10 +165,10 @@ OK	確定
 RVA, e.g. 0x1000	RVA，例如 0x1000
 proceed	繼續
 Cancel	取消
-Malware Initial Assessment (Rust remake of pestudio 9.61)	惡意程式初步評估（pestudio 9.61 的 Rust 重製版）
+Malware Initial Assessment	惡意程式初步評估
 This software is provided 'as-is', without any expressed or implied warranty.	本軟體依「現狀」提供，不提供任何明示或默示的擔保。
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	查詢檔案的線上評分時不會上傳檔案本身，只會傳送其雜湊值。
-Knowledge base: XML files of a directory (e.g. your pestudio installation)	知識庫：資料夾中的 XML 檔案（例如您自己安裝的 pestudio）
+Knowledge base: XML files of a directory	知識庫：資料夾中的 XML 檔案
 Knowledge base: the PELens open knowledge base (built in)	知識庫：PELens 開放知識庫（內建）
 loaded: {0} | errors: {1}	已載入：{0} | 錯誤：{1}
 fonts: {0}	字型：{0}

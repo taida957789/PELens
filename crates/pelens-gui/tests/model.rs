@@ -266,9 +266,10 @@ fn online_actions() {
     s.http = Arc::new(|_k| Box::new(MockHttp(Ok(pe_online::HttpResponse { status: 200, body: "9.99".into() }))));
     s.apply(Action::CheckUpdate);
     assert!(s.update_result.as_ref().unwrap().contains("9.99"));
-    s.http = Arc::new(|_k| Box::new(MockHttp(Ok(pe_online::HttpResponse { status: 200, body: "1.0".into() }))));
+    s.http = Arc::new(|_k| Box::new(MockHttp(Ok(pe_online::HttpResponse { status: 200, body: "0.1.0".into() }))));
     s.apply(Action::CheckUpdate);
     assert!(s.update_result.as_ref().unwrap().contains("up to date"));
+    assert!(s.update_result.as_ref().unwrap().contains(env!("CARGO_PKG_VERSION")));
     s.http = Arc::new(|_k| Box::new(MockHttp(Err("down".into()))));
     s.apply(Action::CheckUpdate);
     assert!(s.update_result.as_ref().unwrap().contains("internet connection failed"));

@@ -28,8 +28,8 @@
 
 PELens inspects `.exe`, `.dll` and `.sys` files **without running them**. It shows their
 headers, imports, resources, certificates, .NET metadata and strings, and it raises
-indicators mapped to MITRE ATT&CK. It is a from-scratch Rust remake of **pestudio 9.61**,
-compatible with pestudio's XML knowledge base and its `pestudiox` command line.
+indicators mapped to MITRE ATT&CK. It is written from scratch in Rust and driven by an XML
+knowledge base that you can extend or replace.
 
 ![Indicators (dark mode)](docs/screenshots/indicators-dark.png)
 
@@ -60,7 +60,7 @@ match the reports and what the search box finds. The translations live in
 
 ## Features
 
-- **27 views** like pestudio's: image, footprints, groups, indicators, MITRE, VirusTotal score,
+- **27 views**: image, footprints, groups, indicators, MITRE, VirusTotal score,
   DOS stub and header, Rich header, file and optional headers, directories, sections,
   libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources,
   version, debug, strings, manifest and overlay, plus YARA and disassembly views.
@@ -125,18 +125,17 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-By default the CLI writes `<input>.xml` next to the sample, like pestudio does.
+By default the CLI writes `<input>.xml` next to the sample.
 
 ### Knowledge base
 
 PELens ships its own **open knowledge base** (`kb/`, CC0): 142 indicator definitions, about 2,500
 Windows API functions, about 900 suspicious strings, about 100 signatures and the MITRE ATT&CK
 mapping. `tools/build_kb.py` builds it from `kb/src`; every entry was written from public sources
-(see [kb/SOURCES.md](kb/SOURCES.md)) and nothing is copied from pestudio's XML files.
+(see [kb/SOURCES.md](kb/SOURCES.md)); nothing is copied from third-party knowledge bases.
 
-You can use the XML files of your own pestudio installation instead: pass `-xml:<dir>` or put an
-`xml` folder next to the executable. **These files are not distributed with PELens**: they
-belong to pestudio's author.
+You can use other XML knowledge files in the same format instead: pass `-xml:<dir>` or put an
+`xml` folder next to the executable. Third-party knowledge files are not distributed with PELens.
 
 ### VirusTotal
 
@@ -148,10 +147,10 @@ dialog or in `VT_API_KEY`. API v3 is the default; v2 is available as an option.
 | crate | role |
 |---|---|
 | `pe-parser` | PE parsing (bounds-checked, never panics) and patching |
-| `pe-db` | pestudio XML knowledge base, read and write without reformatting |
+| `pe-db` | XML knowledge base, read and write without reformatting |
 | `pe-analysis` | indicators, signatures, strings, views, reports, actions |
 | `pe-online` | VirusTotal, search links, update check |
-| `pelens-cli` | command line (pestudiox-compatible) |
+| `pelens-cli` | command line |
 | `pelens-gui` | eframe/egui GUI |
 
 Design notes: [feature inventory](docs/FEATURE_INVENTORY.md) (212 items, each with a
@@ -167,5 +166,4 @@ python tools/crossval.py 250                 # cross-check against pefile
 
 ## Disclaimer
 
-PELens is an independent project. It is not affiliated with or endorsed by Winitor or
-the author of pestudio. Use it only on files you are authorised to analyse.
+PELens is an independent project. Use it only on files you are authorised to analyse.

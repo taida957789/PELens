@@ -123,6 +123,13 @@ fn update_check() {
     assert!(check_update(&m, UPDATE_URL).is_err());
     assert!(check_update(&m, UPDATE_URL).is_err());
     assert!(check_update(&m, UPDATE_URL).is_err());
+    // GitHub release (the default update URL)
+    let m = Mock::new(vec![ok(r#"{"tag_name":"v0.5.0","name":"PELens"}"#), ok(r#"{"message":"Not Found"}"#), ok(r#"{"tag_name":" "}"#)]);
+    assert_eq!(check_update(&m, UPDATE_URL).unwrap(), "0.5.0");
+    assert_eq!(check_update(&m, UPDATE_URL).unwrap_err(), "no release found");
+    assert!(check_update(&m, UPDATE_URL).is_err());
+    assert!(UPDATE_URL.contains("/PELens/releases/latest"));
+    assert!(is_newer("0.5.0", env!("CARGO_PKG_VERSION")));
     assert!(is_newer("9.62", "9.61"));
     assert!(is_newer("10.0", "9.61"));
     assert!(!is_newer("9.61", "9.61"));

@@ -24,8 +24,8 @@ impl Host for TestHost {
 struct MockHttp;
 impl pe_online::HttpClient for MockHttp {
     fn get(&self, url: &str, _h: &[(&str, &str)]) -> Result<pe_online::HttpResponse, String> {
-        let body = if url.contains("version") {
-            "9.99".to_string()
+        let body = if url.contains("/releases/latest") {
+            r#"{"tag_name":"v9.99"}"#.to_string()
         } else {
             r#"{"data":{"id":"x","attributes":{"last_analysis_stats":{"malicious":2,"undetected":3},"last_analysis_results":{"Eng":{"category":"malicious","result":"Bad"}}}}}"#.to_string()
         };

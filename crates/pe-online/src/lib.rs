@@ -8,7 +8,8 @@ use serde_json::Value;
 use std::time::Duration;
 
 pub const VT_HOST: &str = "https://www.virustotal.com";
-pub const UPDATE_URL: &str = "https://www.winitor.com/tools/pestudio/version.txt";
+/// Latest PELens release (GitHub API); `<update url>` in settings.xml may point to a plain-text file instead.
+pub const UPDATE_URL: &str = "https://api.github.com/repos/taida957789/PELens/releases/latest";
 pub const USER_AGENT: &str = "pelens";
 
 #[derive(Debug, Clone, PartialEq)]
@@ -246,16 +247,23 @@ pub fn mitre_technique(id: &str) -> String {
 
 // ---------------------------------------------------------------- update / network
 
-/// Newest version advertised by the update URL (first non-empty line).
+/// Newest version advertised by the update URL: the `tag_name` of a GitHub release (without the
+/// leading "v"), else the first non-empty line of a plain-text file.
 pub fn check_update(c: &dyn HttpClient, url: &str) -> Result<String, String> {
-    let r = c.get(url, &[])?;
+    let r = c.get(url, &[("Accept", "application/vnd.github+json")])?;
     if r.status != 200 {
         return Err(status_message(r.status));
+    }
+    if let Ok(v) = serde_json::from_str::<Value>(&r.body)
+        && v.is_object()
+    {
+        let tag = v["tag_name"].as_str().map(|t| t.trim().trim_start_matches(['v', 'V']));
+        return tag.filter(|t| !t.is_empty()).map(str::to_string).ok_or_else(|| "no release found".into());
     }
     r.body.lines().map(str::trim).find(|l| !l.is_empty()).map(str::to_string).ok_or_else(|| "empty response".into())
 }
 
-/// Compare dotted versions ("9.61" < "9.62").
+/// Compare dotted versions ("0.3.0" < "0.4.0").
 pub fn is_newer(candidate: &str, current: &str) -> bool {
     let p = |s: &str| s.split(['.', ' ']).map(|x| x.trim().parse::<u32>().unwrap_or(0)).collect::<Vec<_>>();
     p(candidate) > p(current)

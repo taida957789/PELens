@@ -6,8 +6,8 @@ drag-and-drop a file to analyse...	분석할 파일을 끌어다 놓으세요...
 please wait while analyzing the file...	파일을 분석하는 중입니다. 잠시 기다려 주세요...
 {0} | {1} bytes | indicators: {2}	{0} | {1}바이트 | 지표: {2}
 Image not found ({0})	파일을 찾을 수 없습니다({0})
-The newest version of pestudio is: {0}	pestudio 최신 버전: {0}
-pestudio {0} (reference knowledge base) | up to date	pestudio {0}(참조 지식 베이스) | 최신 상태
+The newest version of PELens is: {0}	PELens 최신 버전: {0}
+PELens {0} | up to date	PELens {0} | 최신 상태
 internet connection failed ({0})	인터넷 연결에 실패했습니다({0})
 report	보고서
 dump	덤프
@@ -165,10 +165,10 @@ OK	확인
 RVA, e.g. 0x1000	RVA(예: 0x1000)
 proceed	계속
 Cancel	취소
-Malware Initial Assessment (Rust remake of pestudio 9.61)	악성코드 초기 평가(pestudio 9.61의 Rust 리메이크)
+Malware Initial Assessment	악성코드 초기 평가
 This software is provided 'as-is', without any expressed or implied warranty.	이 소프트웨어는 "있는 그대로" 제공되며 명시적이거나 묵시적인 어떠한 보증도 하지 않습니다.
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	파일의 온라인 점수를 조회할 때 파일 자체는 전송되지 않으며 해시만 전송됩니다.
-Knowledge base: XML files of a directory (e.g. your pestudio installation)	지식 베이스: 폴더의 XML 파일(예: 직접 설치한 pestudio)
+Knowledge base: XML files of a directory	지식 베이스: 폴더의 XML 파일
 Knowledge base: the PELens open knowledge base (built in)	지식 베이스: PELens 오픈 지식 베이스(내장)
 loaded: {0} | errors: {1}	로드됨: {0} | 오류: {1}
 fonts: {0}	글꼴: {0}

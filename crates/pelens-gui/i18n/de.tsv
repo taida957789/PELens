@@ -6,8 +6,8 @@ drag-and-drop a file to analyse...	Datei zum Analysieren hierher ziehen...
 please wait while analyzing the file...	Bitte warten, die Datei wird analysiert...
 {0} | {1} bytes | indicators: {2}	{0} | {1} Bytes | Indikatoren: {2}
 Image not found ({0})	Datei nicht gefunden ({0})
-The newest version of pestudio is: {0}	Die neueste Version von pestudio ist: {0}
-pestudio {0} (reference knowledge base) | up to date	pestudio {0} (Referenz-Wissensbasis) | aktuell
+The newest version of PELens is: {0}	Die neueste Version von PELens ist: {0}
+PELens {0} | up to date	PELens {0} | aktuell
 internet connection failed ({0})	Internetverbindung fehlgeschlagen ({0})
 report	Bericht
 dump	Dump
@@ -165,10 +165,10 @@ OK	OK
 RVA, e.g. 0x1000	RVA, z. B. 0x1000
 proceed	fortfahren
 Cancel	Abbrechen
-Malware Initial Assessment (Rust remake of pestudio 9.61)	Malware-Erstbewertung (Rust-Neuentwicklung von pestudio 9.61)
+Malware Initial Assessment	Malware-Erstbewertung
 This software is provided 'as-is', without any expressed or implied warranty.	Diese Software wird „wie besehen“ bereitgestellt, ohne ausdrückliche oder stillschweigende Gewährleistung.
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	Beim Abrufen der Online-Bewertung wird nicht die Datei selbst, sondern nur ihr Hash übertragen.
-Knowledge base: XML files of a directory (e.g. your pestudio installation)	Wissensbasis: XML-Dateien eines Ordners (z. B. Ihre pestudio-Installation)
+Knowledge base: XML files of a directory	Wissensbasis: XML-Dateien eines Ordners
 Knowledge base: the PELens open knowledge base (built in)	Wissensbasis: die offene Wissensbasis von PELens (integriert)
 loaded: {0} | errors: {1}	geladen: {0} | Fehler: {1}
 fonts: {0}	Schriftarten: {0}

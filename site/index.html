@@ -71,9 +71,9 @@
     <div class="wrap">
       <h2 data-i18n="features.title">Everything an analyst looks at first</h2>
       <div class="grid">
-        <article class="card"><div class="ic">◎</div><h3 data-i18n="f.views.t">29 views</h3><p data-i18n="f.views.d">The pestudio layout: headers, sections, libraries, imports, exports, resources, version, certificate, TLS, .NET, debug, strings, overlay and more.</p></article>
+        <article class="card"><div class="ic">◎</div><h3 data-i18n="f.views.t">29 views</h3><p data-i18n="f.views.d">Headers, sections, libraries, imports, exports, resources, version, certificate, TLS, .NET, debug, strings, overlay and more.</p></article>
         <article class="card"><div class="ic">⚑</div><h3 data-i18n="f.ind.t">Indicators and MITRE ATT&amp;CK</h3><p data-i18n="f.ind.d">142 checks with editable severities, mapped to ATT&amp;CK tactics and techniques: injection APIs, packers, spoofed names, forged stamps, embedded files.</p></article>
-        <article class="card"><div class="ic">⧉</div><h3 data-i18n="f.kb.t">Open knowledge base</h3><p data-i18n="f.kb.d">About 2,500 Windows API functions, 900 strings and 100 signatures, written from public sources (CC0). Or point PELens at your own pestudio XML files.</p></article>
+        <article class="card"><div class="ic">⧉</div><h3 data-i18n="f.kb.t">Open knowledge base</h3><p data-i18n="f.kb.d">About 2,500 Windows API functions, 900 strings and 100 signatures, written from public sources (CC0). Or point PELens at your own XML knowledge files.</p></article>
         <article class="card"><div class="ic">⌕</div><h3 data-i18n="f.yara.t">YARA rules</h3><p data-i18n="f.yara.d">Scan with your rule folders (YARA-X). Matches raise indicators, land in the reports and open in the hex view.</p></article>
         <article class="card"><div class="ic">⌗</div><h3 data-i18n="f.hex.t">Hex view and disassembly</h3><p data-i18n="f.hex.d">x86/x64 disassembly from the entry point, exports or TLS callbacks, with IAT calls named; every item opens in a fast hex view.</p></article>
         <article class="card"><div class="ic">⛨</div><h3 data-i18n="f.priv.t">Private by design</h3><p data-i18n="f.priv.d">Nothing is executed and nothing is uploaded. VirusTotal lookups send the hash only, with your own key kept in the Windows Credential Manager.</p></article>
@@ -138,7 +138,7 @@ shasum -a 256 -c PELens-*.sha256
     <div class="wrap two">
       <div>
         <h2 data-i18n="kb.title">Your knowledge base, or ours</h2>
-        <p data-i18n="kb.d1">PELens reads pestudio's XML format. It ships its own open knowledge base, built from public documentation and MITRE ATT&amp;CK, so it works out of the box; with -xml:&lt;dir&gt; it uses the XML files of your own pestudio installation instead.</p>
+        <p data-i18n="kb.d1">PELens is driven by an XML knowledge base. It ships its own open knowledge base, built from public documentation and MITRE ATT&amp;CK, so it works out of the box; with -xml:&lt;dir&gt; it uses other XML knowledge files in the same format instead.</p>
         <p><a href="https://github.com/taida957789/PELens/blob/main/kb/SOURCES.md" data-i18n="kb.link">Where every entry comes from →</a></p>
       </div>
       <div>
@@ -153,7 +153,7 @@ shasum -a 256 -c PELens-*.sha256
 <footer class="foot">
   <div class="wrap">
     <p data-i18n="foot.license">PELens is MIT licensed; its open knowledge base is CC0 (MITRE ATT&amp;CK names under MITRE's terms of use).</p>
-    <p class="muted" data-i18n="foot.disclaimer">PELens is an independent project, not affiliated with or endorsed by Winitor or the author of pestudio. Analyse only files you are authorised to analyse.</p>
+    <p class="muted" data-i18n="foot.disclaimer">PELens is an independent project. Analyse only files you are authorised to analyse.</p>
   </div>
 </footer>
 

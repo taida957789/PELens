@@ -18,7 +18,7 @@ pub const USAGE: &str = "pelens-cli [-file:]input [-report:output] [-banner] [-x
 -file:     input file to analyse\n\
 -report:   report file (default: the name of the input file appended with the report extension)\n\
 -banner:   hide the banner\n\
--xml:      directory holding the pestudio XML knowledge files (default: the built-in open knowledge base)\n\
+-xml:      directory holding XML knowledge files (default: the built-in open knowledge base)\n\
 -format:   report format (xml, json or text)\n\
 -vt:       query the Virustotal score (hash only)\n\
 -stdout:   write the report to the standard output\n\
@@ -136,7 +136,7 @@ pub fn find_xml_dir(explicit: Option<&Path>, exe_dir: Option<&Path>) -> Option<P
 }
 
 pub fn banner() -> String {
-    format!("pelens-cli {} | Malware Initial Assessment (pestudio-compatible)\n{DISCLAIMER}\n", env!("CARGO_PKG_VERSION"))
+    format!("pelens-cli {} | Malware Initial Assessment\n{DISCLAIMER}\n", env!("CARGO_PKG_VERSION"))
 }
 
 pub fn run(args: &[String], out: &mut dyn Write, err: &mut dyn Write, env: &dyn Env) -> i32 {

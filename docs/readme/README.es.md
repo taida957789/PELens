@@ -24,7 +24,7 @@
 
 ---
 
-PELens examina archivos `.exe`, `.dll` y `.sys` **sin ejecutarlos**. Muestra sus cabeceras, importaciones, recursos, certificados, metadatos .NET y cadenas, y genera indicadores asociados a MITRE ATT&CK. Es una reimplementación desde cero en Rust de **pestudio 9.61**, compatible con su base de conocimiento XML y con la línea de comandos `pestudiox`.
+PELens examina archivos `.exe`, `.dll` y `.sys` **sin ejecutarlos**. Muestra sus cabeceras, importaciones, recursos, certificados, metadatos .NET y cadenas, y genera indicadores asociados a MITRE ATT&CK. Está escrito desde cero en Rust y funciona con una base de conocimiento XML que puede ampliar o sustituir.
 
 ![Indicadores (modo oscuro)](../screenshots/indicators-dark.png)
 
@@ -50,7 +50,7 @@ La interfaz sigue por defecto el idioma del sistema (idioma de Windows, idioma p
 
 ## Funciones
 
-- **27 vistas** como en pestudio: image, footprints, groups, indicators, MITRE, puntuación de VirusTotal, DOS stub y header, Rich header, file y optional headers, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest y overlay.
+- **27 vistas**: image, footprints, groups, indicators, MITRE, puntuación de VirusTotal, DOS stub y header, Rich header, file y optional headers, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest y overlay.
 - **150 indicadores**, asociados a tácticas y técnicas de MITRE ATT&CK, con severidad editable.
 - **Motor de firmas**: firmas del punto de entrada (estilo PEiD, con comodines de nibble), firmas de texto y detección de archivos incrustados en recursos, secciones, el overlay y datos base64.
 - **Analizador que nunca entra en pánico**: imports (INT/IAT, carga diferida, bound), exports (reenviados, anónimos, huecos), recursos (version, manifest, tablas de cadenas y mensajes, diálogos, menús, iconos), debug (RSDS, POGO, REPRO, CET), Authenticode PKCS#7 con sellos de tiempo RFC 3161 y metadatos .NET (las 45 tablas).
@@ -83,11 +83,11 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-Por defecto la CLI escribe `<input>.xml` junto a la muestra, igual que pestudio.
+Por defecto la CLI escribe `<input>.xml` junto a la muestra.
 
 ### Base de conocimiento
 
-PELens incluye su propia **base de conocimiento abierta** (`kb/`, CC0): 142 definiciones de indicadores, unas 2.500 funciones de la API de Windows, unas 900 cadenas sospechosas, unas 100 firmas y la correspondencia con MITRE ATT&CK. Se genera desde `kb/src` con `tools/build_kb.py` y cada entrada se escribió a partir de fuentes públicas (ver [kb/SOURCES.md](../../kb/SOURCES.md)); no copia los XML de pestudio. También puede usar los archivos XML de su propia instalación de pestudio con `-xml:<dir>`; pertenecen al autor de pestudio y no se distribuyen con PELens.
+PELens incluye su propia **base de conocimiento abierta** (`kb/`, CC0): 142 definiciones de indicadores, unas 2.500 funciones de la API de Windows, unas 900 cadenas sospechosas, unas 100 firmas y la correspondencia con MITRE ATT&CK. Se genera desde `kb/src` con `tools/build_kb.py` y cada entrada se escribió a partir de fuentes públicas (ver [kb/SOURCES.md](../../kb/SOURCES.md)); no copia ninguna base de conocimiento de terceros. También puede usar otros archivos de conocimiento XML con el mismo formato mediante `-xml:<dir>`; los archivos de terceros no se distribuyen con PELens.
 
 ### VirusTotal
 
@@ -98,10 +98,10 @@ Solo se envía el **hash**; las muestras nunca se suben. Configura tu propia cla
 | crate | función |
 |---|---|
 | `pe-parser` | análisis PE (con comprobación de límites, sin pánicos) y parcheo |
-| `pe-db` | base de conocimiento XML de pestudio, lectura y escritura sin reformatear |
+| `pe-db` | base de conocimiento XML, lectura y escritura sin reformatear |
 | `pe-analysis` | indicadores, firmas, cadenas, vistas, informes, acciones |
 | `pe-online` | VirusTotal, enlaces de búsqueda, comprobación de actualizaciones |
-| `pelens-cli` | línea de comandos (compatible con pestudiox) |
+| `pelens-cli` | línea de comandos |
 | `pelens-gui` | GUI eframe/egui |
 
 Documentación de diseño: [inventario de funciones](../FEATURE_INVENTORY.md) (212 elementos, cada uno enlazado a su implementación) · [plan de desarrollo](../DEVELOPMENT_PLAN.md) · [lista de tareas](../TASKLIST.md).
@@ -116,4 +116,4 @@ python tools/crossval.py 250                 # verificación cruzada con pefile
 
 ## Aviso
 
-PELens es un proyecto independiente. No está afiliado a Winitor ni al autor de pestudio, ni cuenta con su respaldo. Úsalo solo con archivos que tengas autorización para analizar.
+PELens es un proyecto independiente. Úsalo solo con archivos que tengas autorización para analizar.

@@ -554,8 +554,8 @@ impl State {
             self.update_rx = None;
             changed = true;
             self.update_result = Some(match r {
-                Ok(v) if pe_online::is_newer(&v, "9.61") => self.tf("The newest version of pestudio is: {0}", &[&v]),
-                Ok(v) => self.tf("pestudio {0} (reference knowledge base) | up to date", &[&v]),
+                Ok(v) if pe_online::is_newer(&v, env!("CARGO_PKG_VERSION")) => self.tf("The newest version of PELens is: {0}", &[&v]),
+                Ok(_) => self.tf("PELens {0} | up to date", &[&env!("CARGO_PKG_VERSION")]),
                 Err(e) => self.tf("internet connection failed ({0})", &[&e]),
             });
         }

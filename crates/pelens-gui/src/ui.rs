@@ -944,13 +944,13 @@ impl PeLensApp {
         egui::Window::new(title).id(egui::Id::new("about")).open(&mut open).collapsible(false).resizable(false).show(ctx, |ui| {
             let t = |k| self.state.t(k);
             ui.heading(format!("PELens {VERSION}"));
-            ui.label(t("Malware Initial Assessment (Rust remake of pestudio 9.61)"));
+            ui.label(t("Malware Initial Assessment"));
             ui.small(t("This software is provided 'as-is', without any expressed or implied warranty."));
             ui.small(t("When retrieving the online score of a file, the file itself is not submitted, only its hash is sent."));
             ui.separator();
             match &self.state.knowledge.dir {
                 Some(d) => {
-                    ui.label(t("Knowledge base: XML files of a directory (e.g. your pestudio installation)"));
+                    ui.label(t("Knowledge base: XML files of a directory"));
                     ui.label(RichText::new(format!("xml: {}", d.display())).monospace());
                 }
                 None => {

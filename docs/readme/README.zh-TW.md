@@ -24,7 +24,7 @@
 
 ---
 
-PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、匯入、資源、憑證、.NET metadata 與字串，並產生對應 MITRE ATT&CK 的指標。它是 **pestudio 9.61** 的 Rust 全新重製版，相容 pestudio 的 XML 知識庫與 `pestudiox` 命令列。
+PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、匯入、資源、憑證、.NET metadata 與字串，並產生對應 MITRE ATT&CK 的指標。以 Rust 從零打造，由可擴充或替換的 XML 知識庫驅動。
 
 ![指標（暗色模式）](../screenshots/indicators-dark.png)
 
@@ -50,7 +50,7 @@ PELens **不執行**檔案，直接檢視 `.exe`、`.dll`、`.sys` 的標頭、�
 
 ## 功能
 
-- **27 個檢視**（與 pestudio 相同）：image、footprints、groups、indicators、MITRE、VirusTotal 分數、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
+- **27 個檢視**：image、footprints、groups、indicators、MITRE、VirusTotal 分數、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
 - **150 個指標**，對應 MITRE ATT&CK 戰術與技術，嚴重度可調整。
 - **簽章引擎**：entry-point 簽章（PEiD 風格，支援半位元組 wildcard）、文字簽章，以及 resources、sections、overlay、base64 中的嵌入檔偵測。
 - **不會崩潰的解析器**：imports（INT/IAT、delay-load、bound）、exports（forwarded、anonymous、gaps）、resources（version、manifest、字串／訊息表、對話框、選單、圖示）、debug（RSDS、POGO、REPRO、CET）、含 RFC 3161 時間戳記的 Authenticode PKCS#7，以及 .NET metadata（全部 45 種表）。
@@ -83,11 +83,11 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-CLI 預設在樣本旁輸出 `<input>.xml`，與 pestudio 相同。
+CLI 預設在樣本旁輸出 `<input>.xml`。
 
 ### 知識庫
 
-PELens 內建自己的**開放知識庫**（`kb/`，CC0）：142 個指標定義、約 2,500 個 Windows API 函式、約 900 個可疑字串、約 100 個簽章，以及 MITRE ATT&CK 對應。它由 `tools/build_kb.py` 從 `kb/src` 產生，每一筆資料都來自公開資料（見 [kb/SOURCES.md](../../kb/SOURCES.md)），沒有複製 pestudio 的 XML。也可以用 `-xml:<dir>` 改用你自己安裝的 pestudio XML 檔；這些檔案屬於 pestudio 的作者，不隨 PELens 散佈。
+PELens 內建自己的**開放知識庫**（`kb/`，CC0）：142 個指標定義、約 2,500 個 Windows API 函式、約 900 個可疑字串、約 100 個簽章，以及 MITRE ATT&CK 對應。它由 `tools/build_kb.py` 從 `kb/src` 產生，每一筆資料都來自公開資料（見 [kb/SOURCES.md](../../kb/SOURCES.md)），沒有複製任何第三方知識庫。也可以用 `-xml:<dir>` 改用其他相同格式的 XML 知識庫檔案；第三方的知識庫檔案不隨 PELens 散佈。
 
 ### VirusTotal
 
@@ -98,10 +98,10 @@ PELens 內建自己的**開放知識庫**（`kb/`，CC0）：142 個指標定義
 | crate | 用途 |
 |---|---|
 | `pe-parser` | PE 解析（邊界檢查、不會 panic）與修改 |
-| `pe-db` | pestudio XML 知識庫，讀寫時保留原格式 |
+| `pe-db` | XML 知識庫，讀寫時保留原格式 |
 | `pe-analysis` | 指標、簽章、字串、檢視、報告、動作 |
 | `pe-online` | VirusTotal、搜尋連結、更新檢查 |
-| `pelens-cli` | 命令列（相容 pestudiox） |
+| `pelens-cli` | 命令列 |
 | `pelens-gui` | eframe/egui 圖形介面 |
 
 設計文件：[功能盤點](../FEATURE_INVENTORY.md)（212 項，每項附對照）· [開發計畫](../DEVELOPMENT_PLAN.md) · [Tasklist](../TASKLIST.md)。
@@ -116,4 +116,4 @@ python tools/crossval.py 250                 # 與 pefile 交叉驗證
 
 ## 免責聲明
 
-PELens 是獨立專案，與 Winitor 及 pestudio 作者無關，也未獲其背書。請僅分析你有權限分析的檔案。
+PELens 是獨立專案。請僅分析你有權限分析的檔案。

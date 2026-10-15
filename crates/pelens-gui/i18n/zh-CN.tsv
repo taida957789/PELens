@@ -6,8 +6,8 @@ drag-and-drop a file to analyse...	将文件拖放到此处进行分析...
 please wait while analyzing the file...	正在分析文件，请稍候...
 {0} | {1} bytes | indicators: {2}	{0} | {1} 字节 | 指标：{2}
 Image not found ({0})	找不到文件（{0}）
-The newest version of pestudio is: {0}	pestudio 最新版本为：{0}
-pestudio {0} (reference knowledge base) | up to date	pestudio {0}（参考知识库）| 已是最新
+The newest version of PELens is: {0}	PELens 最新版本为：{0}
+PELens {0} | up to date	PELens {0} | 已是最新
 internet connection failed ({0})	网络连接失败（{0}）
 report	报告
 dump	转储
@@ -165,10 +165,10 @@ OK	确定
 RVA, e.g. 0x1000	RVA，例如 0x1000
 proceed	继续
 Cancel	取消
-Malware Initial Assessment (Rust remake of pestudio 9.61)	恶意软件初步评估（pestudio 9.61 的 Rust 重制版）
+Malware Initial Assessment	恶意软件初步评估
 This software is provided 'as-is', without any expressed or implied warranty.	本软件按“原样”提供，不提供任何明示或暗示的担保。
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	查询文件的在线评分时不会上传文件本身，只发送其哈希值。
-Knowledge base: XML files of a directory (e.g. your pestudio installation)	知识库：文件夹中的 XML 文件（例如您自己安装的 pestudio）
+Knowledge base: XML files of a directory	知识库：文件夹中的 XML 文件
 Knowledge base: the PELens open knowledge base (built in)	知识库：PELens 开放知识库（内置）
 loaded: {0} | errors: {1}	已加载：{0} | 错误：{1}
 fonts: {0}	字体：{0}

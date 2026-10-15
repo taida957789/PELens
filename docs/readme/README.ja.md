@@ -24,7 +24,7 @@
 
 ---
 
-PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッダー、インポート、リソース、証明書、.NET メタデータ、文字列を表示し、MITRE ATT&CK に対応したインジケーターを出します。**pestudio 9.61** を Rust でゼロから再実装したもので、pestudio の XML ナレッジベースと `pestudiox` コマンドラインに対応しています。
+PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッダー、インポート、リソース、証明書、.NET メタデータ、文字列を表示し、MITRE ATT&CK に対応したインジケーターを出します。Rust でゼロから実装され、拡張や置き換えのできる XML ナレッジベースで動作します。
 
 ![インジケーター（ダークモード）](../screenshots/indicators-dark.png)
 
@@ -50,7 +50,7 @@ PELens は `.exe`・`.dll`・`.sys` を**実行せずに**調べます。ヘッ�
 
 ## 機能
 
-- pestudio と同じ **27 のビュー**：image、footprints、groups、indicators、MITRE、VirusTotal スコア、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
+- **27 のビュー**：image、footprints、groups、indicators、MITRE、VirusTotal スコア、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
 - MITRE ATT&CK の戦術・テクニックに対応した **150 のインジケーター**。重大度は編集できます。
 - **シグネチャエンジン**：エントリポイントシグネチャ（PEiD 形式、ニブル単位のワイルドカード対応）、テキストシグネチャ、resources・sections・overlay・base64 内の埋め込みファイル検出。
 - **パニックしないパーサー**：imports（INT/IAT、遅延ロード、bound）、exports（forwarded、anonymous、gaps）、resources（version、manifest、文字列／メッセージテーブル、ダイアログ、メニュー、アイコン）、debug（RSDS、POGO、REPRO、CET）、RFC 3161 タイムスタンプ付き Authenticode PKCS#7、.NET メタデータ（全 45 テーブル）。
@@ -83,11 +83,11 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-CLI は既定で、pestudio と同じくサンプルの隣に `<input>.xml` を書き出します。
+CLI は既定でサンプルの隣に `<input>.xml` を書き出します。
 
 ### ナレッジベース
 
-PELens は独自の**オープンナレッジベース**（`kb/`、CC0）を内蔵しています。142 のインジケーター定義、約 2,500 の Windows API 関数、約 900 の不審な文字列、約 100 のシグネチャ、MITRE ATT&CK の対応付けを含みます。`tools/build_kb.py` で `kb/src` から生成され、すべての項目は公開情報に基づいて書かれています（[kb/SOURCES.md](../../kb/SOURCES.md) を参照）。pestudio の XML はコピーしていません。`-xml:<dir>` でご自身の pestudio の XML ファイルを使うこともできます。これらは pestudio の作者のもので、PELens には同梱されません。
+PELens は独自の**オープンナレッジベース**（`kb/`、CC0）を内蔵しています。142 のインジケーター定義、約 2,500 の Windows API 関数、約 900 の不審な文字列、約 100 のシグネチャ、MITRE ATT&CK の対応付けを含みます。`tools/build_kb.py` で `kb/src` から生成され、すべての項目は公開情報に基づいて書かれています（[kb/SOURCES.md](../../kb/SOURCES.md) を参照）。第三者のナレッジベースはコピーしていません。`-xml:<dir>` で同じ形式の別の XML ナレッジファイルを使うこともできます。第三者のナレッジファイルは PELens に同梱されません。
 
 ### VirusTotal
 
@@ -98,10 +98,10 @@ PELens は独自の**オープンナレッジベース**（`kb/`、CC0）を内�
 | crate | 役割 |
 |---|---|
 | `pe-parser` | PE 解析（境界チェック済み、パニックしない）とパッチ |
-| `pe-db` | pestudio XML ナレッジベース（書式を保ったまま読み書き） |
+| `pe-db` | XML ナレッジベース（書式を保ったまま読み書き） |
 | `pe-analysis` | インジケーター、シグネチャ、文字列、ビュー、レポート、アクション |
 | `pe-online` | VirusTotal、検索リンク、更新チェック |
-| `pelens-cli` | コマンドライン（pestudiox 互換） |
+| `pelens-cli` | コマンドライン |
 | `pelens-gui` | eframe/egui GUI |
 
 設計資料：[機能一覧](../FEATURE_INVENTORY.md)（212 項目、それぞれ実装箇所へのリンク付き）· [開発計画](../DEVELOPMENT_PLAN.md) · [タスクリスト](../TASKLIST.md)。
@@ -116,4 +116,4 @@ python tools/crossval.py 250                 # pefile とのクロスチェッ�
 
 ## 免責事項
 
-PELens は独立したプロジェクトで、Winitor および pestudio の作者とは関係がなく、承認も受けていません。解析する権限のあるファイルにのみ使用してください。
+PELens は独立したプロジェクトです。解析する権限のあるファイルにのみ使用してください。

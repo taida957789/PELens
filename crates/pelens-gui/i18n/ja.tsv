@@ -6,8 +6,8 @@ drag-and-drop a file to analyse...	解析するファイルをドラッグ＆ド
 please wait while analyzing the file...	ファイルを解析しています。お待ちください...
 {0} | {1} bytes | indicators: {2}	{0} | {1} バイト | インジケーター: {2}
 Image not found ({0})	ファイルが見つかりません（{0}）
-The newest version of pestudio is: {0}	pestudio の最新バージョン: {0}
-pestudio {0} (reference knowledge base) | up to date	pestudio {0}（参照ナレッジベース）| 最新です
+The newest version of PELens is: {0}	PELens の最新バージョン: {0}
+PELens {0} | up to date	PELens {0} | 最新です
 internet connection failed ({0})	インターネット接続に失敗しました（{0}）
 report	レポート
 dump	ダンプ
@@ -165,10 +165,10 @@ OK	OK
 RVA, e.g. 0x1000	RVA（例: 0x1000）
 proceed	続行
 Cancel	キャンセル
-Malware Initial Assessment (Rust remake of pestudio 9.61)	マルウェアの初期評価（pestudio 9.61 の Rust 版リメイク）
+Malware Initial Assessment	マルウェアの初期評価
 This software is provided 'as-is', without any expressed or implied warranty.	本ソフトウェアは「現状のまま」提供され、明示または黙示を問わず一切の保証はありません。
 When retrieving the online score of a file, the file itself is not submitted, only its hash is sent.	ファイルのオンラインスコアを取得する際、ファイル自体は送信されず、ハッシュのみが送信されます。
-Knowledge base: XML files of a directory (e.g. your pestudio installation)	ナレッジベース: フォルダー内の XML ファイル（例: ご自身の pestudio）
+Knowledge base: XML files of a directory	ナレッジベース: フォルダー内の XML ファイル
 Knowledge base: the PELens open knowledge base (built in)	ナレッジベース: PELens オープンナレッジベース（内蔵）
 loaded: {0} | errors: {1}	読み込み: {0} | エラー: {1}
 fonts: {0}	フォント: {0}

@@ -1,13 +1,12 @@
 # Sources of the open knowledge base
 
-The open knowledge base lets PELens analyse files without pestudio's XML files, which belong to
-pestudio's author and cannot be redistributed. It uses the same XML format, so PELens still reads
-pestudio's files when you pass `-xml:<dir>`.
+The open knowledge base lets PELens analyse files without any third-party knowledge files. Other
+knowledge files in the same XML format can be used instead with `-xml:<dir>`.
 
-**Nothing in `kb/` is copied from pestudio's XML files.** Every entry was written for PELens from
-the public sources below. The indicator **ids** are the only shared part: they keep both knowledge
-bases interchangeable for the engine. The names, details, severities and techniques of the
-indicators are our own.
+**Nothing in `kb/` is copied from third-party knowledge bases.** Every entry was written for PELens
+from the public sources below. The indicator **ids** follow the established numbering so that
+knowledge bases in this format stay interchangeable for the engine; the names, details, severities
+and techniques of the indicators are our own.
 
 | file | content | source |
 |---|---|---|
@@ -21,12 +20,12 @@ indicators are our own.
 | `src/groups.tsv` | group ids, names and colors | PELens |
 | `tools/build_kb.py` | thresholds, Visual Studio toolset build ranges (Rich header), code pages, .NET metadata table names (ECMA-335), hint names, settings | public release notes, ECMA-335, PELens defaults |
 
-Gaps compared with pestudio's knowledge base:
+Known gaps:
 
 - Rich header **product ids** (the compiler/linker component of each entry) are not named yet;
   only the Visual Studio release is derived from the build number.
-- Fewer API functions and signatures. Use `-xml:<dir>` with your own pestudio installation for its
-  larger catalog.
+- Fewer API functions and signatures than larger commercial catalogs; `-xml:<dir>` can load a
+  bigger knowledge base in the same format.
 
 Contributions: edit the TSV files in `src/`, run `python tools/build_kb.py`, and state the source of
 new entries in the pull request.

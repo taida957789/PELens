@@ -24,7 +24,7 @@
 
 ---
 
-PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니다. 헤더, 임포트, 리소스, 인증서, .NET 메타데이터, 문자열을 보여 주고 MITRE ATT&CK에 매핑된 지표를 생성합니다. **pestudio 9.61**을 Rust로 처음부터 다시 구현했으며, pestudio의 XML 지식 베이스와 `pestudiox` 명령줄과 호환됩니다.
+PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니다. 헤더, 임포트, 리소스, 인증서, .NET 메타데이터, 문자열을 보여 주고 MITRE ATT&CK에 매핑된 지표를 생성합니다. Rust로 처음부터 구현했으며, 확장하거나 교체할 수 있는 XML 지식 베이스로 동작합니다.
 
 ![지표(다크 모드)](../screenshots/indicators-dark.png)
 
@@ -50,7 +50,7 @@ PELens는 `.exe`, `.dll`, `.sys` 파일을 **실행하지 않고** 검사합니�
 
 ## 기능
 
-- pestudio와 같은 **27개 뷰**: image, footprints, groups, indicators, MITRE, VirusTotal 점수, DOS stub/header, Rich header, file/optional header, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest, overlay.
+- **27개 뷰**: image, footprints, groups, indicators, MITRE, VirusTotal 점수, DOS stub/header, Rich header, file/optional header, directories, sections, libraries, imports, exports, exceptions, certificate, relocations, TLS, .NET, resources, version, debug, strings, manifest, overlay.
 - MITRE ATT&CK 전술·기법에 매핑된 **150개 지표**, 심각도 수정 가능.
 - **시그니처 엔진**: 엔트리 포인트 시그니처(PEiD 방식, 니블 와일드카드 지원), 텍스트 시그니처, resources·sections·overlay·base64 안의 내장 파일 탐지.
 - **패닉하지 않는 파서**: imports(INT/IAT, 지연 로드, bound), exports(forwarded, anonymous, gaps), resources(version, manifest, 문자열·메시지 테이블, 대화 상자, 메뉴, 아이콘), debug(RSDS, POGO, REPRO, CET), RFC 3161 타임스탬프를 포함한 Authenticode PKCS#7, .NET 메타데이터(45개 테이블 전부).
@@ -83,11 +83,11 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-CLI는 기본적으로 pestudio처럼 샘플 옆에 `<input>.xml`을 씁니다.
+CLI는 기본적으로 샘플 옆에 `<input>.xml`을 씁니다.
 
 ### 지식 베이스
 
-PELens에는 자체 **오픈 지식 베이스**(`kb/`, CC0)가 내장되어 있습니다. 지표 정의 142개, Windows API 함수 약 2,500개, 의심 문자열 약 900개, 시그니처 약 100개와 MITRE ATT&CK 매핑을 담고 있습니다. `tools/build_kb.py`로 `kb/src`에서 생성하며, 모든 항목은 공개 자료를 바탕으로 작성했습니다([kb/SOURCES.md](../../kb/SOURCES.md) 참고). pestudio의 XML은 복사하지 않았습니다. `-xml:<dir>`로 직접 설치한 pestudio의 XML 파일을 사용할 수도 있습니다. 이 파일은 pestudio 작성자의 것이므로 PELens와 함께 배포되지 않습니다.
+PELens에는 자체 **오픈 지식 베이스**(`kb/`, CC0)가 내장되어 있습니다. 지표 정의 142개, Windows API 함수 약 2,500개, 의심 문자열 약 900개, 시그니처 약 100개와 MITRE ATT&CK 매핑을 담고 있습니다. `tools/build_kb.py`로 `kb/src`에서 생성하며, 모든 항목은 공개 자료를 바탕으로 작성했습니다([kb/SOURCES.md](../../kb/SOURCES.md) 참고). 제3자 지식 베이스는 복사하지 않았습니다. `-xml:<dir>`로 같은 형식의 다른 XML 지식 파일을 사용할 수도 있습니다. 제3자 지식 파일은 PELens와 함께 배포되지 않습니다.
 
 ### VirusTotal
 
@@ -98,10 +98,10 @@ PELens에는 자체 **오픈 지식 베이스**(`kb/`, CC0)가 내장되어 있�
 | crate | 역할 |
 |---|---|
 | `pe-parser` | PE 파싱(경계 검사, 패닉 없음)과 패치 |
-| `pe-db` | pestudio XML 지식 베이스(서식을 유지한 채 읽기·쓰기) |
+| `pe-db` | XML 지식 베이스(서식을 유지한 채 읽기·쓰기) |
 | `pe-analysis` | 지표, 시그니처, 문자열, 뷰, 보고서, 동작 |
 | `pe-online` | VirusTotal, 검색 링크, 업데이트 확인 |
-| `pelens-cli` | 명령줄(pestudiox 호환) |
+| `pelens-cli` | 명령줄 |
 | `pelens-gui` | eframe/egui GUI |
 
 설계 문서: [기능 목록](../FEATURE_INVENTORY.md)(212개 항목, 각 항목에 구현 위치 연결) · [개발 계획](../DEVELOPMENT_PLAN.md) · [작업 목록](../TASKLIST.md).
@@ -116,4 +116,4 @@ python tools/crossval.py 250                 # pefile과 교차 검증
 
 ## 면책 조항
 
-PELens는 독립 프로젝트이며 Winitor 및 pestudio 작성자와 관련이 없고 보증을 받지 않았습니다. 분석 권한이 있는 파일에만 사용하세요.
+PELens는 독립 프로젝트입니다. 분석 권한이 있는 파일에만 사용하세요.

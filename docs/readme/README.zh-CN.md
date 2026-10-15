@@ -24,7 +24,7 @@
 
 ---
 
-PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、导入、资源、证书、.NET 元数据和字符串，并生成映射到 MITRE ATT&CK 的指标。它是 **pestudio 9.61** 的 Rust 全新重制版，兼容 pestudio 的 XML 知识库和 `pestudiox` 命令行。
+PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、导入、资源、证书、.NET 元数据和字符串，并生成映射到 MITRE ATT&CK 的指标。以 Rust 从零打造，由可扩展或替换的 XML 知识库驱动。
 
 ![指标（深色模式）](../screenshots/indicators-dark.png)
 
@@ -50,7 +50,7 @@ PELens **不运行**文件，直接查看 `.exe`、`.dll`、`.sys` 的头部、�
 
 ## 功能
 
-- **27 个视图**（与 pestudio 相同）：image、footprints、groups、indicators、MITRE、VirusTotal 分数、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
+- **27 个视图**：image、footprints、groups、indicators、MITRE、VirusTotal 分数、DOS stub／header、Rich header、file／optional header、directories、sections、libraries、imports、exports、exceptions、certificate、relocations、TLS、.NET、resources、version、debug、strings、manifest、overlay。
 - **150 个指标**，映射到 MITRE ATT&CK 战术与技术，严重度可调整。
 - **签名引擎**：入口点签名（PEiD 风格，支持半字节通配符）、文本签名，以及在 resources、sections、overlay、base64 中检测嵌入文件。
 - **不会崩溃的解析器**：imports（INT/IAT、延迟加载、bound）、exports（转发、匿名、空缺）、resources（version、manifest、字符串／消息表、对话框、菜单、图标）、debug（RSDS、POGO、REPRO、CET）、带 RFC 3161 时间戳的 Authenticode PKCS#7，以及 .NET 元数据（全部 45 张表）。
@@ -83,11 +83,11 @@ pelens  [file] [-xml:dir] [-view:strings] [-theme:dark|light] [-lang:zh-TW] [-ex
 pelens-cli -file:sample.exe [-report:out.xml] [-format:xml|json|text] [-vt] [-stdout] [-banner] [-xml:dir] [-yara:dir]
 ```
 
-CLI 默认在样本旁输出 `<input>.xml`，与 pestudio 相同。
+CLI 默认在样本旁输出 `<input>.xml`。
 
 ### 知识库
 
-PELens 内置自己的**开放知识库**（`kb/`，CC0）：142 个指标定义、约 2,500 个 Windows API 函数、约 900 个可疑字符串、约 100 个签名，以及 MITRE ATT&CK 映射。它由 `tools/build_kb.py` 从 `kb/src` 生成，每一条数据都来自公开资料（见 [kb/SOURCES.md](../../kb/SOURCES.md)），没有复制 pestudio 的 XML。也可以用 `-xml:<dir>` 改用你自己安装的 pestudio XML 文件；这些文件属于 pestudio 的作者，不随 PELens 分发。
+PELens 内置自己的**开放知识库**（`kb/`，CC0）：142 个指标定义、约 2,500 个 Windows API 函数、约 900 个可疑字符串、约 100 个签名，以及 MITRE ATT&CK 映射。它由 `tools/build_kb.py` 从 `kb/src` 生成，每一条数据都来自公开资料（见 [kb/SOURCES.md](../../kb/SOURCES.md)），没有复制任何第三方知识库。也可以用 `-xml:<dir>` 改用其他相同格式的 XML 知识库文件；第三方的知识库文件不随 PELens 分发。
 
 ### VirusTotal
 
@@ -98,10 +98,10 @@ PELens 内置自己的**开放知识库**（`kb/`，CC0）：142 个指标定义
 | crate | 用途 |
 |---|---|
 | `pe-parser` | PE 解析（边界检查、不会 panic）与修改 |
-| `pe-db` | pestudio XML 知识库，读写时保留原格式 |
+| `pe-db` | XML 知识库，读写时保留原格式 |
 | `pe-analysis` | 指标、签名、字符串、视图、报告、操作 |
 | `pe-online` | VirusTotal、搜索链接、更新检查 |
-| `pelens-cli` | 命令行（兼容 pestudiox） |
+| `pelens-cli` | 命令行 |
 | `pelens-gui` | eframe/egui 图形界面 |
 
 设计文档：[功能清单](../FEATURE_INVENTORY.md)（212 项，每项附对照）· [开发计划](../DEVELOPMENT_PLAN.md) · [任务清单](../TASKLIST.md)。
@@ -116,4 +116,4 @@ python tools/crossval.py 250                 # 与 pefile 交叉验证
 
 ## 免责声明
 
-PELens 是独立项目，与 Winitor 及 pestudio 作者无关，也未获其认可。请仅分析你有权分析的文件。
+PELens 是独立项目。请仅分析你有权分析的文件。
